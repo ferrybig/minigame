@@ -22,4 +22,8 @@ public interface AreaContext extends AttributeMap {
 	public long instanceId();
 	
 	public void triggerNextPhase();
+	
+	public void triggerNextPhase(String next);
+	
+	public void triggerNextPhase(Class<?> next);
 }

@@ -3,32 +3,41 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package me.ferrybig.javacoding.minecraft.minigame;
 
 import java.util.List;
-import java.util.Set;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 /**
  * This object represents a generic Phase in the execution sequence of a game
- * 
+ *
  * @author Fernando
  */
-public abstract class Phase {
-	public abstract Set<PhaseTrigger> getTiggers();
-	
-	public abstract List<Listener> getListeners(AreaContext area);
-	
-	public abstract boolean beforePlayerPreJoin(OfflinePlayer player);
-	
-	public abstract void onPlayerPreJoin(OfflinePlayer player);
-	
-	public abstract void onPlayerLeave(Player player);
-	
-	public abstract void onPlayerJoin(Player player);
-	
-	public abstract void onTick();
+public interface Phase {
+
+	public boolean isTimedPhase(AreaContext area);
+
+	public List<Listener> getListeners(AreaContext area);
+
+	public boolean beforePlayerPreJoin(AreaContext area, OfflinePlayer player);
+
+	public void onPhaseLoad(AreaContext area);
+
+	public void onPhaseUnload(AreaContext area);
+
+	public void onPhaseRegister(AreaContext area);
+
+	public void onPhaseUnregister(AreaContext area);
+
+	public void onPlayerPreJoin(AreaContext area, OfflinePlayer player);
+
+	public void onPlayerLeave(AreaContext area, Player player);
+
+	public void onPlayerJoin(AreaContext area, Player player);
+
+	public void onTick(AreaContext area);
+
+	public void onUserEvent();
 }

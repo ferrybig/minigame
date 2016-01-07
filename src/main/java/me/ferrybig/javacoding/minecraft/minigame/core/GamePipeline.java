@@ -4,8 +4,10 @@
  * and open the template in the editor.
  */
 
-package me.ferrybig.javacoding.minecraft.minigame;
+package me.ferrybig.javacoding.minecraft.minigame.core;
 
-public enum PhaseTrigger {
-	DAMAGE, DEATH, SHORT_TICK, TICK, LONG_TICK, BUILD, DESTROY, INTERACT, MOVE,
+import me.ferrybig.javacoding.minecraft.minigame.Pipeline;
+
+public class GamePipeline implements Pipeline {
+
 }

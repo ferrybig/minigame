@@ -7,5 +7,14 @@
 package me.ferrybig.javacoding.minecraft.minigame;
 
 public interface Pipeline {
+	
+	Pipeline addLast(String name, Phase phase);
+	
+	Pipeline addFirst(String name, Phase phase);
+	
+	Pipeline firePhaseUpdate();
+    
+    Pipeline fireExceptionCaught(Throwable cause);
 
+    Pipeline fireUserEventTriggered(Object event);
 }
