@@ -13,6 +13,10 @@ public interface Pipeline {
 	Pipeline addFirst(String name, Phase phase);
 	
 	Pipeline firePhaseUpdate();
+	
+	Pipeline firePhaseUpdate(String phase);
+	
+	Pipeline firePhaseUpdate(Class<? extends Phase> phase);
     
     Pipeline fireExceptionCaught(Throwable cause);
 

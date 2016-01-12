@@ -26,4 +26,6 @@ public interface AreaContext extends AttributeMap {
 	public void triggerNextPhase(String next);
 	
 	public void triggerNextPhase(Class<?> next);
+	
+	public Controller getController();
 }
