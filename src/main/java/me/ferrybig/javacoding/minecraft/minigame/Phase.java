@@ -17,27 +17,27 @@ import org.bukkit.event.Listener;
  */
 public interface Phase {
 
-	public boolean isTimedPhase(AreaContext area);
+	public boolean isTimedPhase(PhaseContext area);
 
-	public List<Listener> getListeners(AreaContext area);
+	public void onPhaseLoad(PhaseContext area) throws Exception;
 
-	public boolean beforePlayerPreJoin(AreaContext area, OfflinePlayer player);
+	public void onPhaseUnload(PhaseContext area) throws Exception;
 
-	public void onPhaseLoad(AreaContext area);
+	public void onPhaseRegister(PhaseContext area) throws Exception;
 
-	public void onPhaseUnload(AreaContext area);
+	public void onPhaseUnregister(PhaseContext area) throws Exception;
 
-	public void onPhaseRegister(AreaContext area);
+	public boolean exceptionCaucht(PhaseContext area, Throwable exception) throws Exception;
 
-	public void onPhaseUnregister(AreaContext area);
+	public boolean onPlayerPreJoin(AreaContext area, OfflinePlayer player) throws Exception;
 
-	public void onPlayerPreJoin(AreaContext area, OfflinePlayer player);
+	public void onPlayerLeaveJoin(PhaseContext area, OfflinePlayer player) throws Exception;
 
-	public void onPlayerLeave(AreaContext area, Player player);
+	public boolean onPlayerJoin(PhaseContext area, Player player) throws Exception;
 
-	public void onPlayerJoin(AreaContext area, Player player);
+	public void onPlayerLeave(PhaseContext area, Player player) throws Exception;
 
-	public void onTick(AreaContext area);
+	public void onTick(PhaseContext area) throws Exception;
 
-	public void onUserEvent();
+	public void onUserEvent(Object userEvent) throws Exception;
 }

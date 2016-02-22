@@ -32,6 +32,14 @@ public interface Controller {
 	
 	public Object getPlayerTeam(Player player);
 	
+	public default <T> T getPlayerTeam(Player player, Class<T> teamObject) {
+		Object t = getPlayerTeam(player);
+		if(teamObject.isInstance(t)) {
+			return teamObject.cast(t);
+		}
+		throw new ClassCastException(t + " not instance of " + teamObject);
+	}
+	
 	public void setSpectator(Player player, boolean spectator);
 	
 	public boolean isSpectator(Player player);

@@ -4,8 +4,8 @@
  * and open the template in the editor.
  */
 
-package me.ferrybig.javacoding.minecraft.minigame;
+package me.ferrybig.javacoding.minecraft.minigame.phase;
 
-public interface DoubleLoc extends Loc {
+public class PlayerCollectingPhase extends DefaultPhase{
 
 }

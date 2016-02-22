@@ -3,22 +3,62 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package me.ferrybig.javacoding.minecraft.minigame;
 
-public interface Pipeline {
-	
-	Pipeline addLast(String name, Phase phase);
-	
-	Pipeline addFirst(String name, Phase phase);
-	
-	Pipeline firePhaseUpdate();
-	
-	Pipeline firePhaseUpdate(String phase);
-	
-	Pipeline firePhaseUpdate(Class<? extends Phase> phase);
-    
-    Pipeline fireExceptionCaught(Throwable cause);
+import java.util.Arrays;
+import java.util.Iterator;
 
-    Pipeline fireUserEventTriggered(Object event);
+public interface Pipeline extends Iterable<Phase> {
+
+	public default Pipeline addLast(Phase... phases) {
+		return addLast(Arrays.asList(phases));
+	}
+
+	public Pipeline addLast(Iterable<Phase> phases);
+
+	public default Pipeline addFirst(Phase... phases) {
+		return addFirst(Arrays.asList(phases));
+	}
+
+	public Pipeline addFirst(Iterable<Phase> phases);
+
+	public default boolean replace(Phase existing, Phase phase) {
+		int index = indexOf(existing);
+		if (index < 0) {
+			return false;
+		}
+		replace(index, phase);
+		return true;
+	}
+
+	public Pipeline replace(int index, Phase phase);
+
+	public Pipeline insert(int index, Phase phase);
+
+	public boolean contains(Phase phase);
+
+	public int indexOf(Phase phase);
+
+	public Phase get(int index);
+
+	@Override
+	public default Iterator<Phase> iterator() {
+		return new Iterator<Phase>() {
+			private int index = 0;
+
+			@Override
+			public boolean hasNext() {
+				return index < size();
+			}
+
+			@Override
+			public Phase next() {
+				return get(index++);
+			}
+
+		};
+	}
+
+	public int size();
+	
 }

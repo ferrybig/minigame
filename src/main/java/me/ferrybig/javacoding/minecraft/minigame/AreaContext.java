@@ -7,25 +7,25 @@
 package me.ferrybig.javacoding.minecraft.minigame;
 
 import io.netty.util.AttributeMap;
+import java.util.Collection;
+import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
-public interface AreaContext extends AttributeMap {
-	public void triggerPhaseUpdate();
-	
+public interface AreaContext {
 	public Area getArea();
 	
-	public Location getLocation(Loc loc);
-	
-	public Block getBlock(Loc loc);
+	public Pipeline pipeline();
 	
 	public long instanceId();
 	
-	public void triggerNextPhase();
-	
-	public void triggerNextPhase(String next);
-	
-	public void triggerNextPhase(Class<?> next);
-	
 	public Controller getController();
+	
+	public Collection<Block> getTaggedBlocks(Object tag);
+	
+	public Collection<Location> getTaggedLocations(Object tag);
+	
+	public Set<Object> validTeams();
+	
+	public int maxPlayers();
 }

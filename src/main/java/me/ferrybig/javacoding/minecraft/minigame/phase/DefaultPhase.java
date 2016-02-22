@@ -10,70 +10,92 @@ import java.util.ArrayList;
 import java.util.List;
 import me.ferrybig.javacoding.minecraft.minigame.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.Phase;
+import me.ferrybig.javacoding.minecraft.minigame.PhaseContext;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 public class DefaultPhase implements Phase {
 
+	/**
+	 * Forwards the exception back up the chain of methods.
+	 * @param area
+	 * @param exception
+	 * @return
+	 * @throws Exception 
+	 */
 	@Override
-	public boolean beforePlayerPreJoin(AreaContext area, OfflinePlayer player) {
-		return true;
+	public boolean exceptionCaucht(PhaseContext area, Throwable exception) throws Exception {
+		return area.triggerExceptionCaucht(exception);
 	}
 
+	/**
+	 * Should this area recieve random tick updates
+	 * @param area
+	 * @return 
+	 */
 	@Override
-	public List<Listener> getListeners(AreaContext area) {
-		return new ArrayList<>();
-	}
-
-	@Override
-	public boolean isTimedPhase(AreaContext area) {
+	public boolean isTimedPhase(PhaseContext area) {
 		return false;
 	}
 
 	@Override
-	public void onPhaseLoad(AreaContext area) {
-		
+	public void onPlayerLeaveJoin(PhaseContext area, OfflinePlayer player) throws Exception {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	/**
+	 * Called before a player joins
+	 * @param area
+	 * @param player
+	 * @return
+	 * @throws Exception 
+	 */
+	@Override
+	public boolean onPlayerPreJoin(AreaContext area, OfflinePlayer player) throws Exception {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public void onPhaseRegister(AreaContext area) {
-		
+	public void onPhaseLoad(PhaseContext area) throws Exception {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public void onPhaseUnload(AreaContext area) {
-		
+	public void onPhaseRegister(PhaseContext area) throws Exception {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public void onPhaseUnregister(AreaContext area) {
-		
+	public void onPhaseUnload(PhaseContext area) throws Exception {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public void onPlayerJoin(AreaContext area, Player player) {
-		
+	public void onPhaseUnregister(PhaseContext area) throws Exception {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public void onPlayerLeave(AreaContext area, Player player) {
-		
+	public boolean onPlayerJoin(PhaseContext area, Player player) throws Exception {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public void onPlayerPreJoin(AreaContext area, OfflinePlayer player) {
-		
+	public void onPlayerLeave(PhaseContext area, Player player) throws Exception {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public void onTick(AreaContext area) {
-		
+	public void onTick(PhaseContext area) throws Exception {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public void onUserEvent() {
-		
+	public void onUserEvent(Object userEvent) throws Exception {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
+
+	
 
 }
