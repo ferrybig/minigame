@@ -6,19 +6,71 @@
 
 package me.ferrybig.javacoding.minecraft.minigame.phase;
 
-import java.util.ArrayList;
-import java.util.List;
-import me.ferrybig.javacoding.minecraft.minigame.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.Phase;
 import me.ferrybig.javacoding.minecraft.minigame.PhaseContext;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 
-public class DefaultPhase implements Phase {
+public abstract class DefaultPhase implements Phase {
+
+	
+	
+	@Override
+	public void onPhaseRegister(PhaseContext area) throws Exception {
+	}
+	
+	@Override
+	public void onPhaseLoad(PhaseContext area) throws Exception {
+	}
+
+	@Override
+	public void onPhaseUnload(PhaseContext area) throws Exception {
+	}
+
+	@Override
+	public void onPhaseUnregister(PhaseContext area) throws Exception {
+	}
+	
+	/**
+	 * Forwards the player pre join downstream using the areacontext
+	 * @param area
+	 * @param player
+	 * @return
+	 * @throws Exception 
+	 */
+	@Override
+	public boolean onPlayerPreJoin(PhaseContext area, OfflinePlayer player) throws Exception {
+		return area.triggerPlayerPreJoin(player);
+	}
 
 	/**
-	 * Forwards the exception back up the chain of methods.
+	 * Forwards the player pre leave downstream using the areacontext
+	 * @param area
+	 * @param player
+	 * @throws Exception 
+	 */
+	@Override
+	public void onPlayerPreLeave(PhaseContext area, OfflinePlayer player) throws Exception {
+	}
+
+	/**
+	 * Forwards the player join downstream using the areacontext
+	 * @param area
+	 * @param player
+	 * @return
+	 * @throws Exception 
+	 */
+	@Override
+	public boolean onPlayerJoin(PhaseContext area, Player player) throws Exception {
+		return area.triggerPlayerJoin(player);
+	}
+
+	@Override
+	public void onPlayerLeave(PhaseContext area, Player player) throws Exception {
+	}
+	
+	/**
+	 * Forwards the exception downstream the chain of methods.
 	 * @param area
 	 * @param exception
 	 * @return
@@ -30,72 +82,14 @@ public class DefaultPhase implements Phase {
 	}
 
 	/**
-	 * Should this area recieve random tick updates
+	 * Forwards the exception downstream the chain of methods.
 	 * @param area
-	 * @return 
-	 */
-	@Override
-	public boolean isTimedPhase(PhaseContext area) {
-		return false;
-	}
-
-	@Override
-	public void onPlayerLeaveJoin(PhaseContext area, OfflinePlayer player) throws Exception {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
-
-	/**
-	 * Called before a player joins
-	 * @param area
-	 * @param player
-	 * @return
+	 * @param userEvent
 	 * @throws Exception 
 	 */
 	@Override
-	public boolean onPlayerPreJoin(AreaContext area, OfflinePlayer player) throws Exception {
-		throw new UnsupportedOperationException("Not supported yet.");
+	public void onUserEvent(PhaseContext area, Object userEvent) throws Exception {
+		area.triggerUserEvent(userEvent);
 	}
-
-	@Override
-	public void onPhaseLoad(PhaseContext area) throws Exception {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
-
-	@Override
-	public void onPhaseRegister(PhaseContext area) throws Exception {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
-
-	@Override
-	public void onPhaseUnload(PhaseContext area) throws Exception {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
-
-	@Override
-	public void onPhaseUnregister(PhaseContext area) throws Exception {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
-
-	@Override
-	public boolean onPlayerJoin(PhaseContext area, Player player) throws Exception {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
-
-	@Override
-	public void onPlayerLeave(PhaseContext area, Player player) throws Exception {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
-
-	@Override
-	public void onTick(PhaseContext area) throws Exception {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
-
-	@Override
-	public void onUserEvent(Object userEvent) throws Exception {
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
-
-	
 
 }

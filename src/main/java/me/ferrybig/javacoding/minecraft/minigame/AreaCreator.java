@@ -13,7 +13,7 @@ import me.ferrybig.javacoding.minecraft.minigame.core.DefaultAreaCreator;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
-public interface AreaCreator {
+public interface AreaCreator extends AreaInformation {
 
 	public DefaultAreaCreator setDescription(String description);
 

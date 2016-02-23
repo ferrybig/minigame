@@ -5,26 +5,9 @@
  */
 package me.ferrybig.javacoding.minecraft.minigame;
 
-import io.netty.util.AttributeMap;
-import java.util.Collection;
-import java.util.Set;
 import java.util.function.Consumer;
-import org.bukkit.Location;
-import org.bukkit.block.Block;
 
-public interface Area extends AttributeMap {
-
-	public String getName();
-
-	public Selection getBounds();
-
-	public Collection<Block> getTaggedBlocks(Object tag);
-
-	public Collection<Location> getTaggedLocations(Object tag);
-
-	public Set<Object> validTeams();
-
-	public int maxPlayers();
+public interface Area extends AreaInformation {
 
 	public AreaContext newInstance();
 

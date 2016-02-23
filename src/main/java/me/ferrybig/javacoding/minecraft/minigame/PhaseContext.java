@@ -6,8 +6,10 @@
 
 package me.ferrybig.javacoding.minecraft.minigame;
 
+import java.util.concurrent.ExecutorService;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 
 public interface PhaseContext {
 	
@@ -17,10 +19,22 @@ public interface PhaseContext {
 	
 	public boolean triggerPlayerPreJoin(OfflinePlayer player);
 
+	/**
+	 * @deprecated Automaticly moved downstream
+	 * @param player
+	 * @deprecated
+	 */
+	@Deprecated
 	public void triggerPlayerPreLeave(OfflinePlayer player);
 	
 	public boolean triggerPlayerJoin(Player player);
 
+	/**
+	 * @deprecated Automaticly moved downstream
+	 * @param player
+	 * @deprecated
+	 */
+	@Deprecated
 	public void triggerPlayerLeave(Player player);
 	
 	public void triggerNextPhase();
@@ -28,4 +42,12 @@ public interface PhaseContext {
 	public void triggerReset();
 	
 	public void triggerUserEvent(Object event);
+	
+	public default ExecutorService getExecutor() {
+		return this.getAreaContext().getExecutor();
+	}
+	
+	public void registerNativeListener(Listener listener);
+	
+	public void unregisterNativeListener(Listener listener);
 }

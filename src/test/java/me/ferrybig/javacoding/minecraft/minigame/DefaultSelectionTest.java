@@ -5,14 +5,11 @@
  */
 package me.ferrybig.javacoding.minecraft.minigame;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import org.bukkit.World;
 import org.junit.Assert;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Assume;
 
 /**
  *
@@ -77,7 +74,7 @@ public class DefaultSelectionTest {
 	@Test
 	public void cloneIsFullyTest() {
 		DefaultSelection s = new DefaultSelection(MOCK_WORLD);
-		DefaultSelection s2 = s.clone();
+		DefaultSelection s2 = s.deepClone();
 		Assert.assertNotSame(s,s2);
 		Assert.assertEquals(s,s2);
 		Assert.assertNotSame(s.getFirstPoint(),s2.getFirstPoint());

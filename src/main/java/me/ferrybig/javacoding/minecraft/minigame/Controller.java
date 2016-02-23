@@ -18,15 +18,11 @@ public interface Controller {
 	
 	public boolean addPlayer(Player player);
 	
+	public void removePlayer(OfflinePlayer player);
+	
 	public int getGameSize();
 	
 	public int getSlotsLeft();
-	
-	public boolean allowsNewPlayers();
-	
-	public void setAllowNewPlayers(boolean allow);
-	
-	public void removePlayer(OfflinePlayer player);
 	
 	public void setPlayerTeam(Player player, Object team);
 	
@@ -47,6 +43,8 @@ public interface Controller {
 	public Collection<? extends Player> getActivePlayers();
 	
 	public Collection<? extends Player> getTotalPlayers();
+	
+	public Collection<? extends OfflinePlayer> getPendingPlayers();
 	
 	public default Joinable<OfflinePlayer, Player> asJoinable() {
 		return new Joinable<OfflinePlayer, Player>() {

@@ -21,9 +21,7 @@ public class DefaultSelection implements Selection {
 	private final Vector second = new Vector();
 
 	@Override
-    @SuppressWarnings(value = 
-			{"CloneDoesntCallSuperClone", "CloneDeclaresCloneNotSupported"})
-	public DefaultSelection clone() {
+    public DefaultSelection deepClone() {
 		DefaultSelection n = new DefaultSelection(world);
 		n.getFirstPoint().add(first);
 		n.getSecondPoint().add(second);

@@ -10,7 +10,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
 
-public interface Selection extends Cloneable {
+public interface Selection {
 
 	public World getWorld();
 
@@ -48,7 +48,7 @@ public interface Selection extends Cloneable {
 		second.add(n);
 	}
 
-	public Selection clone();
+	public Selection deepClone();
 
 	public default void normalize() {
 		Vector lowest = getFirstPoint();
