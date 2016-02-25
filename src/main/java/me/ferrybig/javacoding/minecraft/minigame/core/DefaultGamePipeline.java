@@ -66,7 +66,7 @@ public class DefaultGamePipeline implements Pipeline {
 
 	@Override
 	public int indexOf(Phase phase) {
-		return mainPhases.indexOf(this);
+		return mainPhases.indexOf(phase);
 	}
 
 	@Override
