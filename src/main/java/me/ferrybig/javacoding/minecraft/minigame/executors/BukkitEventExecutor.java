@@ -1,12 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package me.ferrybig.javacoding.minecraft.minigame.executors;
 
-import io.netty.util.concurrent.AbstractEventExecutor;
+import io.netty.util.concurrent.AbstractScheduledEventExecutor;
+import io.netty.util.concurrent.Promise;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -19,19 +14,29 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitTask;
 
-public class BukkitEventExecutor extends AbstractEventExecutor {
+public class BukkitEventExecutor extends AbstractScheduledEventExecutor {
 
 	private final Plugin plugin;
 	private int executionDepth = 0;
+	private boolean shuttingDown;
+	private final Promise<?> terminationFuture;
+	private final BukkitTask task;
 
 	public BukkitEventExecutor(Plugin plugin) {
 		this.plugin = Objects.requireNonNull(plugin);
+		this.terminationFuture = super.newPromise();
+		this.task = this.plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
+			Runnable timed;
+			while((timed = pollScheduledTask())!= null)
+				timed.run();
+		}, 1, 1);
 	}
 	
 	@Override
 	public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
-		return false; // cannot terminate
+		return terminationFuture.await(timeout, unit);
 	}
 
 	@Override
@@ -105,34 +110,38 @@ public class BukkitEventExecutor extends AbstractEventExecutor {
 
 	@Override
 	public boolean isShutdown() {
-		return false;
+		return terminationFuture.isDone();
 	}
 
 	@Override
 	public boolean isShuttingDown() {
-		return false;
+		return shuttingDown;
 	}
 
 	@Override
 	public boolean isTerminated() {
-		return false;
+		return terminationFuture.isDone();
 	}
 
 	@Override
 	@Deprecated
 	public void shutdown() {
-		throw new UnsupportedOperationException("Not supported.");
+		shuttingDown = true;
+		pollScheduledTask();
+		this.task.cancel();
+		terminationFuture.setSuccess(null);
 	}
 
 	@Override
 	public io.netty.util.concurrent.Future<?> shutdownGracefully(long quietPeriod, long timeout, TimeUnit unit) {
-		return this.newFailedFuture(new IllegalStateException("Cannot shutdown"));
+		shutdown();
+		return terminationFuture();
 	}
 
 	@Override
 	public io.netty.util.concurrent.Future<?> terminationFuture() {
-		return this.newFailedFuture(new IllegalStateException("Cannot shutdown"));
+		return terminationFuture;
 	}
-	
 
+	
 }

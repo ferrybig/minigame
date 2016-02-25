@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package me.ferrybig.javacoding.minecraft.minigame;
 
 import io.netty.util.AttributeMap;
@@ -20,6 +14,8 @@ public interface AreaContext extends AttributeMap, AreaInformation {
 	public long instanceId();
 	
 	public Controller getController();
+	
+	public PlayerController getPlayers();
 	
 	public Plugin getPlugin();
 }

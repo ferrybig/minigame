@@ -1,12 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package me.ferrybig.javacoding.minecraft.minigame;
 
 import java.util.concurrent.ExecutorService;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerJoinMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerLeaveMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreJoinMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreLeaveMessage;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -17,25 +15,13 @@ public interface PhaseContext {
 
 	public boolean triggerExceptionCaucht(Throwable exception);
 	
-	public boolean triggerPlayerPreJoin(OfflinePlayer player);
+	public void triggerPlayerPreJoin(PlayerPreJoinMessage player);
 
-	/**
-	 * @deprecated Automaticly moved downstream
-	 * @param player
-	 * @deprecated
-	 */
-	@Deprecated
-	public void triggerPlayerPreLeave(OfflinePlayer player);
+	public void triggerPlayerPreLeave(PlayerPreLeaveMessage player);
 	
-	public boolean triggerPlayerJoin(Player player);
+	public void triggerPlayerJoin(PlayerJoinMessage player);
 
-	/**
-	 * @deprecated Automaticly moved downstream
-	 * @param player
-	 * @deprecated
-	 */
-	@Deprecated
-	public void triggerPlayerLeave(Player player);
+	public void triggerPlayerLeave(PlayerLeaveMessage player);
 	
 	public void triggerNextPhase();
 	

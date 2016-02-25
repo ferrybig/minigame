@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package me.ferrybig.javacoding.minecraft.minigame.phase;
 
 import io.netty.util.concurrent.Future;
@@ -11,11 +5,15 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import me.ferrybig.javacoding.minecraft.minigame.PhaseContext;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerJoinMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerLeaveMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreJoinMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreLeaveMessage;
 import org.apache.commons.lang.Validate;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-public class PlayerCollectingPhase extends DefaultPhase{
+public class PlayerCollectingPhase extends DefaultPlayerPhase{
 	
 	private final Set<UUID> onlinePlayers = new HashSet<>();
 	
@@ -57,7 +55,7 @@ public class PlayerCollectingPhase extends DefaultPhase{
 	
 	@Override
 	public void onPhaseLoad(PhaseContext area) throws Exception {
-		area.getAreaContext().getController().getTotalPlayers().stream()
+		area.getAreaContext().getPlayers().getPlayers().stream()
 				.map(OfflinePlayer::getUniqueId).peek(offlinePlayers::add)
 				.forEach(onlinePlayers::add);
 		area.getAreaContext().getController().getPendingPlayers().stream()
@@ -70,29 +68,35 @@ public class PlayerCollectingPhase extends DefaultPhase{
 	}
 
 	@Override
-	public void onPlayerLeave(PhaseContext area, Player player) throws Exception {
-		onlinePlayers.remove(player.getUniqueId());
+	public void onPlayerLeave(PhaseContext area, PlayerLeaveMessage player) throws Exception {
+		super.onPlayerLeave(area, player);
+		onlinePlayers.remove(player.getPlayer().getUniqueId());
 	}
 
 	@Override
-	public boolean onPlayerJoin(PhaseContext area, Player player) throws Exception {
-		if(onlinePlayers.size() >= maxPlayers)
-			return false;
-		onlinePlayers.add(player.getUniqueId());
-		return true;
+	public void onPlayerJoin(PhaseContext area, PlayerJoinMessage player) throws Exception {
+		if(onlinePlayers.size() >= maxPlayers) {
+			player.setCancelled(true);
+			return;
+		}
+		super.onPlayerJoin(area, player);
+		onlinePlayers.add(player.getPlayer().getUniqueId());
 	}
 
 	@Override
-	public void onPlayerPreLeave(PhaseContext area, OfflinePlayer player) throws Exception {
-		offlinePlayers.remove(player.getUniqueId());
+	public void onPlayerPreLeave(PhaseContext area, PlayerPreLeaveMessage player) throws Exception {
+		super.onPlayerPreLeave(area, player);
+		offlinePlayers.remove(player.getPlayer().getUniqueId());
 	}
 
 	@Override
-	public boolean onPlayerPreJoin(PhaseContext area, OfflinePlayer player) throws Exception {
-		if(offlinePlayers.size() >= maxPlayers)
-			return false;
-		offlinePlayers.add(player.getUniqueId());
-		return true;
+	public void onPlayerPreJoin(PhaseContext area, PlayerPreJoinMessage player) throws Exception {
+		if(offlinePlayers.size() >= maxPlayers) {
+			player.setCancelled(true);
+			return;
+		}
+		super.onPlayerPreJoin(area, player);
+		offlinePlayers.add(player.getPlayer().getUniqueId());
 	}
 	
 	private void checkTick(PhaseContext area) {
