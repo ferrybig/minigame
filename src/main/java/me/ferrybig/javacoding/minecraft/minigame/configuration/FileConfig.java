@@ -26,12 +26,11 @@ public class FileConfig extends AbstractConfig implements SignConfig, AreaConfig
 
 	private SoftReference<FileConfiguration> config;
 	
-	private File configFile;
-	
-	private Throwable configException;
+	private final File configFile;
 
-	public FileConfig(EventExecutor executor) {
+	public FileConfig(EventExecutor executor, File configFile) {
 		super(executor);
+		this.configFile = Objects.requireNonNull(configFile);
 	}
 
 	@Override
