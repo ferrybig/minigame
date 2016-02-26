@@ -18,9 +18,9 @@ public interface AreaInformation {
 
 	public Selection getBounds();
 	
-	public Map<Object, List<Block>> getTaggedBlocks();
+	public Map<String, List<Block>> getTaggedBlocks();
 
-	public default List<Block> getTaggedBlocks(Object tag) {
+	public default List<Block> getTaggedBlocks(String tag) {
 		
 		List<Block> get = getTaggedBlocks().get(tag);
 		if(get == null)
@@ -28,16 +28,16 @@ public interface AreaInformation {
 		return get;
 	}
 	
-	public Map<Object, List<Location>> getTaggedLocations();
+	public Map<String, List<Location>> getTaggedLocations();
 
-	public default List<Location> getTaggedLocations(Object tag) {
+	public default List<Location> getTaggedLocations(String tag) {
 		List<Location> get = getTaggedLocations().get(tag);
 		if(get == null)
 			return Collections.emptyList();
 		return get;
 	}
 
-	public Set<Object> validTeams();
+	public Set<String> validTeams();
 
 	public int maxPlayers();
 	
@@ -45,11 +45,11 @@ public interface AreaInformation {
 		String name = getName();
 		String description = getDescription();
 		Selection selection = getBounds().deepClone();
-		Set<Object> validTeams = new HashSet<>(validTeams());
+		Set<String> validTeams = new HashSet<>(validTeams());
 		int maxPlayers = maxPlayers();
-		Map<Object,List<Location>> taggedLocations = new HashMap<>(getTaggedLocations());
+		Map<String,List<Location>> taggedLocations = new HashMap<>(getTaggedLocations());
 		taggedLocations.replaceAll((k,v)->new ArrayList<>(v));
-		Map<Object,List<Block>> taggedBlocks = new HashMap<>(getTaggedBlocks());
+		Map<String,List<Block>> taggedBlocks = new HashMap<>(getTaggedBlocks());
 		taggedBlocks.replaceAll((k,v)->new ArrayList<>(v));
 		return new AreaInformation() {
 			@Override
@@ -68,12 +68,12 @@ public interface AreaInformation {
 			}
 
 			@Override
-			public Map<Object, List<Block>> getTaggedBlocks() {
+			public Map<String, List<Block>> getTaggedBlocks() {
 				return taggedBlocks;
 			}
 
 			@Override
-			public Map<Object, List<Location>> getTaggedLocations() {
+			public Map<String, List<Location>> getTaggedLocations() {
 				return taggedLocations;
 			}
 
@@ -83,7 +83,7 @@ public interface AreaInformation {
 			}
 
 			@Override
-			public Set<Object> validTeams() {
+			public Set<String> validTeams() {
 				return validTeams;
 			}
 		};

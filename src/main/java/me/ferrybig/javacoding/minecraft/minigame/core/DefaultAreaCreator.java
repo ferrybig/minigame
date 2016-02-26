@@ -19,9 +19,9 @@ public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 	private final Function<? super DefaultAreaCreator, A> areaMaker;
     private String name = "Unnamed";
 	private String description = "";
-	private Set<Object> validTeams = new HashSet<>();
-	private Map<Object, List<Block>> taggedBlocks = new HashMap<>();
-	private Map<Object, List<Location>> taggedLocations = new HashMap<>();
+	private Set<String> validTeams = new HashSet<>();
+	private Map<String, List<Block>> taggedBlocks = new HashMap<>();
+	private Map<String, List<Location>> taggedLocations = new HashMap<>();
 	private Selection selection;
 	private int maxPlayers = 0;
 
@@ -51,12 +51,12 @@ public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 	}
 
 	@Override
-	public Map<Object, List<Block>> getTaggedBlocks() {
+	public Map<String, List<Block>> getTaggedBlocks() {
 		return taggedBlocks;
 	}
 
 	@Override
-	public Map<Object, List<Location>> getTaggedLocations() {
+	public Map<String, List<Location>> getTaggedLocations() {
 		return taggedLocations;
 	}
 
@@ -78,19 +78,19 @@ public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 	}
 
 	@Override
-	public DefaultAreaCreator setValidTeams(Set<Object> validTeams) {
+	public DefaultAreaCreator setValidTeams(Set<String> validTeams) {
 		this.validTeams = validTeams;
 		return this;
 	}
 
 	@Override
-	public DefaultAreaCreator setTaggedBlocks(Map<Object, List<Block>> taggedBlocks) {
+	public DefaultAreaCreator setTaggedBlocks(Map<String, List<Block>> taggedBlocks) {
 		this.taggedBlocks = taggedBlocks;
 		return this;
 	}
 
 	@Override
-	public DefaultAreaCreator setTaggedLocations(Map<Object, List<Location>> taggedLocations) {
+	public DefaultAreaCreator setTaggedLocations(Map<String, List<Location>> taggedLocations) {
 		this.taggedLocations = taggedLocations;
 		return this;
 	}
@@ -108,7 +108,7 @@ public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 	}
 
 	@Override
-	public Set<Object> validTeams() {
+	public Set<String> validTeams() {
 		return validTeams;
 	}
 }

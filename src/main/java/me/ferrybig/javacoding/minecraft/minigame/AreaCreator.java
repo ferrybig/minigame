@@ -17,11 +17,11 @@ public interface AreaCreator extends AreaInformation {
 
 	public DefaultAreaCreator setSelection(Selection selection);
 
-	public DefaultAreaCreator setTaggedBlocks(Map<Object, List<Block>> taggedBlocks);
+	public DefaultAreaCreator setTaggedBlocks(Map<String, List<Block>> taggedBlocks);
 
-	public DefaultAreaCreator setTaggedLocations(Map<Object, List<Location>> taggedLocations);
+	public DefaultAreaCreator setTaggedLocations(Map<String, List<Location>> taggedLocations);
 
-	public DefaultAreaCreator setValidTeams(Set<Object> validTeams);
+	public DefaultAreaCreator setValidTeams(Set<String> validTeams);
 
 	public Area createArea();
 	
