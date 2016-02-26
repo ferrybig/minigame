@@ -23,6 +23,7 @@ public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 	private Map<String, List<Block>> taggedBlocks = new HashMap<>();
 	private Map<String, List<Location>> taggedLocations = new HashMap<>();
 	private Selection selection;
+	private boolean enabled;
 	private int maxPlayers = 0;
 
 	public DefaultAreaCreator(World w, Function<? super DefaultAreaCreator, A> areaMaker) {
@@ -110,5 +111,15 @@ public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 	@Override
 	public Set<String> validTeams() {
 		return validTeams;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public DefaultAreaCreator setEnabled(boolean enabled) {
+		this.enabled = enabled;
+		return this;
 	}
 }

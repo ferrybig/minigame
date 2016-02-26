@@ -11,6 +11,8 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 
 public interface AreaInformation {
+	
+	public boolean isEnabled();
 
 	public String getName();
 	
@@ -42,6 +44,7 @@ public interface AreaInformation {
 	public int maxPlayers();
 	
 	public default AreaInformation getInformationCopy() {
+		boolean enabled = isEnabled();
 		String name = getName();
 		String description = getDescription();
 		Selection selection = getBounds().deepClone();
@@ -75,6 +78,11 @@ public interface AreaInformation {
 			@Override
 			public Map<String, List<Location>> getTaggedLocations() {
 				return taggedLocations;
+			}
+
+			@Override
+			public boolean isEnabled() {
+				return enabled;
 			}
 
 			@Override
