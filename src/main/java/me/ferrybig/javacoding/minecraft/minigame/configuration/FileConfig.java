@@ -1,8 +1,8 @@
-
 package me.ferrybig.javacoding.minecraft.minigame.configuration;
 
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.ScheduledFuture;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
@@ -23,10 +24,12 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-public class FileConfig extends AbstractConfig implements SignConfig, AreaConfig {
+public class FileConfig extends AbstractConfig implements FullConfig {
 
-	private SoftReference<FileConfiguration> config;
-	
+	private SoftReference<FileConfiguration> config = new SoftReference(null);
+
+	private ScheduledFuture saveTask;
+
 	private final File configFile;
 
 	public FileConfig(EventExecutor executor, File configFile) {
@@ -41,18 +44,45 @@ public class FileConfig extends AbstractConfig implements SignConfig, AreaConfig
 
 	@Override
 	public Future<?> flushChanges() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		return executor.submit(() -> {
+			if (saveTask == null) {
+				return null;
+			}
+			saveTask.cancel(false);
+			saveConfig(config.get());
+			return null;
+		});
 	}
-	
+
+	public void scheduleSave() {
+		if (saveTask != null) {
+			return;
+		}
+		FileConfiguration conf = config.get();
+		if (conf == null) {
+			return;
+		}
+		saveTask = executor.schedule(() -> {
+            saveConfig(conf);
+			saveTask = null;
+			return null;
+		}, 5, TimeUnit.MINUTES);
+	}
+
+	public void saveConfig(FileConfiguration conf) throws IOException {
+
+	}
+
 	private FileConfiguration getConfig() throws ConfigurationException {
 		try {
 			FileConfiguration conf = this.config.get();
-			if(conf != null) {
+			if (conf != null) {
 				return conf;
 			}
 			conf = new YamlConfiguration();
-			if(configFile.exists())
+			if (configFile.exists()) {
 				conf.load(configFile);
+			}
 			this.config = new SoftReference<>(conf);
 			return conf;
 		} catch (IOException | InvalidConfigurationException ex) {
@@ -66,11 +96,12 @@ public class FileConfig extends AbstractConfig implements SignConfig, AreaConfig
 			Map<String, AreaInformation> areas = new HashMap<>();
 			FileConfiguration conf = getConfig();
 			ConfigurationSection areaSection = conf.getConfigurationSection("area");
-			if(areaSection == null)
+			if (areaSection == null) {
 				return areas;
-			for(String areaName : areaSection.getKeys(false)) {
+			}
+			for (String areaName : areaSection.getKeys(false)) {
 				ConfigurationSection section = areaSection.getConfigurationSection(areaName);
-				
+
 			}
 			return areas;
 		});
@@ -80,7 +111,6 @@ public class FileConfig extends AbstractConfig implements SignConfig, AreaConfig
 	public Future<Map<Block, StatusSign>> loadSigns() {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
-
 
 	@Override
 	public Future<?> removeArea(String name) {
@@ -101,7 +131,5 @@ public class FileConfig extends AbstractConfig implements SignConfig, AreaConfig
 	public Future<?> saveSign(Block location, StatusSign area) {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
-
-	
 
 }
