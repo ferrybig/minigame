@@ -18,6 +18,7 @@ import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.exceptions.ConfigurationException;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
+import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -52,6 +53,11 @@ public class FileConfig extends AbstractConfig implements FullConfig {
 			saveConfig(config.get());
 			return null;
 		});
+	}
+
+	@Override
+	public Future<TranslationMap> getTranslationMap() {
+		throw new UnsupportedOperationException("Not supported yet."); //TODO
 	}
 
 	public void scheduleSave() {

@@ -8,15 +8,24 @@ import java.util.Map;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
+import me.ferrybig.javacoding.minecraft.minigame.translation.Translation;
+import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
 import org.bukkit.block.Block;
 
-public class BlackHoleConfig extends AbstractConfig implements SignConfig, AreaConfig {
-
-	private final Future<?> successed;
+public class BlackHoleConfig extends AbstractConfig implements FullConfig {
 
 	public BlackHoleConfig(EventExecutor executor) {
 		super(executor);
-		successed = executor.newSucceededFuture(null);
+	}
+
+	@Override
+	public Future<TranslationMap> getTranslationMap() {
+		return executor.newSucceededFuture(new TranslationMap(null) {
+			@Override
+			public String getMessage(Translation key) {
+				return null;
+			}
+		});
 	}
 
 	@Override
@@ -31,22 +40,22 @@ public class BlackHoleConfig extends AbstractConfig implements SignConfig, AreaC
 
 	@Override
 	public Future<?> removeArea(String name) {
-		return successed;
+		return executor.newSucceededFuture(null);
 	}
 
 	@Override
 	public Future<?> removeSign(Block location) {
-		return successed;
+		return executor.newSucceededFuture(null);
 	}
 
 	@Override
 	public Future<?> saveArea(String name, Area area) {
-		return successed;
+		return executor.newSucceededFuture(null);
 	}
 
 	@Override
 	public Future<?> saveSign(Block location, StatusSign area) {
-		return successed;
+		return executor.newSucceededFuture(null);
 	}
 
 }
