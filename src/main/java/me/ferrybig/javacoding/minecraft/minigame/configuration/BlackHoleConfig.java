@@ -11,7 +11,7 @@ import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
 import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
 import org.bukkit.block.Block;
 
-public class BlackHoleConfig extends AbstractConfig implements FullConfig {
+public class BlackHoleConfig extends AbstractFullConfig {
 
 	public BlackHoleConfig(EventExecutor executor) {
 		super(executor);

@@ -25,7 +25,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-public class FileConfig extends AbstractConfig implements FullConfig {
+public class FileConfig extends AbstractFullConfig {
 
 	private SoftReference<FileConfiguration> config = new SoftReference(null);
 
