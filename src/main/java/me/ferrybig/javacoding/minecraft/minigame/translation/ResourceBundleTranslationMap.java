@@ -1,14 +1,13 @@
 package me.ferrybig.javacoding.minecraft.minigame.translation;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutionException;
 
 public class ResourceBundleTranslationMap extends TranslationMap {
+
+	private final MessageFormat formatter;
 
 	private final ResourceBundle bundle;
 
@@ -17,24 +16,34 @@ public class ResourceBundleTranslationMap extends TranslationMap {
 	}
 
 	public ResourceBundleTranslationMap(TranslationMap parent, Locale loc) {
-		this(parent, getInternalBundle(loc));
+		this(parent, getInternalBundle(Objects.requireNonNull(loc)), loc);
 	}
 
-	public ResourceBundleTranslationMap(TranslationMap parent, ResourceBundle bundle) {
+	public ResourceBundleTranslationMap(TranslationMap parent, ResourceBundle bundle, Locale loc) {
 		super(parent);
-		this.bundle = Objects.requireNonNull(bundle);
+		this.bundle = Objects.requireNonNull(bundle, "bundle == null");
+		formatter = new MessageFormat("");
+		formatter.setLocale(Objects.requireNonNull(loc, "loc == null"));
 	}
 
 	@Override
-	protected String getMessage(Translation key) {
+	protected String getMessage(Translation key, Object[] args) {
 		String strKey = key.key();
-		return bundle.containsKey(strKey) ? bundle.getString(strKey) : null;
+		return bundle.containsKey(strKey) ? replaceArgs(bundle.getString(strKey), args) : null;
+	}
+
+	private String replaceArgs(String bundleResult, Object[] args) {
+		if (args.length == 0) {
+			return bundleResult;
+		}
+		formatter.applyPattern(bundleResult);
+		return formatter.format(args);
 	}
 
 	private static ResourceBundle getInternalBundle(Locale loc) {
 		return ResourceBundle.getBundle(calculateBaseFileName(), loc);
 	}
-	
+
 	private static String calculateBaseFileName() {
 		String base = ResourceBundleTranslationMap.class.getName().replace('.', '/');
 		int index = base.lastIndexOf('/');

@@ -23,7 +23,7 @@ public class BaseTranslationsAreFoundTest {
 
 	@Test
 	public void keyExistsTest() {
-		String returnResult = map.getMessage(key);
+		String returnResult = map.getMessage(key, new Object[0]);
 		assertNotNull("Could not find translation key " + key, returnResult);
 	}
 }
