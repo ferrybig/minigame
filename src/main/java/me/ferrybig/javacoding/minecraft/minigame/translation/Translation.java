@@ -6,5 +6,5 @@ package me.ferrybig.javacoding.minecraft.minigame.translation;
  */
 public interface Translation {
 
-	public String name();
+	public String key();
 }

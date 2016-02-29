@@ -11,15 +11,6 @@ import java.util.concurrent.ExecutionException;
 public class ResourceBundleTranslationMap extends TranslationMap {
 
 	private final ResourceBundle bundle;
-	private static final LoadingCache<Translation, String> KEY_LOOKUP
-			= CacheBuilder.from(System.getProperty("minigameAPI.translationSpec", ""))
-			.build(new CacheLoader<Translation, String>() {
-				@Override
-				public String load(Translation key) throws Exception {
-					return key.name().toLowerCase(Locale.US).replace('_', '.').intern();
-				}
-
-			});
 
 	public ResourceBundleTranslationMap(TranslationMap parent) {
 		this(parent, Locale.US);
@@ -36,12 +27,7 @@ public class ResourceBundleTranslationMap extends TranslationMap {
 
 	@Override
 	protected String getMessage(Translation key) {
-		String strKey;
-		try {
-			strKey = KEY_LOOKUP.get(key);
-		} catch (ExecutionException ex) {
-			throw new IllegalArgumentException("Translation key incorrect?", ex);
-		}
+		String strKey = key.key();
 		return bundle.containsKey(strKey) ? bundle.getString(strKey) : null;
 	}
 
