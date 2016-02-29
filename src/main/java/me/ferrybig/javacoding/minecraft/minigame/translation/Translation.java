@@ -4,4 +4,7 @@ package me.ferrybig.javacoding.minecraft.minigame.translation;
  *
  * @author Fernando
  */
-public enum Translation {}
+public interface Translation {
+
+	public String name();
+}
