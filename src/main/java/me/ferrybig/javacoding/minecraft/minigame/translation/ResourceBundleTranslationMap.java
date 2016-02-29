@@ -46,9 +46,13 @@ public class ResourceBundleTranslationMap extends TranslationMap {
 	}
 
 	private static ResourceBundle getInternalBundle(Locale loc) {
-		return ResourceBundle.getBundle(
-				ResourceBundleTranslationMap.class.getName().replace('.', '/'),
-				loc);
+		return ResourceBundle.getBundle(calculateBaseFileName(), loc);
+	}
+	
+	private static String calculateBaseFileName() {
+		String base = ResourceBundleTranslationMap.class.getName().replace('.', '/');
+		int index = base.lastIndexOf('/');
+		return base.substring(0, index + 1) + "base";
 	}
 
 }
