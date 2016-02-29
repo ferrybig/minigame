@@ -18,7 +18,7 @@ public class BlackHoleConfig extends AbstractConfig implements FullConfig {
 	}
 
 	@Override
-	public Future<TranslationMap> getTranslationMap() {
+	public Future<TranslationMap> loadTranslationMap() {
 		return executor.newSucceededFuture(TranslationMap.getFailureMappings());
 	}
 

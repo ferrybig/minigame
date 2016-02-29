@@ -12,7 +12,7 @@ public class DefaultTranslationConfig extends AbstractConfig implements Translat
 	}
 
 	@Override
-	public Future<TranslationMap> getTranslationMap() {
+	public Future<TranslationMap> loadTranslationMap() {
 		return executor.newSucceededFuture(TranslationMap.getDefaultMappings());
 	}
 

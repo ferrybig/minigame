@@ -55,7 +55,7 @@ public class FileConfig extends AbstractConfig implements FullConfig {
 	}
 
 	@Override
-	public Future<TranslationMap> getTranslationMap() {
+	public Future<TranslationMap> loadTranslationMap() {
 		throw new UnsupportedOperationException("Not supported yet."); //TODO
 	}
 

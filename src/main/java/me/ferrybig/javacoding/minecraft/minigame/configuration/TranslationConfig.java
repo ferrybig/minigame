@@ -8,5 +8,5 @@ import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
  * @author Fernando
  */
 public interface TranslationConfig extends Config {
-	public Future<TranslationMap> getTranslationMap();
+	public Future<TranslationMap> loadTranslationMap();
 }
