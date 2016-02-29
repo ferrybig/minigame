@@ -1,6 +1,5 @@
 package me.ferrybig.javacoding.minecraft.minigame.configuration;
 
-import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
