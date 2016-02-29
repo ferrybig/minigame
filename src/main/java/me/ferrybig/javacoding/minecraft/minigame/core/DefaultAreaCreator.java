@@ -16,7 +16,7 @@ import org.bukkit.block.Block;
 
 public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 
-	private final Function<? super DefaultAreaCreator, A> areaMaker;
+	private final Function<? super DefaultAreaCreator<A>, A> areaMaker;
     private String name = "Unnamed";
 	private String description = "";
 	private Set<String> validTeams = new HashSet<>();
@@ -26,7 +26,7 @@ public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 	private boolean enabled;
 	private int maxPlayers = 0;
 
-	public DefaultAreaCreator(World w, Function<? super DefaultAreaCreator, A> areaMaker) {
+	public DefaultAreaCreator(World w, Function<? super DefaultAreaCreator<A>, A> areaMaker) {
 		this.selection = new DefaultSelection(w);
 		this.areaMaker = areaMaker;
 	}
@@ -67,43 +67,43 @@ public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 	}
 
 	@Override
-	public DefaultAreaCreator setName(String name) {
+	public DefaultAreaCreator<A> setName(String name) {
 		this.name = name;
 		return this;
 	}
 
 	@Override
-	public DefaultAreaCreator setDescription(String description) {
+	public DefaultAreaCreator<A> setDescription(String description) {
 		this.description = description;
 		return this;
 	}
 
 	@Override
-	public DefaultAreaCreator setValidTeams(Set<String> validTeams) {
+	public DefaultAreaCreator<A> setValidTeams(Set<String> validTeams) {
 		this.validTeams = validTeams;
 		return this;
 	}
 
 	@Override
-	public DefaultAreaCreator setTaggedBlocks(Map<String, List<Block>> taggedBlocks) {
+	public DefaultAreaCreator<A> setTaggedBlocks(Map<String, List<Block>> taggedBlocks) {
 		this.taggedBlocks = taggedBlocks;
 		return this;
 	}
 
 	@Override
-	public DefaultAreaCreator setTaggedLocations(Map<String, List<Location>> taggedLocations) {
+	public DefaultAreaCreator<A> setTaggedLocations(Map<String, List<Location>> taggedLocations) {
 		this.taggedLocations = taggedLocations;
 		return this;
 	}
 
 	@Override
-	public DefaultAreaCreator setSelection(Selection selection) {
+	public DefaultAreaCreator<A> setSelection(Selection selection) {
 		this.selection = selection;
 		return this;
 	}
 
 	@Override
-	public DefaultAreaCreator setMaxPlayers(int maxPlayers) {
+	public DefaultAreaCreator<A> setMaxPlayers(int maxPlayers) {
 		this.maxPlayers = maxPlayers;
 		return this;
 	}
@@ -118,7 +118,7 @@ public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 		return enabled;
 	}
 
-	public DefaultAreaCreator setEnabled(boolean enabled) {
+	public DefaultAreaCreator<A> setEnabled(boolean enabled) {
 		this.enabled = enabled;
 		return this;
 	}
