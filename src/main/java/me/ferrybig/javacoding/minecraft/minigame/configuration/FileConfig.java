@@ -27,9 +27,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public class FileConfig extends AbstractFullConfig {
 
-	private SoftReference<FileConfiguration> config = new SoftReference(null);
+	private SoftReference<FileConfiguration> config = new SoftReference<>(null);
 
-	private ScheduledFuture saveTask;
+	private ScheduledFuture<?> saveTask;
 
 	private final File configFile;
 
