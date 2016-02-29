@@ -40,7 +40,6 @@ public class FileConfig extends AbstractConfig implements FullConfig {
 
 	@Override
 	public void close() {
-		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
