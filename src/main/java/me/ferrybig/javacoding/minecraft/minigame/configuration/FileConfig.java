@@ -75,7 +75,7 @@ public class FileConfig extends AbstractFullConfig {
 	}
 
 	public void saveConfig(FileConfiguration conf) throws IOException {
-
+		conf.save(configFile);
 	}
 
 	private FileConfiguration getConfig() throws ConfigurationException {
