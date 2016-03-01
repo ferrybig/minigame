@@ -13,6 +13,8 @@ import org.bukkit.block.Block;
 public interface AreaInformation {
 	
 	public boolean isEnabled();
+	
+	public boolean isValid();
 
 	public String getName();
 	
@@ -45,6 +47,7 @@ public interface AreaInformation {
 	
 	public default AreaInformation getInformationCopy() {
 		boolean enabled = isEnabled();
+		boolean valid = isValid();
 		String name = getName();
 		String description = getDescription();
 		Selection selection = getBounds().deepClone();
@@ -83,6 +86,11 @@ public interface AreaInformation {
 			@Override
 			public boolean isEnabled() {
 				return enabled;
+			}
+
+			@Override
+			public boolean isValid() {
+				return valid;
 			}
 
 			@Override

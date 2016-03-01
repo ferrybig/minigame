@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.function.Function;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.AreaCreator;
+import me.ferrybig.javacoding.minecraft.minigame.AreaVerifier;
 import me.ferrybig.javacoding.minecraft.minigame.DefaultSelection;
 import me.ferrybig.javacoding.minecraft.minigame.Selection;
 import org.bukkit.Location;
@@ -16,8 +17,9 @@ import org.bukkit.block.Block;
 
 public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 
-	private final Function<? super DefaultAreaCreator<A>, A> areaMaker;
+	private final AreaVerifier area;
     private String name = "Unnamed";
+	private boolean valid;
 	private String description = "";
 	private Set<String> validTeams = new HashSet<>();
 	private Map<String, List<Block>> taggedBlocks = new HashMap<>();
@@ -26,14 +28,14 @@ public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 	private boolean enabled;
 	private int maxPlayers = 0;
 
-	public DefaultAreaCreator(World w, Function<? super DefaultAreaCreator<A>, A> areaMaker) {
+	public DefaultAreaCreator(World w, AreaVerifier area) {
 		this.selection = new DefaultSelection(w);
-		this.areaMaker = areaMaker;
+		this.area = area;
 	}
 
 	@Override
 	public A createArea() {
-		return areaMaker.apply(this);
+		throw new UnsupportedOperationException(); //TODO
 	}
 
 	@Override
@@ -59,6 +61,11 @@ public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 	@Override
 	public Map<String, List<Location>> getTaggedLocations() {
 		return taggedLocations;
+	}
+
+	@Override
+	public boolean isValid() {
+		return valid;
 	}
 
 	@Override
