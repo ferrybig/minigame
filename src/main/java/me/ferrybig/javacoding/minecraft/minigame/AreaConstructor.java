@@ -1,7 +1,10 @@
 
 package me.ferrybig.javacoding.minecraft.minigame;
 
+import io.netty.util.concurrent.Future;
+import org.bukkit.Location;
+
 public interface AreaConstructor {
 
-	public Area construct(AreaInformation info);
+	public Future<Area> construct(Location buildingLoc, ResolvedAreaInformation info);
 }
