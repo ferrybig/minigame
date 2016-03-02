@@ -11,13 +11,14 @@ import me.ferrybig.javacoding.minecraft.minigame.AreaCreator;
 import me.ferrybig.javacoding.minecraft.minigame.verrifier.AreaVerifier;
 import me.ferrybig.javacoding.minecraft.minigame.DefaultSelection;
 import me.ferrybig.javacoding.minecraft.minigame.Selection;
+import me.ferrybig.javacoding.minecraft.minigame.verrifier.CachedAreaVerifier;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
 public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 
-	private final AreaVerifier area;
+	private final CachedAreaVerifier area;
     private String name = "Unnamed";
 	private String description = "";
 	private Set<String> validTeams = new HashSet<>();
@@ -27,7 +28,7 @@ public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 	private boolean enabled;
 	private int maxPlayers = 0;
 
-	public DefaultAreaCreator(World w, AreaVerifier area, TranslationMap) {
+	public DefaultAreaCreator(World w, CachedAreaVerifier area) {
 		this.selection = new DefaultSelection(w);
 		this.area = area;
 	}
