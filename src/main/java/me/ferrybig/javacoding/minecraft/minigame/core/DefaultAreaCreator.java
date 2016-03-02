@@ -5,10 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.AreaCreator;
-import me.ferrybig.javacoding.minecraft.minigame.verrifier.AreaVerifier;
 import me.ferrybig.javacoding.minecraft.minigame.DefaultSelection;
 import me.ferrybig.javacoding.minecraft.minigame.Selection;
 import me.ferrybig.javacoding.minecraft.minigame.verrifier.CachedAreaVerifier;
@@ -65,7 +63,7 @@ public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 
 	@Override
 	public boolean isValid() {
-		return area.verifyInformation(this, translations);
+		return area.verifyInformation(this);
 	}
 
 	@Override
