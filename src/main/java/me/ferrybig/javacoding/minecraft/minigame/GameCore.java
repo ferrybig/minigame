@@ -45,4 +45,12 @@ public interface GameCore extends AutoCloseable {
 	@Override
 	public void close();
 	
+	public Future<?> startingFuture();
+	
+	public boolean isStarted();
+	
+	public Future<?> initializeAndStart();
+	
+	public CoreInformationContext getInfo();
+	
 }
