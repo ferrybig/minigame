@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.function.Function;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.AreaCreator;
-import me.ferrybig.javacoding.minecraft.minigame.AreaVerifier;
+import me.ferrybig.javacoding.minecraft.minigame.verrifier.AreaVerifier;
 import me.ferrybig.javacoding.minecraft.minigame.DefaultSelection;
 import me.ferrybig.javacoding.minecraft.minigame.Selection;
 import org.bukkit.Location;
@@ -19,7 +19,6 @@ public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 
 	private final AreaVerifier area;
     private String name = "Unnamed";
-	private boolean valid;
 	private String description = "";
 	private Set<String> validTeams = new HashSet<>();
 	private Map<String, List<Block>> taggedBlocks = new HashMap<>();
@@ -28,7 +27,7 @@ public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 	private boolean enabled;
 	private int maxPlayers = 0;
 
-	public DefaultAreaCreator(World w, AreaVerifier area) {
+	public DefaultAreaCreator(World w, AreaVerifier area, TranslationMap) {
 		this.selection = new DefaultSelection(w);
 		this.area = area;
 	}
@@ -65,7 +64,7 @@ public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 
 	@Override
 	public boolean isValid() {
-		return valid;
+		return area.verifyInformation(this, translations);
 	}
 
 	@Override
