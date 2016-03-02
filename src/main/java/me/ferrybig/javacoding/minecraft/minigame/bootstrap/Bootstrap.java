@@ -1,5 +1,6 @@
 package me.ferrybig.javacoding.minecraft.minigame.bootstrap;
 
+import me.ferrybig.javacoding.minecraft.minigame.AreaVerifier;
 import me.ferrybig.javacoding.minecraft.minigame.listener.GameListener;
 import me.ferrybig.javacoding.minecraft.minigame.configuration.AreaConfig;
 import me.ferrybig.javacoding.minecraft.minigame.configuration.FullConfig;
@@ -15,5 +16,7 @@ public interface Bootstrap {
 	public Bootstrap withGlobalGameListener(GameListener listen);
 	
 	public Bootstrap withConfig(FullConfig config);
+	
+	public Bootstrap withAreaVerifier(AreaVerifier verifier);
 	
 }
