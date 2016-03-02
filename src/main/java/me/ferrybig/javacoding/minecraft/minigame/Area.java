@@ -2,7 +2,7 @@ package me.ferrybig.javacoding.minecraft.minigame;
 
 import java.util.function.Consumer;
 
-public interface Area extends AreaInformation {
+public interface Area extends ResolvedAreaInformation {
 
 	public AreaContext newInstance();
 

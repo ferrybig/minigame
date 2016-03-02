@@ -6,7 +6,7 @@ import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
-public interface AreaCreator extends AreaInformation {
+public interface AreaCreator extends ResolvedAreaInformation {
 
 	public AreaCreator setDescription(String description);
 

@@ -1,7 +1,7 @@
+
 package me.ferrybig.javacoding.minecraft.minigame;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -10,52 +10,31 @@ import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
-public interface AreaInformation {
-	
-	public boolean isEnabled();
+public interface ResolvedAreaInformation extends AreaInformation {
 
-	public String getName();
+	public boolean isValid();
 	
-	public String getDescription();
-
-	public Selection getBounds();
+	public Set<String> validTeams();
 	
-	public Map<String, List<Block>> getTaggedBlocks();
-
-	public default List<Block> getTaggedBlocks(String tag) {
-		
-		List<Block> get = getTaggedBlocks().get(tag);
-		if(get == null)
-			return Collections.emptyList();
-		return get;
-	}
-	
-	public Map<String, List<Location>> getTaggedLocations();
-
-	public default List<Location> getTaggedLocations(String tag) {
-		List<Location> get = getTaggedLocations().get(tag);
-		if(get == null)
-			return Collections.emptyList();
-		return get;
-	}
-
-	public int maxPlayers();
-	
+	@Override
 	public default boolean canBeUsed() {
-		return isEnabled();
+		return isEnabled() && isValid();
 	}
 	
-	public default AreaInformation getInformationCopy() {
+	@Override
+	public default ResolvedAreaInformation getInformationCopy() {
 		boolean enabled = isEnabled();
 		String name = getName();
 		String description = getDescription();
 		Selection selection = getBounds().deepClone();
+		boolean valid = isValid();
+		Set<String> validTeams = new HashSet<>(validTeams());
 		int maxPlayers = maxPlayers();
 		Map<String,List<Location>> taggedLocations = new HashMap<>(getTaggedLocations());
 		taggedLocations.replaceAll((k,v)->new ArrayList<>(v));
 		Map<String,List<Block>> taggedBlocks = new HashMap<>(getTaggedBlocks());
 		taggedBlocks.replaceAll((k,v)->new ArrayList<>(v));
-		return new AreaInformation() {
+		return new ResolvedAreaInformation() {
 			@Override
 			public Selection getBounds() {
 				return selection;
@@ -87,8 +66,18 @@ public interface AreaInformation {
 			}
 
 			@Override
+			public boolean isValid() {
+				return valid;
+			}
+
+			@Override
 			public int maxPlayers() {
 				return maxPlayers;
+			}
+
+			@Override
+			public Set<String> validTeams() {
+				return validTeams;
 			}
 		};
 	}

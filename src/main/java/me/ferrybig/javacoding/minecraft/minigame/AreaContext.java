@@ -4,7 +4,7 @@ import io.netty.util.AttributeMap;
 import java.util.concurrent.ExecutorService;
 import org.bukkit.plugin.Plugin;
 
-public interface AreaContext extends AttributeMap, AreaInformation {
+public interface AreaContext extends AttributeMap, ResolvedAreaInformation {
 	public Area getArea();
 	
 	public Pipeline pipeline();
