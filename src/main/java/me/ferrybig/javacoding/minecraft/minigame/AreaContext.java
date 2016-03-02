@@ -1,6 +1,7 @@
 package me.ferrybig.javacoding.minecraft.minigame;
 
 import io.netty.util.AttributeMap;
+import io.netty.util.concurrent.Future;
 import java.util.concurrent.ExecutorService;
 import org.bukkit.plugin.Plugin;
 
@@ -18,4 +19,6 @@ public interface AreaContext extends AttributeMap, ResolvedAreaInformation {
 	public PlayerController getPlayers();
 	
 	public Plugin getPlugin();
+	
+	public Future<?> getClosureFuture();
 }
