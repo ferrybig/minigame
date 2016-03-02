@@ -63,7 +63,7 @@ public class DefaultAreaCreator<A extends Area> implements AreaCreator {
 
 	@Override
 	public boolean isValid() {
-		return area.verifyInformation(this);
+		return area.verifyInformation(this).isEmpty();
 	}
 
 	@Override
