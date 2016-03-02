@@ -1,15 +1,12 @@
 package me.ferrybig.javacoding.minecraft.minigame;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -17,9 +14,9 @@ import static org.mockito.Mockito.mock;
  * @author Fernando
  */
 public class AreaInformationBuilderTest {
-	
+
 	private final static Selection MOCK_SELECTION = mock(Selection.class);
-	
+
 	@Test
 	public void testSetName() {
 		String name = "TEST";
@@ -46,8 +43,8 @@ public class AreaInformationBuilderTest {
 
 	@Test
 	public void testSetTaggedBlocks() {
-		Map<String, List<Block>> taggedBlocks = 
-				Collections.singletonMap("test", Collections.emptyList());
+		Map<String, List<Block>> taggedBlocks
+				= Collections.singletonMap("test", Collections.emptyList());
 		AreaInformationBuilder instance = createAreaBuilder();
 		AreaInformationBuilder result = instance.setTaggedBlocks(taggedBlocks);
 		assertEquals(taggedBlocks, result.create().getTaggedBlocks());
@@ -55,8 +52,8 @@ public class AreaInformationBuilderTest {
 
 	@Test
 	public void testSetTaggedLocations() {
-		Map<String, List<Location>> taggedLocations =
-				Collections.singletonMap("test", Collections.emptyList());
+		Map<String, List<Location>> taggedLocations
+				= Collections.singletonMap("test", Collections.emptyList());
 		AreaInformationBuilder instance = createAreaBuilder();
 		AreaInformationBuilder result = instance.setTaggedLocations(taggedLocations);
 		assertEquals(taggedLocations, result.create().getTaggedLocations());
@@ -86,22 +83,20 @@ public class AreaInformationBuilderTest {
 		assertEquals(MOCK_SELECTION, result.getBounds());
 	}
 
-	@Test (expected=IllegalStateException.class)
+	@Test(expected = IllegalStateException.class)
 	public void testNullName() {
 		AreaInformationBuilder instance = new AreaInformationBuilder(MOCK_SELECTION);
 		instance.create();
 	}
-	
-	@Test (expected=IllegalStateException.class)
+
+	@Test(expected = IllegalStateException.class)
 	public void testNullBounds() {
 		AreaInformationBuilder instance = new AreaInformationBuilder("");
 		instance.create();
 	}
-	
+
 	protected AreaInformationBuilder createAreaBuilder() {
 		return new AreaInformationBuilder("", MOCK_SELECTION);
 	}
-	
-	
-	
+
 }
