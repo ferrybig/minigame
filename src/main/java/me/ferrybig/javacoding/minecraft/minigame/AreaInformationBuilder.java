@@ -19,9 +19,18 @@ public class AreaInformationBuilder {
 	
 	public AreaInformationBuilder() {
 	}
+	
+	public AreaInformationBuilder(Selection bounds) {
+		this.bounds = bounds;
+	}
 
 	public AreaInformationBuilder(String name) {
 		this.name = name;
+	}
+	
+	public AreaInformationBuilder(String name, Selection bounds) {
+		this.name = name;
+		this.bounds = bounds;
 	}
 
 	public AreaInformationBuilder setName(String name) {
@@ -59,7 +68,13 @@ public class AreaInformationBuilder {
 		return this;
 	}
 
-	public AreaInformation createAreaInformation() {
+	public AreaInformation create() {
+		if(bounds == null) {
+			throw new IllegalStateException("bounds not defined");
+		}
+		if(name == null) {
+			throw new IllegalStateException("name not defined");
+		}
 		return new DefaultAreaInformation(name, enabled, description, taggedBlocks, taggedLocations, bounds, maxPlayers);
 	}
 
