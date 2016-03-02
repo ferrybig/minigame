@@ -50,7 +50,7 @@ public class ChainedFuture<T> implements Future<T> {
 		this.future = future;
 	}
 	
-	private <O> ChainedFuture<O> map(Function<T, Future<O>> mapper) {
+	public <O> ChainedFuture<O> map(Function<T, Future<O>> mapper) {
 		Objects.requireNonNull(mapper, "mapper == null");
 		Promise<O> prom = executor.newPromise();
 		this.future.addListener((Future<T> f) -> {
