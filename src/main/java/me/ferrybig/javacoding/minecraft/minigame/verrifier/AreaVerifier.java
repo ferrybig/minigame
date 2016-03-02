@@ -1,7 +1,8 @@
 
-package me.ferrybig.javacoding.minecraft.minigame;
+package me.ferrybig.javacoding.minecraft.minigame.verrifier;
 
 import java.util.List;
+import me.ferrybig.javacoding.minecraft.minigame.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
 
 /**
@@ -17,5 +18,12 @@ public interface AreaVerifier {
 	 * @return 
 	 */
 	public List<String> verifyInformation(AreaInformation area, TranslationMap translations);
+	
+	/**
+	 * Analize the area for valid teams
+	 * @param area
+	 * @return 
+	 */
+	public List<String> getValidTeams(AreaInformation area);
 	
 }
