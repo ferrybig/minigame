@@ -110,6 +110,31 @@ public class ChainedFuture<T> implements Future<T> {
 		});
 		return new ChainedFuture<>(executor, prom);
 	}
+	
+	@SuppressWarnings("UseSpecificCatch")
+	public <O> ChainedFuture<O> flatMap(Function<? super T, O> mapper) {
+		Objects.requireNonNull(mapper, "mapper == null");
+		Promise<O> prom = executor.newPromise();
+		this.future.addListener((Future<T> f) -> {
+			try {
+				if(!f.isSuccess()) {
+					prom.setFailure(f.cause());
+					return;
+				}
+				O result = mapper.apply(f.get());
+				if(result == null) {
+					prom.setFailure(
+							SafeUtil.createException(IllegalStateException::new, 
+							"Mapper returned null: ", mapper));
+				} else {
+					prom.setSuccess(result);
+				}
+			} catch (Throwable e) {
+				prom.setFailure(e);
+			}
+		});
+		return new ChainedFuture<>(executor, prom);
+	}
 
 	@Override
 	public boolean isSuccess() {
