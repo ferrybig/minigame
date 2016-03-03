@@ -59,8 +59,8 @@ public class ChainedFuture<T> implements Future<T> {
 		try {
 			Future<T> result = futureSupplier.get();
 			if(result == null) {
-				prom.setFailure(new IllegalArgumentException("Supplier returned null " + 
-						futureSupplier));
+				prom.setFailure(SafeUtil.createException(IllegalStateException::new, 
+							"Suplier returned null: %s", futureSupplier));
 			} else {
 				result.addListener((Future<T> f) -> {
 					if(f.isSuccess()) {
@@ -94,7 +94,7 @@ public class ChainedFuture<T> implements Future<T> {
 				if(result == null) {
 					prom.setFailure(
 							SafeUtil.createException(IllegalStateException::new, 
-							"Mapper returned null", mapper));
+							"Mapper returned null: %s", mapper));
 				} else {
 					result.addListener((Future<O> f1) -> {
 						if(f1.isSuccess()) {
@@ -125,7 +125,7 @@ public class ChainedFuture<T> implements Future<T> {
 				if(result == null) {
 					prom.setFailure(
 							SafeUtil.createException(IllegalStateException::new, 
-							"Mapper returned null: ", mapper));
+							"Mapper returned null: %s", mapper));
 				} else {
 					prom.setSuccess(result);
 				}
