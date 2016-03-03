@@ -1,7 +1,9 @@
 
 package me.ferrybig.javacoding.minecraft.minigame;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.bukkit.Location;
@@ -32,6 +34,18 @@ public class AreaInformationBuilder {
 		this.name = name;
 		this.bounds = bounds;
 	}
+	
+	public AreaInformationBuilder(AreaInformation other) {
+		this.name = other.getName();
+		this.enabled = other.isEnabled();
+		this.description = other.getDescription();
+		this.bounds = other.getBounds().deepClone();
+		this.maxPlayers = other.maxPlayers();
+		this.taggedBlocks = new HashMap<>(other.getTaggedBlocks());
+		this.taggedBlocks.replaceAll((k,v)->new ArrayList<>(v));
+		this.taggedLocations = new HashMap<>(other.getTaggedLocations());
+		this.taggedLocations.replaceAll((k,v)->new ArrayList<>(v));
+	}
 
 	public AreaInformationBuilder setName(String name) {
 		this.name = name;
@@ -57,6 +71,26 @@ public class AreaInformationBuilder {
 		this.taggedLocations = taggedLocations;
 		return this;
 	}
+	
+	public AreaInformationBuilder setTaggedBlocksUneditable() {
+		this.taggedBlocks = new HashMap<>(taggedBlocks);
+		this.taggedBlocks.replaceAll((k,v)->Collections.unmodifiableList(new ArrayList<>(v)));
+		this.taggedBlocks = Collections.unmodifiableMap(taggedBlocks);
+		return this;
+	}
+	
+	public AreaInformationBuilder setTaggedLocationsUneditable() {
+		this.taggedLocations = new HashMap<>(taggedLocations);
+		this.taggedLocations.replaceAll((k,v)->Collections.unmodifiableList(new ArrayList<>(v)));
+		this.taggedLocations = Collections.unmodifiableMap(taggedLocations);
+		return this;
+	}
+	
+	public AreaInformationBuilder setUneditable() {
+		setTaggedLocationsUneditable();
+		setTaggedBlocksUneditable();
+		return this;
+	}
 
 	public AreaInformationBuilder setBounds(Selection bounds) {
 		this.bounds = bounds;
@@ -76,6 +110,14 @@ public class AreaInformationBuilder {
 			throw new IllegalStateException("name not defined");
 		}
 		return new DefaultAreaInformation(name, enabled, description, taggedBlocks, taggedLocations, bounds, maxPlayers);
+	}
+	
+	public static AreaInformation copyOf(AreaInformation other) {
+		return new AreaInformationBuilder(other).create();
+	}
+	
+	public static AreaInformationBuilder from(AreaInformation other) {
+		return new AreaInformationBuilder(other);
 	}
 
 }
