@@ -50,6 +50,7 @@ public class ChainedFuture<T> implements Future<T> {
 		this.future = future;
 	}
 	
+	@SuppressWarnings("UseSpecificCatch")
 	public <O> ChainedFuture<O> map(Function<T, Future<O>> mapper) {
 		Objects.requireNonNull(mapper, "mapper == null");
 		Promise<O> prom = executor.newPromise();
@@ -100,6 +101,7 @@ public class ChainedFuture<T> implements Future<T> {
 		return future.addListener(gl);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Future<T> addListeners(GenericFutureListener<? extends Future<? super T>>... gls) {
 		return future.addListeners(gls);
@@ -110,6 +112,7 @@ public class ChainedFuture<T> implements Future<T> {
 		return future.removeListener(gl);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Future<T> removeListeners(GenericFutureListener<? extends Future<? super T>>... gls) {
 		return future.removeListeners(gls);
