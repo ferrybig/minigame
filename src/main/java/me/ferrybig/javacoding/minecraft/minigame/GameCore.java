@@ -51,6 +51,6 @@ public interface GameCore extends AutoCloseable {
 	
 	public Future<?> initializeAndStart();
 	
-	public CoreInformationContext getInfo();
+	public InformationContext getInfo();
 	
 }
