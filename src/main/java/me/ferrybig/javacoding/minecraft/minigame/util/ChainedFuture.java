@@ -18,13 +18,34 @@ import java.util.function.Supplier;
  */
 public class ChainedFuture<T> implements Future<T> {
 
-	public static <T> ChainedFuture<T> of(
-			EventExecutor executor, Supplier<Future<T>> futureSupplier) {
+	public static <T> ChainedFuture<T> of(EventExecutor executor,
+			Supplier<Future<T>> futureSupplier) {
 		return new ChainedFuture<>(executor, futureSupplier);
 	}
 
-	private static <T> ChainedFuture<T> of(EventExecutor executor, Future<T> future) {
+	public static <T> ChainedFuture<T> of(EventExecutor executor, Future<T> future) {
 		return new ChainedFuture<>(executor, future);
+	}
+
+	public static <T1, T2> ChainedFuture<T2> of(EventExecutor executor,
+			Supplier<Future<T1>> futureSupplier,
+			Function<? super T1, Future<T2>> map1) {
+		return of(executor, futureSupplier).map(map1);
+	}
+
+	public static <T1, T2, T3> ChainedFuture<T3> of(EventExecutor executor,
+			Supplier<Future<T1>> futureSupplier,
+			Function<? super T1, Future<T2>> map1,
+			Function<? super T2, Future<T3>> map2) {
+		return of(executor, futureSupplier, map1).map(map2);
+	}
+
+	public static <T1, T2, T3, T4> ChainedFuture<T4> of(EventExecutor executor,
+			Supplier<Future<T1>> futureSupplier,
+			Function<? super T1, Future<T2>> map1,
+			Function<? super T2, Future<T3>> map2,
+			Function<? super T3, Future<T4>> map3) {
+		return of(executor, futureSupplier, map1, map2).map(map3);
 	}
 
 	private final EventExecutor executor;
