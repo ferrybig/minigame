@@ -1,39 +1,71 @@
 package me.ferrybig.javacoding.minecraft.minigame.core;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
+import me.ferrybig.javacoding.minecraft.minigame.AreaConstructor;
 import me.ferrybig.javacoding.minecraft.minigame.AreaCreator;
+import me.ferrybig.javacoding.minecraft.minigame.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.DefaultSelection;
 import me.ferrybig.javacoding.minecraft.minigame.Selection;
-import me.ferrybig.javacoding.minecraft.minigame.verrifier.CachedAreaVerifier;
+import me.ferrybig.javacoding.minecraft.minigame.verrifier.AreaVerifier;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
 public class DefaultAreaCreator implements AreaCreator {
 
-	private final CachedAreaVerifier area;
+	private final AreaVerifier verifier;
+	private AreaConstructor constructor;
     private String name = "Unnamed";
 	private String description = "";
-	private Set<String> validTeams = new HashSet<>();
 	private Map<String, List<Block>> taggedBlocks = new HashMap<>();
 	private Map<String, List<Location>> taggedLocations = new HashMap<>();
 	private Selection selection;
 	private boolean enabled;
 	private int maxPlayers = 0;
 
-	public DefaultAreaCreator(World w, CachedAreaVerifier area) {
+	public DefaultAreaCreator(World w, AreaConstructor constructor, AreaVerifier verifier) {
 		this.selection = new DefaultSelection(w);
-		this.area = area;
+		this.constructor = constructor;
+		this.verifier = verifier;
+	}
+	
+	public DefaultAreaCreator(AreaInformation area, AreaConstructor constructor, AreaVerifier verifier) {
+		Objects.requireNonNull(area, "area == null");
+		Objects.requireNonNull(area, "constructor == null");
+		Objects.requireNonNull(area, "verifier == null");
+		
+		this.selection = area.getBounds().deepClone();
+		this.name = area.getName();
+		this.description = area.getDescription();
+		this.taggedBlocks = new HashMap<>();
+		for(Entry<String, List<Block>> t : area.getTaggedBlocks().entrySet()) {
+			if(t.getValue() == null || t.getValue().isEmpty())
+				continue;
+			this.taggedBlocks.put(t.getKey(), new ArrayList<>(t.getValue()));
+		}
+		this.taggedLocations = new HashMap<>();
+		for(Entry<String, List<Location>> t : area.getTaggedLocations().entrySet()) {
+			if(t.getValue() == null || t.getValue().isEmpty())
+				continue;
+			this.taggedLocations.put(t.getKey(), new ArrayList<>(t.getValue()));
+		}
+		this.maxPlayers = Math.max(0, area.maxPlayers());
+		this.enabled = area.isEnabled();
+		this.verifier = verifier;
+		this.constructor = constructor;
 	}
 
 	@Override
 	public Area createArea() {
-		throw new UnsupportedOperationException(); //TODO
+		return constructor.construct(this);
 	}
 
 	@Override
@@ -63,7 +95,7 @@ public class DefaultAreaCreator implements AreaCreator {
 
 	@Override
 	public boolean isValid() {
-		return area.verifyInformation(this).isEmpty();
+		return verifier.isCorrect(this);
 	}
 
 	@Override
@@ -80,12 +112,6 @@ public class DefaultAreaCreator implements AreaCreator {
 	@Override
 	public DefaultAreaCreator setDescription(String description) {
 		this.description = description;
-		return this;
-	}
-
-	@Override
-	public DefaultAreaCreator setValidTeams(Set<String> validTeams) {
-		this.validTeams = validTeams;
 		return this;
 	}
 
@@ -114,11 +140,6 @@ public class DefaultAreaCreator implements AreaCreator {
 	}
 
 	@Override
-	public Set<String> validTeams() {
-		return validTeams;
-	}
-
-	@Override
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -126,5 +147,10 @@ public class DefaultAreaCreator implements AreaCreator {
 	public DefaultAreaCreator setEnabled(boolean enabled) {
 		this.enabled = enabled;
 		return this;
+	}
+
+	@Override
+	public Set<String> validTeams() {
+		return verifier.getValidTeams(this);
 	}
 }

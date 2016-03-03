@@ -2,6 +2,7 @@
 package me.ferrybig.javacoding.minecraft.minigame.verrifier;
 
 import java.util.List;
+import java.util.Set;
 import me.ferrybig.javacoding.minecraft.minigame.AreaInformation;
 
 /**
@@ -14,6 +15,6 @@ public interface AreaVerifier {
 
 	public boolean isCorrect(AreaInformation area);
 
-	public List<String> getValidTeams(AreaInformation area);
+	public Set<String> getValidTeams(AreaInformation area);
 
 }

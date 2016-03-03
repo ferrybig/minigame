@@ -20,8 +20,6 @@ public interface AreaCreator extends ResolvedAreaInformation {
 
 	public AreaCreator setTaggedLocations(Map<String, List<Location>> taggedLocations);
 
-	public AreaCreator setValidTeams(Set<String> validTeams);
-
 	public Area createArea();
 	
 }
