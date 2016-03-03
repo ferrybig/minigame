@@ -18,10 +18,19 @@ import java.util.function.Supplier;
  */
 public class ChainedFuture<T> implements Future<T> {
 
+	public static <T> ChainedFuture<T> of(
+			EventExecutor executor, Supplier<Future<T>> futureSupplier) {
+		return new ChainedFuture<>(executor, futureSupplier);
+	}
+
+	private static <T> ChainedFuture<T> of(EventExecutor executor, Future<T> future) {
+		return new ChainedFuture<>(executor, future);
+	}
+
 	private final EventExecutor executor;
 	private final Future<T> future;
 	
-	public ChainedFuture(EventExecutor executor, Supplier<Future<T>> futureSupplier) {
+	private ChainedFuture(EventExecutor executor, Supplier<Future<T>> futureSupplier) {
 		Objects.requireNonNull(futureSupplier, "futureSupplier == null");
 		this.executor = Objects.requireNonNull(executor, "executor == null");
 		Promise<T> prom = executor.newPromise();
