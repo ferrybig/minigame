@@ -1,7 +1,9 @@
 
 package me.ferrybig.javacoding.minecraft.minigame;
 
+import io.netty.util.concurrent.Future;
+
 public interface AreaContextConstructor {
 
-	public AreaContext construct(AreaInformation area);
+	public Future<AreaContext> construct(ResolvedAreaInformation area);
 }
