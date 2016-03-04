@@ -101,7 +101,7 @@ public class ChainedFutureTest {
 		assertTrue(chained.isDone());
 		assertEquals(first, chained.get());
 	}
-	
+
 	@Test
 	public void canChainProperlyTest() throws InterruptedException, ExecutionException {
 		String first = "first";
@@ -125,17 +125,17 @@ public class ChainedFutureTest {
 		assertTrue(thirdFuture.isDone());
 		assertEquals(thirdResult, thirdFuture.get());
 	}
-	
+
 	@Test
 	public void canChainProperlyWithDelayedStartTest() throws InterruptedException, ExecutionException {
 		String first = "first";
 		String second = "second";
 		String third = "third";
-		
+
 		String firstResult = first;
 		String secondResult = first + second;
 		String thirdResult = first + second + third;
-		
+
 		Promise<String> prom = executor.newPromise();
 		ChainedFuture<String> firstFuture = ChainedFuture.of(executor, () -> prom);
 		ChainedFuture<String> secondFuture = firstFuture.map(i -> executor.newSucceededFuture(i + second));
@@ -144,9 +144,9 @@ public class ChainedFutureTest {
 		assertFalse(firstFuture.isDone());
 		assertFalse(secondFuture.isDone());
 		assertFalse(thirdFuture.isDone());
-		
+
 		prom.setSuccess(first);
-		
+
 		assertTrue(firstFuture.isDone());
 		assertEquals(firstResult, firstFuture.get());
 
