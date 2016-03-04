@@ -11,8 +11,6 @@ import org.bukkit.plugin.Plugin;
 
 public interface Bootstrap {
 
-	public Bootstrap withCoreAccessor(CoreAccessor accessor);
-
 	public Bootstrap withExecutor(EventExecutor executor);
 
 	public Bootstrap withPlugin(Plugin plugin);

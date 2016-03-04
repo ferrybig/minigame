@@ -6,7 +6,6 @@ import io.netty.util.concurrent.Future;
 import me.ferrybig.javacoding.minecraft.minigame.AreaConstructor;
 import me.ferrybig.javacoding.minecraft.minigame.GameCore;
 import me.ferrybig.javacoding.minecraft.minigame.bootstrap.Bootstrap;
-import me.ferrybig.javacoding.minecraft.minigame.bootstrap.CoreAccessor;
 import me.ferrybig.javacoding.minecraft.minigame.configuration.FullConfig;
 import me.ferrybig.javacoding.minecraft.minigame.listener.GameListener;
 import me.ferrybig.javacoding.minecraft.minigame.verrifier.AreaVerifier;
@@ -19,7 +18,6 @@ public class DefaultBootstrap implements Bootstrap {
 	private FullConfig config;
 	private GameListener listener;
 	private EventExecutor executor;
-	private CoreAccessor accessor;
 
 	@Override
 	public Future<GameCore> build() {
@@ -41,11 +39,6 @@ public class DefaultBootstrap implements Bootstrap {
 
 	@Override
 	public Bootstrap withConfig(FullConfig config) {
-		return this;
-	}
-
-	@Override
-	public Bootstrap withCoreAccessor(CoreAccessor accessor) {
 		return this;
 	}
 
