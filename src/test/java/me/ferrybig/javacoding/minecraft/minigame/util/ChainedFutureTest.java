@@ -98,8 +98,6 @@ public class ChainedFutureTest {
 		ChainedFuture<String> chained = ChainedFuture.of(executor, 
 				()->executor.newSucceededFuture(first));
 		
-		chained.await(10, TimeUnit.SECONDS);
-		
 		assertTrue(chained.isDone());
 		assertEquals(first, chained.get());
 	}
@@ -109,16 +107,23 @@ public class ChainedFutureTest {
 		String first = "first";
 		String second = "second";
 		String third = "third";
-		String result = first + second + third;
-		ChainedFuture<String> chained = ChainedFuture.of(executor, 
-				()->executor.newSucceededFuture(first),
-				i->executor.newSucceededFuture(i + second),
-				i->executor.newSucceededFuture(i + third));
 		
-		chained.await(10, TimeUnit.SECONDS);
+		String firstResult = first;
+		String secondResult = first + second;
+		String thirdResult = first + second + third;
 		
-		assertTrue(chained.isDone());
-		assertEquals(result, chained.get());
+		ChainedFuture<String> firstFuture = ChainedFuture.of(executor, () -> executor.newSucceededFuture(first));
+		ChainedFuture<String> secondFuture = firstFuture.map(i -> executor.newSucceededFuture(i + second));
+		ChainedFuture<String> thirdFuture = secondFuture.map(i -> executor.newSucceededFuture(i + third));
+
+		assertTrue(firstFuture.isDone());
+		assertEquals(firstResult, firstFuture.get());
+
+		assertTrue(secondFuture.isDone());
+		assertEquals(secondResult, secondFuture.get());
+
+		assertTrue(thirdFuture.isDone());
+		assertEquals(thirdResult, thirdFuture.get());
 	}
 	
 	@Test
@@ -126,18 +131,29 @@ public class ChainedFutureTest {
 		String first = "first";
 		String second = "second";
 		String third = "third";
-		String result = first + second + third;
+		
+		String firstResult = first;
+		String secondResult = first + second;
+		String thirdResult = first + second + third;
+		
 		Promise<String> prom = executor.newPromise();
-		ChainedFuture<String> chained = ChainedFuture.of(executor, 
-				()->prom,
-				i->executor.newSucceededFuture(i + second),
-				i->executor.newSucceededFuture(i + third));
-		assertFalse(chained.isDone());
+		ChainedFuture<String> firstFuture = ChainedFuture.of(executor, () -> prom);
+		ChainedFuture<String> secondFuture = firstFuture.map(i -> executor.newSucceededFuture(i + second));
+		ChainedFuture<String> thirdFuture = secondFuture.map(i -> executor.newSucceededFuture(i + third));
+
+		assertFalse(firstFuture.isDone());
+		assertFalse(secondFuture.isDone());
+		assertFalse(thirdFuture.isDone());
 		
 		prom.setSuccess(first);
-		chained.await(10, TimeUnit.SECONDS);
 		
-		assertTrue(chained.isDone());
-		assertEquals(result, chained.get());
+		assertTrue(firstFuture.isDone());
+		assertEquals(firstResult, firstFuture.get());
+
+		assertTrue(secondFuture.isDone());
+		assertEquals(secondResult, secondFuture.get());
+
+		assertTrue(thirdFuture.isDone());
+		assertEquals(thirdResult, thirdFuture.get());
 	}
 }

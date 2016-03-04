@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -62,13 +64,7 @@ public class ChainedFuture<T> implements Future<T> {
 				prom.setFailure(SafeUtil.createException(IllegalStateException::new, 
 							"Suplier returned null: %s", futureSupplier));
 			} else {
-				result.addListener((Future<T> f) -> {
-					if(f.isSuccess()) {
-						prom.setSuccess(f.get());
-					} else {
-						prom.setFailure(f.cause());
-					}
-				});
+				applyMappingOperation(result, prom);
 			}
 		} catch (Throwable e) {
 			prom.setFailure(e);
@@ -96,13 +92,7 @@ public class ChainedFuture<T> implements Future<T> {
 							SafeUtil.createException(IllegalStateException::new, 
 							"Mapper returned null: %s", mapper));
 				} else {
-					result.addListener((Future<O> f1) -> {
-						if(f1.isSuccess()) {
-							prom.setSuccess(f1.get());
-						} else {
-							prom.setFailure(f1.cause());
-						}
-					});
+					applyMappingOperation(result, prom);
 				}
 			} catch (Throwable e) {
 				prom.setFailure(e);
@@ -241,6 +231,28 @@ public class ChainedFuture<T> implements Future<T> {
 	@Override
 	public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
 		return future.get(timeout, unit);
+	}
+	
+	private static <T> void applyMappingOperation(Future<T> in, Promise<? super T> out) {
+		if(in.isDone()) {
+			if(in.isSuccess()) {
+				try {
+					out.setSuccess(in.get());
+				} catch (InterruptedException | ExecutionException ex) {
+					out.setFailure(ex);
+				}
+			} else {
+				out.setFailure(in.cause());
+			}
+		} else {
+			in.addListener((Future<T> f) -> {
+				if(f.isSuccess()) {
+					out.setSuccess(f.get());
+				} else {
+					out.setFailure(f.cause());
+				}
+			});
+		}
 	}
 	
 	
