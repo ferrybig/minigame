@@ -7,6 +7,7 @@ import me.ferrybig.javacoding.minecraft.minigame.verrifier.AreaVerifier;
 import me.ferrybig.javacoding.minecraft.minigame.GameCore;
 import me.ferrybig.javacoding.minecraft.minigame.listener.GameListener;
 import me.ferrybig.javacoding.minecraft.minigame.configuration.FullConfig;
+import me.ferrybig.javacoding.minecraft.minigame.verrifier.TranslateableAreaVerrifer;
 import org.bukkit.plugin.Plugin;
 
 public interface Bootstrap {
@@ -19,7 +20,11 @@ public interface Bootstrap {
 
 	public Bootstrap withConfig(FullConfig config);
 
-	public Bootstrap withAreaVerifier(AreaVerifier verifier);
+	public default Bootstrap withAreaVerifier(AreaVerifier verifier) {
+		return withAreaVerifier(TranslateableAreaVerrifer.wrap(verifier));
+	}
+
+	public Bootstrap withAreaVerifier(TranslateableAreaVerrifer verifier);
 
 	public Bootstrap withAreaConstructor(AreaConstructor constructor);
 

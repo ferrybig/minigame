@@ -9,13 +9,14 @@ import me.ferrybig.javacoding.minecraft.minigame.bootstrap.Bootstrap;
 import me.ferrybig.javacoding.minecraft.minigame.configuration.FullConfig;
 import me.ferrybig.javacoding.minecraft.minigame.listener.GameListener;
 import me.ferrybig.javacoding.minecraft.minigame.listener.GameListenerAdaptor;
-import me.ferrybig.javacoding.minecraft.minigame.verrifier.AreaVerifier;
+import me.ferrybig.javacoding.minecraft.minigame.util.ChainedFuture;
+import me.ferrybig.javacoding.minecraft.minigame.verrifier.TranslateableAreaVerrifer;
 import org.bukkit.plugin.Plugin;
 
 public class DefaultBootstrap implements Bootstrap {
 	
 	private AreaConstructor constructor;
-	private AreaVerifier areaVerifier;
+	private TranslateableAreaVerrifer areaVerifier;
 	private FullConfig config;
 	private GameListener listener;
 	private EventExecutor executor;
@@ -41,7 +42,10 @@ public class DefaultBootstrap implements Bootstrap {
 		if(plugin == null) {
 			throw new IllegalStateException("plugin == null");
 		}
-		return null;
+		return ChainedFuture.of(executor, config::loadFully, (FullConfig.FullyLoadedConfig c) -> executor.submit(() -> {
+			
+			return (GameCore)null;
+		}));
 	}
 
 	@Override
@@ -51,7 +55,7 @@ public class DefaultBootstrap implements Bootstrap {
 	}
 
 	@Override
-	public Bootstrap withAreaVerifier(AreaVerifier verifier) {
+	public Bootstrap withAreaVerifier(TranslateableAreaVerrifer verifier) {
 		this.areaVerifier = verifier;
 		return this;
 	}
