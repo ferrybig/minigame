@@ -1,0 +1,205 @@
+package me.ferrybig.javacoding.minecraft.minigame.core;
+
+import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.Promise;
+import java.util.AbstractCollection;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
+import me.ferrybig.javacoding.minecraft.minigame.Area;
+import me.ferrybig.javacoding.minecraft.minigame.AreaContext;
+import me.ferrybig.javacoding.minecraft.minigame.AreaCreator;
+import me.ferrybig.javacoding.minecraft.minigame.AreaInformation;
+import me.ferrybig.javacoding.minecraft.minigame.GameCore;
+import me.ferrybig.javacoding.minecraft.minigame.InformationContext;
+import me.ferrybig.javacoding.minecraft.minigame.ResolvedAreaInformation;
+import me.ferrybig.javacoding.minecraft.minigame.exceptions.CoreClosedException;
+import me.ferrybig.javacoding.minecraft.minigame.listener.CombinedListener;
+import me.ferrybig.javacoding.minecraft.minigame.listener.GameListener;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
+import org.mockito.cglib.core.CollectionUtils;
+
+/**
+ *
+ * @author Fernando
+ */
+public class DefaultGameCore implements GameCore {
+
+	private final Map<String, Area> areas = new HashMap<>();
+	private final Map<String, List<AreaContext>> areaContexts = new HashMap<>();
+	private final Map<String, List<Promise<AreaContext>>> requestedAreaContexts = new HashMap<>();
+	private final Map<UUID, AreaContext> playerGames = new HashMap<>();
+	private final Queue<Promise<AreaContext>> requestedRandomAreaContexts = new LinkedList<>();
+	private final InformationContext info;
+	private final CombinedListener listeners = new CombinedListener();
+	private final Promise<Object> terminationFuture;
+	private final Promise<Object> startingFuture; 
+	private final EventExecutor executor;
+
+	public DefaultGameCore(InformationContext info, Map<String, ? extends AreaInformation> areas) {
+		this.info = Objects.requireNonNull(info, "info == null");
+		Objects.requireNonNull(areas, "areas == null").forEach((k,v)-> {
+			Area area = info.getAreaConstructor().construct(info.getAreaVerifier().validate(v));
+			DefaultGameCore.this.areas.put(area.getName(), area);
+		});
+		executor = Objects.requireNonNull(info.getExecutor(), "executor == null");
+		terminationFuture = executor.newPromise();
+		startingFuture = executor.newPromise();
+	}
+
+	@Override
+	public void close() {
+		Exception closureFailure = new CoreClosedException();
+		terminationFuture.setSuccess(closureFailure);
+		Stream.concat(requestedAreaContexts.values().stream().flatMap(List::stream), 
+				requestedRandomAreaContexts.stream()).forEach(f->f.cancel(true));
+		requestedAreaContexts.clear();
+		requestedRandomAreaContexts.clear();
+	}
+
+	@Override
+	public AreaCreator createArea(String name) {
+		throw new UnsupportedOperationException("Not supported yet."); //TODO
+	}
+
+	@Override
+	public Future<AreaContext> createRandomGameContext() {
+		throw new UnsupportedOperationException("Not supported yet."); //TODO
+	}
+
+	@Override
+	public Future<AreaContext> createRandomGameContext(long maxDelay, TimeUnit unit) {
+		throw new UnsupportedOperationException("Not supported yet."); //TODO
+	}
+
+	@Override
+	public Optional<Area> getArea(String name) {
+		return Optional.ofNullable(areas.get(name));
+	}
+
+	@Override
+	public Collection<? extends AreaContext> getAreaContexts() {
+		return new AbstractCollection<AreaContext>() {
+			@Override
+			public Stream<AreaContext> stream() {
+				return areaContexts.values().stream().flatMap(List::stream);
+			}
+
+			@Override
+			public Iterator<AreaContext> iterator() {
+				return stream().iterator();
+			}
+
+			@Override
+			public int size() {
+				return (int) stream().count();
+			}
+
+		};
+	}
+
+	@Override
+	public Collection<? extends Area> getAreas() {
+		return Collections.unmodifiableCollection(this.areas.values());
+	}
+
+	@Override
+	public Collection<? extends GameListener> getListeners() {
+		return listeners.getListeners();
+	}
+
+	@Override
+	public Optional<AreaContext> getGameOfPlayer(OfflinePlayer player) {
+		Objects.requireNonNull(player, "player == null");
+		return Optional.ofNullable(playerGames.get(player.getUniqueId()));
+	}
+
+	@Override
+	public InformationContext getInfo() {
+		return info;
+	}
+
+	@Override
+	public Future<?> initializeAndStart() {
+		executor.execute(()->{
+			
+		});
+		return startingFuture;
+	}
+
+	@Override
+	public boolean isRunning() {
+		throw new UnsupportedOperationException("Not supported yet."); //TODO
+	}
+
+	@Override
+	public boolean isStarted() {
+		return startingFuture.isDone();
+	}
+
+	@Override
+	public boolean isStopping() {
+		throw new UnsupportedOperationException("Not supported yet."); //TODO
+	}
+
+	@Override
+	public boolean isTerminating() {
+		throw new UnsupportedOperationException("Not supported yet."); //TODO
+	}
+
+	@Override
+	public boolean removeArea(String area) {
+		throw new UnsupportedOperationException("Not supported yet."); //TODO
+	}
+
+	@Override
+	public Future<?> setRunning(boolean stopping) {
+		throw new UnsupportedOperationException("Not supported yet."); //TODO
+	}
+
+	@Override
+	public Future<?> startingFuture() {
+		return startingFuture;
+	}
+
+	@Override
+	public Future<?> terminationFuture() {
+		return terminationFuture;
+	}
+
+	@Override
+	public boolean addListener(GameListener listener) {
+		return listeners.addListener(listener);
+	}
+
+	@Override
+	public boolean removeListener(GameListener listener) {
+		return listeners.removeListener(listener);
+	}
+	
+	private void checkState() {
+		if (terminationFuture.isDone()) {
+			throw new IllegalStateException("GameCore closed");
+		}
+		if (!startingFuture.isDone()) {
+			throw new IllegalStateException("GameCore not started");
+		}
+	}
+	
+	private void addPlayerToGame(Player p, AreaContext game) {
+		playerGames.put(p.getUniqueId(), game);
+	}
+
+}
