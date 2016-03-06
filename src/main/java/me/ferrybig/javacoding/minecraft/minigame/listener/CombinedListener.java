@@ -1,5 +1,6 @@
 package me.ferrybig.javacoding.minecraft.minigame.listener;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import me.ferrybig.javacoding.minecraft.minigame.AreaContext;
@@ -41,6 +42,11 @@ public class CombinedListener implements GameListener, GameListenable {
 	@Override
 	public void playerLeaveGame(AreaContext area, Player player) {
 		listeners.forEach(l->l.playerLeaveGame(area, player));
+	}
+	
+	@Override
+	public Collection<? extends GameListener> getListeners() {
+		return listeners;
 	}
 	
 }

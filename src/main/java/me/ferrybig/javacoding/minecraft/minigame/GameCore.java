@@ -5,12 +5,9 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import me.ferrybig.javacoding.minecraft.minigame.listener.GameListenable;
-import me.ferrybig.javacoding.minecraft.minigame.listener.GameListener;
 import org.bukkit.OfflinePlayer;
 
 public interface GameCore extends AutoCloseable, GameListenable {
-
-	public Collection<? extends GameListener> getGameListeners();
 
 	public Optional<Area> getArea(String name);
 
@@ -20,7 +17,7 @@ public interface GameCore extends AutoCloseable, GameListenable {
 
 	public Collection<? extends Area> getAreas();
 
-	public Optional<AreaContext> getGameOfPlayer(OfflinePlayer p);
+	public Optional<AreaContext> getGameOfPlayer(OfflinePlayer player);
 
 	public Collection<? extends AreaContext> getAreaContexts();
 
