@@ -18,7 +18,7 @@
 	<distributionManagement>
 		<repository>
 			<id>ferrybig-repository</id>
-			<url>scpexe://ferrybig.me/repository</url>
+			<url>scpexe://maven@dev.ferrybig.me/repository</url>
 		</repository>
 	</distributionManagement>
 	<dependencies>
@@ -54,6 +54,13 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 	<build>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ssh-external</artifactId>
+				<version>1.0-beta-6</version>
+			</extension>
+		</extensions>
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
