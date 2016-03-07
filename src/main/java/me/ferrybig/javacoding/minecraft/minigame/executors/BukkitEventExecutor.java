@@ -15,6 +15,7 @@ import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -28,6 +29,8 @@ public class BukkitEventExecutor extends AbstractScheduledEventExecutor {
 	private final Promise<?> terminationFuture;
 	private final BukkitTask scheduledTask;
 	private final Queue<Runnable> scheduledTasks = new LinkedList<>();
+	@SuppressWarnings("NonConstantLogger")
+	private final Logger logger;
 
 	public BukkitEventExecutor(Plugin plugin) {
 		this.plugin = Objects.requireNonNull(plugin);
@@ -39,6 +42,7 @@ public class BukkitEventExecutor extends AbstractScheduledEventExecutor {
 				timed.run();
 			}
 		}, 1, 1);
+		this.logger = this.plugin.getLogger();
 	}
 
 	@Override
@@ -53,7 +57,7 @@ public class BukkitEventExecutor extends AbstractScheduledEventExecutor {
 			task.run();
 		}
 	}
-	
+
 	private void tryRunLoop() {
 		assert inEventLoop();
 		if (executionDepth < MAX_EXECUTION_DEPTH) {
@@ -82,7 +86,7 @@ public class BukkitEventExecutor extends AbstractScheduledEventExecutor {
 			try {
 				command.run();
 			} catch (Throwable e) {
-				plugin.getLogger().log(Level.SEVERE, "Error with task: ", e);
+				logger.log(Level.SEVERE, "Error with task: ", e);
 			}
 		});
 	}
@@ -158,6 +162,23 @@ public class BukkitEventExecutor extends AbstractScheduledEventExecutor {
 	@Override
 	public io.netty.util.concurrent.Future<?> terminationFuture() {
 		return terminationFuture;
+	}
+
+	@Override
+	public <V> Promise<V> newPromise() {
+		Promise<V> p = super.newPromise();
+		if (logger.isLoggable(Level.FINER)) {
+			p.addListener(f -> {
+				if (f.cause() != null) {
+					if (logger.isLoggable(Level.FINEST)) {
+						logger.log(Level.FINEST, "Caught exception:", f.cause());
+					} else {
+						logger.log(Level.FINER, "Caught exception: {0}", f.cause().toString());
+					}
+				}
+			});
+		}
+		return p;
 	}
 
 }
