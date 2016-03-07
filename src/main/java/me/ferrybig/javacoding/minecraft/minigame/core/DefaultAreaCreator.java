@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.AreaConstructor;
 import me.ferrybig.javacoding.minecraft.minigame.AreaCreator;
@@ -22,7 +23,7 @@ import org.bukkit.block.Block;
 public class DefaultAreaCreator implements AreaCreator {
 
 	private final AreaVerifier verifier;
-	private AreaConstructor constructor;
+	private final Function<? super AreaCreator, Area> constructor;
     private String name = "Unnamed";
 	private String description = "";
 	private Map<String, List<Block>> taggedBlocks = new HashMap<>();
@@ -31,13 +32,15 @@ public class DefaultAreaCreator implements AreaCreator {
 	private boolean enabled;
 	private int maxPlayers = 0;
 
-	public DefaultAreaCreator(World w, AreaConstructor constructor, AreaVerifier verifier) {
+	public DefaultAreaCreator(World w, Function<? super AreaCreator, Area> constructor,
+			AreaVerifier verifier) {
 		this.selection = new DefaultSelection(w);
 		this.constructor = constructor;
 		this.verifier = verifier;
 	}
 	
-	public DefaultAreaCreator(AreaInformation area, AreaConstructor constructor, AreaVerifier verifier) {
+	public DefaultAreaCreator(AreaInformation area, Function<? super AreaCreator, Area> constructor,
+			AreaVerifier verifier) {
 		Objects.requireNonNull(area, "area == null");
 		Objects.requireNonNull(area, "constructor == null");
 		Objects.requireNonNull(area, "verifier == null");
@@ -65,7 +68,7 @@ public class DefaultAreaCreator implements AreaCreator {
 
 	@Override
 	public Area createArea() {
-		return constructor.construct(this);
+		return constructor.apply(this);
 	}
 
 	@Override

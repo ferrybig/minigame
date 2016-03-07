@@ -5,6 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.AreaCreator;
@@ -18,22 +19,26 @@ import org.bukkit.block.Block;
 
 public class DefaultArea implements Area {
 
+	private final Function<Area, AreaContext> contextCreator;
+	private final Function<Area, AreaCreator> editArea;
 	private final AreaInformation information;
 	private final InformationContext informationContext;
 	private final boolean valid;
 	private final Set<String> teams;
 
-	public DefaultArea(ResolvedAreaInformation information, InformationContext informationContext) {
+	public DefaultArea(ResolvedAreaInformation information, InformationContext informationContext,
+			Function<Area, AreaCreator> editArea, Function<Area, AreaContext> contextCreator) {
 		this.information = AreaInformationBuilder.from(information).setUneditable().create();
 		this.informationContext = informationContext;
 		this.valid = information.isValid();
 		this.teams = Collections.unmodifiableSet(new LinkedHashSet<>(information.validTeams()));
+		this.editArea = editArea;
+		this.contextCreator = contextCreator;
 	}
 
 	@Override
 	public AreaCreator editArea() {
-		return new DefaultAreaCreator(this, informationContext.getAreaConstructor(),
-				informationContext.getAreaVerifier());
+		return editArea.apply(this);
 	}
 
 	@Override
@@ -88,7 +93,7 @@ public class DefaultArea implements Area {
 
 	@Override
 	public AreaContext newInstance() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		return contextCreator.apply(this);
 	}
 
 	@Override

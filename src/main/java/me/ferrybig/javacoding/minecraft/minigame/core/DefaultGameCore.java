@@ -21,8 +21,10 @@ import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.AreaCreator;
 import me.ferrybig.javacoding.minecraft.minigame.AreaInformation;
+import me.ferrybig.javacoding.minecraft.minigame.Controller;
 import me.ferrybig.javacoding.minecraft.minigame.GameCore;
 import me.ferrybig.javacoding.minecraft.minigame.InformationContext;
+import me.ferrybig.javacoding.minecraft.minigame.Pipeline;
 import me.ferrybig.javacoding.minecraft.minigame.ResolvedAreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.exceptions.CoreClosedException;
 import me.ferrybig.javacoding.minecraft.minigame.listener.CombinedListener;
@@ -51,7 +53,7 @@ public class DefaultGameCore implements GameCore {
 	public DefaultGameCore(InformationContext info, Map<String, ? extends AreaInformation> areas) {
 		this.info = Objects.requireNonNull(info, "info == null");
 		Objects.requireNonNull(areas, "areas == null").forEach((k,v)-> {
-			Area area = info.getAreaConstructor().construct(info.getAreaVerifier().validate(v));
+			Area area = this.resolvArea(info.getAreaVerifier().validate(v));
 			DefaultGameCore.this.areas.put(area.getName(), area);
 		});
 		executor = Objects.requireNonNull(info.getExecutor(), "executor == null");
@@ -197,9 +199,25 @@ public class DefaultGameCore implements GameCore {
 			throw new IllegalStateException("GameCore not started");
 		}
 	}
-	
+
 	private void addPlayerToGame(Player p, AreaContext game) {
 		playerGames.put(p.getUniqueId(), game);
+	}
+
+	private AreaCreator editArea(Area area) {
+		return new DefaultAreaCreator(area, this::resolvArea, info.getAreaVerifier());
+	}
+
+	private Area resolvArea(ResolvedAreaInformation area) {
+		return info.getAreaConstructor().construct(area, this::editArea, this::createContext);
+	}
+
+	private Future<AreaContext> createContext(Area area) {
+		Controller controller = null; // TODO
+		Pipeline pipeline = null; // TODO
+		return info.getAreaContextConstructor().construct(area, controller, pipeline).addListener(f -> {
+
+		});
 	}
 
 }
