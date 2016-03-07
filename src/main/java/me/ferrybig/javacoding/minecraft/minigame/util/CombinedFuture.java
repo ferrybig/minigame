@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 
 public class CombinedFuture {
 
-	public <T, Z extends Collection<? extends Future<?>>> Future<T>
+	public static <T, Z extends Collection<? extends Future<?>>> Future<T>
 			combine(EventExecutor executor, Z futures, Function<Z, T> returnValue) {
 		Objects.requireNonNull(executor, "executor == null");
 		Objects.requireNonNull(futures, "futures == null");
@@ -53,11 +53,11 @@ public class CombinedFuture {
 		return promise;
 	}
 
-	public Future<?> combine(EventExecutor executor, Collection<? extends Future<?>> futures) {
+	public static Future<?> combine(EventExecutor executor, Collection<? extends Future<?>> futures) {
 		return combine(executor, futures, f -> null);
 	}
 
-	public <T> Future<T> combine(EventExecutor executor,
+	public static <T> Future<T> combine(EventExecutor executor,
 			Collection<? extends Future<?>> futures, Supplier<T> returnValue) {
 		return combine(executor, futures, f -> returnValue.get());
 	}
