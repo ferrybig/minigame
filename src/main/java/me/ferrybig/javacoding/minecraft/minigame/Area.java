@@ -1,14 +1,20 @@
 package me.ferrybig.javacoding.minecraft.minigame;
 
+import io.netty.util.concurrent.Future;
 import java.util.function.Consumer;
 
 public interface Area extends ResolvedAreaInformation {
 
-	public AreaContext newInstance();
+	public Future<AreaContext> newInstance();
 
-	public default AreaContext newInstance(Consumer<AreaContext> decorator) {
-		AreaContext inst = newInstance();
-		decorator.accept(inst);
+	@Deprecated
+	public default Future<AreaContext> newInstance(Consumer<AreaContext> decorator) {
+		Future<AreaContext> inst = newInstance();
+		inst.addListener(f -> {
+			if (f.isSuccess()) {
+				decorator.accept(inst.get());
+			}
+		});
 		return inst;
 	}
 

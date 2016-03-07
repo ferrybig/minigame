@@ -1,5 +1,6 @@
 package me.ferrybig.javacoding.minecraft.minigame.core;
 
+import io.netty.util.concurrent.Future;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -19,15 +20,17 @@ import org.bukkit.block.Block;
 
 public class DefaultArea implements Area {
 
-	private final Function<Area, AreaContext> contextCreator;
+	private final Function<Area, Future<AreaContext>> contextCreator;
 	private final Function<Area, AreaCreator> editArea;
 	private final AreaInformation information;
 	private final InformationContext informationContext;
 	private final boolean valid;
 	private final Set<String> teams;
 
-	public DefaultArea(ResolvedAreaInformation information, InformationContext informationContext,
-			Function<Area, AreaCreator> editArea, Function<Area, AreaContext> contextCreator) {
+	public DefaultArea(ResolvedAreaInformation information,
+			InformationContext informationContext,
+			Function<Area, AreaCreator> editArea,
+			Function<Area, Future<AreaContext>> contextCreator) {
 		this.information = AreaInformationBuilder.from(information).setUneditable().create();
 		this.informationContext = informationContext;
 		this.valid = information.isValid();
@@ -92,7 +95,7 @@ public class DefaultArea implements Area {
 	}
 
 	@Override
-	public AreaContext newInstance() {
+	public Future<AreaContext> newInstance() {
 		return contextCreator.apply(this);
 	}
 

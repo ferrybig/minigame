@@ -4,6 +4,7 @@ import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import java.util.AbstractCollection;
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,11 +12,14 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.AreaContext;
@@ -31,7 +35,6 @@ import me.ferrybig.javacoding.minecraft.minigame.listener.CombinedListener;
 import me.ferrybig.javacoding.minecraft.minigame.listener.GameListener;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.mockito.cglib.core.CollectionUtils;
 
 /**
  *
@@ -39,6 +42,7 @@ import org.mockito.cglib.core.CollectionUtils;
  */
 public class DefaultGameCore implements GameCore {
 
+	private final Function<Stream<Map.Entry<Area, Integer>>, Area> areaSelector;
 	private final Map<String, Area> areas = new HashMap<>();
 	private final Map<String, List<AreaContext>> areaContexts = new HashMap<>();
 	private final Map<String, List<Promise<AreaContext>>> requestedAreaContexts = new HashMap<>();
@@ -47,26 +51,32 @@ public class DefaultGameCore implements GameCore {
 	private final InformationContext info;
 	private final CombinedListener listeners = new CombinedListener();
 	private final Promise<Object> terminationFuture;
-	private final Promise<Object> startingFuture; 
+	private final Promise<Object> startingFuture;
 	private final EventExecutor executor;
 
 	public DefaultGameCore(InformationContext info, Map<String, ? extends AreaInformation> areas) {
+		this(info, areas, defaultRandomAreaSelector());
+	}
+
+	public DefaultGameCore(InformationContext info, Map<String, ? extends AreaInformation> areas,
+			Function<Stream<Map.Entry<Area, Integer>>, Area> areaSelector) {
 		this.info = Objects.requireNonNull(info, "info == null");
-		Objects.requireNonNull(areas, "areas == null").forEach((k,v)-> {
+		Objects.requireNonNull(areas, "areas == null").forEach((k, v) -> {
 			Area area = this.resolvArea(info.getAreaVerifier().validate(v));
 			DefaultGameCore.this.areas.put(area.getName(), area);
 		});
-		executor = Objects.requireNonNull(info.getExecutor(), "executor == null");
-		terminationFuture = executor.newPromise();
-		startingFuture = executor.newPromise();
+		this.executor = Objects.requireNonNull(info.getExecutor(), "executor == null");
+		this.terminationFuture = executor.newPromise();
+		this.startingFuture = executor.newPromise();
+		this.areaSelector = areaSelector;
 	}
 
 	@Override
 	public void close() {
 		Exception closureFailure = new CoreClosedException();
 		terminationFuture.setSuccess(closureFailure);
-		Stream.concat(requestedAreaContexts.values().stream().flatMap(List::stream), 
-				requestedRandomAreaContexts.stream()).forEach(f->f.cancel(true));
+		Stream.concat(requestedAreaContexts.values().stream().flatMap(List::stream),
+				requestedRandomAreaContexts.stream()).forEach(f -> f.cancel(true));
 		requestedAreaContexts.clear();
 		requestedRandomAreaContexts.clear();
 	}
@@ -78,16 +88,29 @@ public class DefaultGameCore implements GameCore {
 
 	@Override
 	public Future<AreaContext> createRandomGameContext() {
-		throw new UnsupportedOperationException("Not supported yet."); //TODO
+		checkState();
+		Area randomArea = areaSelector.apply(areas.entrySet().stream()
+				.map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getValue(),
+						areaContexts.getOrDefault(e.getKey(), Collections.emptyList()).size()
+						+ requestedAreaContexts.getOrDefault(e.getKey(), Collections.emptyList()).size())
+				));
+		if (randomArea == null) {
+			return executor.newFailedFuture(new NoSuchElementException("No Areas found"));
+		}
+		return randomArea.newInstance();
 	}
 
 	@Override
 	public Future<AreaContext> createRandomGameContext(long maxDelay, TimeUnit unit) {
-		throw new UnsupportedOperationException("Not supported yet."); //TODO
+		checkState();
+		Future<AreaContext> f = createRandomGameContext();
+		this.executor.schedule(() -> f.cancel(false), maxDelay, unit);
+		return f;
 	}
 
 	@Override
 	public Optional<Area> getArea(String name) {
+		checkState();
 		return Optional.ofNullable(areas.get(name));
 	}
 
@@ -114,16 +137,19 @@ public class DefaultGameCore implements GameCore {
 
 	@Override
 	public Collection<? extends Area> getAreas() {
+		checkState();
 		return Collections.unmodifiableCollection(this.areas.values());
 	}
 
 	@Override
 	public Collection<? extends GameListener> getListeners() {
+		checkState();
 		return listeners.getListeners();
 	}
 
 	@Override
 	public Optional<AreaContext> getGameOfPlayer(OfflinePlayer player) {
+		checkState();
 		Objects.requireNonNull(player, "player == null");
 		return Optional.ofNullable(playerGames.get(player.getUniqueId()));
 	}
@@ -135,8 +161,8 @@ public class DefaultGameCore implements GameCore {
 
 	@Override
 	public Future<?> initializeAndStart() {
-		executor.execute(()->{
-			
+		executor.execute(() -> {
+
 		});
 		return startingFuture;
 	}
@@ -183,14 +209,16 @@ public class DefaultGameCore implements GameCore {
 
 	@Override
 	public boolean addListener(GameListener listener) {
+		checkState();
 		return listeners.addListener(listener);
 	}
 
 	@Override
 	public boolean removeListener(GameListener listener) {
+		checkState();
 		return listeners.removeListener(listener);
 	}
-	
+
 	private void checkState() {
 		if (terminationFuture.isDone()) {
 			throw new IllegalStateException("GameCore closed");
@@ -215,9 +243,14 @@ public class DefaultGameCore implements GameCore {
 	private Future<AreaContext> createContext(Area area) {
 		Controller controller = null; // TODO
 		Pipeline pipeline = null; // TODO
-		return info.getAreaContextConstructor().construct(area, controller, pipeline).addListener(f -> {
+		return info.getAreaContextConstructor()
+				.construct(area, controller, pipeline).addListener(f -> {
 
 		});
+	}
+
+	public static Function<Stream<Entry<Area, Integer>>, Area> defaultRandomAreaSelector() {
+		return l -> l.min((a, b) -> a.getValue().compareTo(b.getValue())).map(Entry::getKey).orElse(null);
 	}
 
 }
