@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
@@ -23,20 +24,18 @@ public class DefaultArea implements Area {
 	private final Function<Area, Future<AreaContext>> contextCreator;
 	private final Function<Area, AreaCreator> editArea;
 	private final AreaInformation information;
-	private final InformationContext informationContext;
 	private final boolean valid;
 	private final Set<String> teams;
 
 	public DefaultArea(ResolvedAreaInformation information,
-			InformationContext informationContext,
 			Function<Area, AreaCreator> editArea,
 			Function<Area, Future<AreaContext>> contextCreator) {
+		Objects.requireNonNull(information, "information == null");
 		this.information = AreaInformationBuilder.from(information).setUneditable().create();
-		this.informationContext = informationContext;
 		this.valid = information.isValid();
 		this.teams = Collections.unmodifiableSet(new LinkedHashSet<>(information.validTeams()));
-		this.editArea = editArea;
-		this.contextCreator = contextCreator;
+		this.editArea = Objects.requireNonNull(editArea, "editArea == null");
+		this.contextCreator = Objects.requireNonNull(contextCreator, "contextCreator == null");
 	}
 
 	@Override
@@ -102,14 +101,6 @@ public class DefaultArea implements Area {
 	@Override
 	public Set<String> validTeams() {
 		return teams;
-	}
-
-	public AreaInformation getInformation() {
-		return information;
-	}
-
-	public InformationContext getInformationContext() {
-		return informationContext;
 	}
 
 	@Override
