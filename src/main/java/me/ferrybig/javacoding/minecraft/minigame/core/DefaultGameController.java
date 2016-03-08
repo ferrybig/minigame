@@ -88,6 +88,10 @@ public class DefaultGameController implements Controller {
 	public void removePlayer(OfflinePlayer player) {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
+	
+	public void init(AreaContext area) {
+		this.area = area;
+	}
 
 	@Override
 	public boolean tryAddPlayer(List<? extends OfflinePlayer> players) {
