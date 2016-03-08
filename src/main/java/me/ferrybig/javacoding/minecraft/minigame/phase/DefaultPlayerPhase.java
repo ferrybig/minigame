@@ -6,8 +6,15 @@ import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerJoinMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerLeaveMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreJoinMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreLeaveMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerSpectateMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerTeamMessage;
 
 public class DefaultPlayerPhase extends DefaultPhase implements PlayerPhase {
+
+	@Override
+	public void onPlayerChangeTeam(PhaseContext area, PlayerTeamMessage player) throws Exception {
+		area.triggerPlayerChangeTeam(area, player);
+	}
 
 	/**
 	 * Forwards the player pre join downstream using the areacontext
@@ -55,5 +62,10 @@ public class DefaultPlayerPhase extends DefaultPhase implements PlayerPhase {
 	@Override
 	public void onPlayerLeave(PhaseContext area, PlayerLeaveMessage player) throws Exception {
 		area.triggerPlayerLeave(player);
+	}
+
+	@Override
+	public void onPlayerSpectate(PhaseContext area, PlayerSpectateMessage player) throws Exception {
+		area.triggerPlayerSpectate(area, player);
 	}
 }

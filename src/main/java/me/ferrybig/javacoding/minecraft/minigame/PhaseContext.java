@@ -5,6 +5,8 @@ import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerJoinMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerLeaveMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreJoinMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreLeaveMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerSpectateMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerTeamMessage;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -22,6 +24,10 @@ public interface PhaseContext {
 	public void triggerPlayerJoin(PlayerJoinMessage player);
 
 	public void triggerPlayerLeave(PlayerLeaveMessage player);
+	
+	public void triggerPlayerChangeTeam(PhaseContext area, PlayerTeamMessage player);
+
+	public void triggerPlayerSpectate(PhaseContext area, PlayerSpectateMessage player);
 	
 	public void triggerNextPhase();
 	
