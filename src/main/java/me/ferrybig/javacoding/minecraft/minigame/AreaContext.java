@@ -15,13 +15,13 @@ public interface AreaContext extends AttributeMap, ResolvedAreaInformation {
 	
 	public Controller getController();
 	
-	public PlayerController getPlayers();
-	
 	public GameCore getCore();
 	
 	public default InformationContext getInformationContext() {
 		return getCore().getInfo();
 	}
 	
-	public Future<?> getClosureFuture();
+	public default Future<?> getClosureFuture() {
+		return pipeline().getClosureFuture();
+	}
 }

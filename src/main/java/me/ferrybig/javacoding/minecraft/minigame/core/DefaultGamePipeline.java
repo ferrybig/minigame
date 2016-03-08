@@ -1,5 +1,6 @@
 package me.ferrybig.javacoding.minecraft.minigame.core;
 
+import io.netty.util.concurrent.Future;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -8,7 +9,9 @@ import java.util.ListIterator;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import me.ferrybig.javacoding.minecraft.minigame.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.Phase;
+import me.ferrybig.javacoding.minecraft.minigame.PhaseContext;
 import me.ferrybig.javacoding.minecraft.minigame.Pipeline;
 
 
@@ -60,8 +63,18 @@ public class DefaultGamePipeline implements Pipeline {
 	}
 
 	@Override
+	public PhaseContext entrance() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
 	public Phase get(int index) {
 		return mainPhases.get(index);
+	}
+
+	@Override
+	public Future<?> getClosureFuture() {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
@@ -79,6 +92,21 @@ public class DefaultGamePipeline implements Pipeline {
 	}
 
 	@Override
+	public boolean isStopped() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public boolean isStopping() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public Iterator<Phase> iterator() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
 	public Pipeline replace(int index, Phase phase) {
 		if(currPhaseIndex > index) {
 			throw new IllegalStateException("Cannot change running code");
@@ -88,16 +116,32 @@ public class DefaultGamePipeline implements Pipeline {
 	}
 
 	@Override
+	public void runLoop(AreaContext area) {
+		
+	}
+
+	@Override
 	public int size() {
 		return mainPhases.size();
 	}
 	
+	@Override
 	public int getCurrentIndex() {
 		return currPhaseIndex;
 	}
 	
 	public void setCurrentIndex(int index) {
 		currPhaseIndex = index;
+	}
+
+	@Override
+	public void stop() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public void terminate() {
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 	
 	

@@ -1,5 +1,6 @@
 package me.ferrybig.javacoding.minecraft.minigame;
 
+import io.netty.util.concurrent.Future;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -55,5 +56,21 @@ public interface Pipeline extends Iterable<Phase> {
 	}
 
 	public int size();
+	
+	public int getCurrentIndex();
+	
+	public void runLoop(AreaContext area);
+	
+	public void stop();
+	
+	public void terminate();
+	
+	public PhaseContext entrance();
+	
+	public boolean isStopping();
+	
+	public boolean isStopped();
+	
+	public Future<?> getClosureFuture();
 	
 }

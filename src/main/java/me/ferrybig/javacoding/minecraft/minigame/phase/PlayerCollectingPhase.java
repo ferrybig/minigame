@@ -55,10 +55,10 @@ public class PlayerCollectingPhase extends DefaultPlayerPhase{
 	
 	@Override
 	public void onPhaseLoad(PhaseContext area) throws Exception {
-		area.getAreaContext().getPlayers().getPlayers().stream()
+		area.getAreaContext().getController().getPlayers().keySet().stream()
 				.map(OfflinePlayer::getUniqueId).peek(offlinePlayers::add)
 				.forEach(onlinePlayers::add);
-		area.getAreaContext().getController().getPendingPlayers().stream()
+		area.getAreaContext().getController().getAllPlayers().keySet().stream()
 				.map(OfflinePlayer::getUniqueId).forEach(offlinePlayers::add);
 	}
 	

@@ -1,22 +1,41 @@
 package me.ferrybig.javacoding.minecraft.minigame;
 
-import java.util.Collection;
+import io.netty.util.AttributeMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 public interface Controller {
-	
+
 	public boolean tryAddPlayer(List<? extends OfflinePlayer> player);
-	
+
 	public boolean addPlayer(Player player);
-	
+
 	public void removePlayer(OfflinePlayer player);
+
+	public Map<Player, PlayerInfo> getPlayers();
+
+	public Map<OfflinePlayer, PlayerInfo> getAllPlayers();
 	
-	public int getGameSize();
-	
-	public int getSlotsLeft();
-	
-	public Collection<? extends OfflinePlayer> getPendingPlayers();
-			
+	public Optional<PlayerInfo> getPlayer(OfflinePlayer player);
+
+	public interface PlayerInfo extends AttributeMap {
+		
+		public OfflinePlayer getOfflinePlayer();
+		
+		public Player getPlayer();
+		
+		public Optional<String> getTeam();
+
+		public boolean isFullyJoined();
+
+		public boolean isSpectator();
+
+		public void setTeam(String team);
+
+		public void setSpectator(boolean spectator);
+	}
+
 }
