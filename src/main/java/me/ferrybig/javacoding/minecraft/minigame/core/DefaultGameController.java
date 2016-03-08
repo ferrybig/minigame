@@ -18,6 +18,7 @@ import me.ferrybig.javacoding.minecraft.minigame.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.Controller;
 import me.ferrybig.javacoding.minecraft.minigame.InformationContext;
 import me.ferrybig.javacoding.minecraft.minigame.Triggerable;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerJoinMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreJoinMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerSpectateMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerTeamMessage;
@@ -63,7 +64,9 @@ public class DefaultGameController implements Controller {
 				return false;
 			}
 		}
-		return false; // TODO
+		PlayerJoinMessage join = new PlayerJoinMessage(player);
+		trigger.triggerPlayerJoin(join);
+		return join.isCancelled();
 	}
 
 	@Override
