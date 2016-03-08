@@ -19,6 +19,8 @@ import me.ferrybig.javacoding.minecraft.minigame.Controller;
 import me.ferrybig.javacoding.minecraft.minigame.InformationContext;
 import me.ferrybig.javacoding.minecraft.minigame.Triggerable;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreJoinMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerSpectateMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerTeamMessage;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -167,6 +169,10 @@ public class DefaultGameController implements Controller {
 
 		@Override
 		public void setTeam(String team) {
+			if (Objects.equals(this.team, team)) {
+				return;
+			}
+			trigger.triggerPlayerChangeTeam(new PlayerTeamMessage(getPlayer(), team));
 			this.team = team;
 		}
 
@@ -185,7 +191,7 @@ public class DefaultGameController implements Controller {
 			if (this.spectator == spectator) {
 				return;
 			}
-
+			trigger.triggerPlayerSpectate(new PlayerSpectateMessage(getPlayer(), spectator));
 			this.spectator = spectator;
 		}
 

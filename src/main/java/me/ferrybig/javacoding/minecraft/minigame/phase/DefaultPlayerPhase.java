@@ -13,7 +13,7 @@ public class DefaultPlayerPhase extends DefaultPhase implements PlayerPhase {
 
 	@Override
 	public void onPlayerChangeTeam(PhaseContext area, PlayerTeamMessage player) throws Exception {
-		area.triggerPlayerChangeTeam(area, player);
+		area.triggerPlayerChangeTeam(player);
 	}
 
 	/**
@@ -66,6 +66,6 @@ public class DefaultPlayerPhase extends DefaultPhase implements PlayerPhase {
 
 	@Override
 	public void onPlayerSpectate(PhaseContext area, PlayerSpectateMessage player) throws Exception {
-		area.triggerPlayerSpectate(area, player);
+		area.triggerPlayerSpectate(player);
 	}
 }

@@ -13,7 +13,7 @@ public interface Triggerable {
 
 	void triggerNextPhase();
 
-	void triggerPlayerChangeTeam(PhaseContext area, PlayerTeamMessage player);
+	void triggerPlayerChangeTeam(PlayerTeamMessage player);
 
 	void triggerPlayerJoin(PlayerJoinMessage player);
 
@@ -23,7 +23,7 @@ public interface Triggerable {
 
 	void triggerPlayerPreLeave(PlayerPreLeaveMessage player);
 
-	void triggerPlayerSpectate(PhaseContext area, PlayerSpectateMessage player);
+	void triggerPlayerSpectate(PlayerSpectateMessage player);
 
 	void triggerReset();
 
