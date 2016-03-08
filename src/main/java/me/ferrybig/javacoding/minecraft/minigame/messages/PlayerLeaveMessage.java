@@ -8,11 +8,11 @@ public class PlayerLeaveMessage extends PlayerPreLeaveMessage {
 	public PlayerLeaveMessage(Player player, Reason reason) {
 		super(player, reason);
 	}
-	
+
 	@Override
 	public Player getPlayer() {
 		assert super.getPlayer() instanceof Player;
-		return (Player)super.getPlayer();
+		return (Player) super.getPlayer();
 	}
 
 }
