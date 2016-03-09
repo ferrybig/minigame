@@ -34,4 +34,23 @@ public interface TranslateableAreaVerrifer {
 			}
 		};
 	}
+	
+	public default AreaVerifier unwrap(TranslationMap map) {
+		return new AreaVerifier() {
+			@Override
+			public List<String> getProblems(AreaInformation area) {
+				return TranslateableAreaVerrifer.this.getProblems(area, map);
+			}
+
+			@Override
+			public Set<String> getValidTeams(AreaInformation area) {
+				return TranslateableAreaVerrifer.this.getValidTeams(area);
+			}
+
+			@Override
+			public boolean isCorrect(AreaInformation area) {
+				return TranslateableAreaVerrifer.this.isCorrect(area);
+			}
+		};
+	}
 }
