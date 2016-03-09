@@ -3,6 +3,7 @@ package me.ferrybig.javacoding.minecraft.minigame.bootstrap;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import me.ferrybig.javacoding.minecraft.minigame.AreaConstructor;
+import me.ferrybig.javacoding.minecraft.minigame.AreaContextConstructor;
 import me.ferrybig.javacoding.minecraft.minigame.verrifier.AreaVerifier;
 import me.ferrybig.javacoding.minecraft.minigame.GameCore;
 import me.ferrybig.javacoding.minecraft.minigame.listener.GameListener;
@@ -27,6 +28,8 @@ public interface Bootstrap {
 	public Bootstrap withAreaVerifier(TranslateableAreaVerrifer verifier);
 
 	public Bootstrap withAreaConstructor(AreaConstructor constructor);
+
+	public Bootstrap withAreaContextConstructor(AreaContextConstructor constructor);
 
 	public Future<GameCore> build();
 
