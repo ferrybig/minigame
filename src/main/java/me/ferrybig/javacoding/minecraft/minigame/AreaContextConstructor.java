@@ -4,6 +4,6 @@ import io.netty.util.concurrent.Future;
 
 public interface AreaContextConstructor {
 
-	public Future<AreaContext> construct(ResolvedAreaInformation area,
+	public Future<AreaContext> construct(GameCore core, ResolvedAreaInformation area,
 			Controller controller, Pipeline pipeline);
 }

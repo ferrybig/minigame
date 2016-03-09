@@ -247,7 +247,7 @@ public class DefaultGameCore implements GameCore {
 		Controller controller = null; // TODO
 		Pipeline pipeline = null; // TODO
 		return info.getAreaContextConstructor()
-				.construct(area, controller, pipeline).addListener(f -> {
+				.construct(this, area, controller, pipeline).addListener(f -> {
 
 		});
 	}
