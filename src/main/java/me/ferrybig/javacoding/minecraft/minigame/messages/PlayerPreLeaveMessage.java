@@ -18,7 +18,8 @@ public class PlayerPreLeaveMessage extends Message {
 
 	public enum Reason {
 		PLAYER_QUIT_SERVER,
-		MANUAL_LEAVE
+		MANUAL_LEAVE,
+		AUTOMATIC_LEAVE
 	}
 
 }
