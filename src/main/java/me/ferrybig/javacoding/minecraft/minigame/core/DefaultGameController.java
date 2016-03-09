@@ -273,6 +273,5 @@ public class DefaultGameController implements Controller {
 			trigger.triggerPlayerSpectate(new PlayerSpectateMessage(getPlayer(), spectator));
 			this.spectator = spectator;
 		}
-
 	}
 }
