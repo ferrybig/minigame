@@ -54,21 +54,24 @@ public class DefaultGameCore implements GameCore {
 	private final Promise<Object> startingFuture;
 	private final EventExecutor executor;
 
-	public DefaultGameCore(InformationContext info, Map<String, ? extends AreaInformation> areas) {
-		this(info, areas, defaultRandomAreaSelector());
+	public DefaultGameCore(InformationContext info) {
+		this(info, defaultRandomAreaSelector());
 	}
 
-	public DefaultGameCore(InformationContext info, Map<String, ? extends AreaInformation> areas,
+	public DefaultGameCore(InformationContext info,
 			Function<Stream<Map.Entry<Area, Integer>>, Area> areaSelector) {
 		this.info = Objects.requireNonNull(info, "info == null");
-		Objects.requireNonNull(areas, "areas == null").forEach((k, v) -> {
-			Area area = this.resolvArea(info.getAreaVerifier().validate(v));
-			DefaultGameCore.this.areas.put(area.getName(), area);
-		});
 		this.executor = Objects.requireNonNull(info.getExecutor(), "executor == null");
 		this.terminationFuture = executor.newPromise();
 		this.startingFuture = executor.newPromise();
 		this.areaSelector = areaSelector;
+	}
+
+	@Override
+	public void addArea(AreaInformation ar) {
+		Objects.requireNonNull(ar, "ar == null");
+		Area area = this.resolvArea(info.getAreaVerifier().validate(ar));
+		DefaultGameCore.this.areas.put(area.getName(), area);
 	}
 
 	@Override

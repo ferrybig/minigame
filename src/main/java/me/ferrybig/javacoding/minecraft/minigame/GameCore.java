@@ -9,6 +9,8 @@ import org.bukkit.OfflinePlayer;
 
 public interface GameCore extends AutoCloseable, GameListenable {
 
+	public void addArea(AreaInformation area);
+
 	public Optional<Area> getArea(String name);
 
 	public AreaCreator createArea(String name);
