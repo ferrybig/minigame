@@ -14,7 +14,6 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import me.ferrybig.javacoding.minecraft.minigame.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.Controller;
 import me.ferrybig.javacoding.minecraft.minigame.InformationContext;
 import me.ferrybig.javacoding.minecraft.minigame.Triggerable;
@@ -31,7 +30,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class DefaultGameController implements Controller {
 
-	private AreaContext area;
 	private final InformationContext info;
 	private final Triggerable trigger;
 	private final Predicate<OfflinePlayer> beforePreJoin;
@@ -54,9 +52,6 @@ public class DefaultGameController implements Controller {
 
 	@Override
 	public boolean addPlayer(Player player) {
-		if (area == null) {
-			return false;
-		}
 		if (!offlinePlayers.contains(player.getUniqueId())) {
 			if (beforePreJoin.test(player)) {
 				offlinePlayers.add(player.getUniqueId());
@@ -88,17 +83,10 @@ public class DefaultGameController implements Controller {
 	public void removePlayer(OfflinePlayer player) {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
-	
-	public void init(AreaContext area) {
-		this.area = area;
-	}
 
 	@Override
 	public boolean tryAddPlayer(List<? extends OfflinePlayer> players) {
 		Objects.requireNonNull(players, "players == null");
-		if (area == null) {
-			return false;
-		}
 		players = players.stream().filter(Objects::nonNull).collect(Collectors.toList());
 		boolean failed = false;
 		int seen = 0;
