@@ -4,16 +4,24 @@ import io.netty.util.AttributeMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreLeaveMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreLeaveMessage.Reason;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 public interface Controller {
-
+	
+	public void kickAll();
+	
 	public boolean tryAddPlayer(List<? extends OfflinePlayer> player);
 
 	public boolean addPlayer(Player player);
 
-	public void removePlayer(OfflinePlayer player);
+	public default void removePlayer(OfflinePlayer player) {
+		removePlayer(player, Reason.AUTOMATIC_LEAVE);
+	}
+	
+	public void removePlayer(OfflinePlayer player, Reason reason);
 
 	public Map<Player, PlayerInfo> getPlayers();
 
