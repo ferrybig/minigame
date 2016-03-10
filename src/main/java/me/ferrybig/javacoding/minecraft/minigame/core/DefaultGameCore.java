@@ -5,8 +5,10 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import static java.util.Collections.emptyList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -19,6 +21,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
@@ -33,6 +36,7 @@ import me.ferrybig.javacoding.minecraft.minigame.ResolvedAreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.exceptions.CoreClosedException;
 import me.ferrybig.javacoding.minecraft.minigame.listener.CombinedListener;
 import me.ferrybig.javacoding.minecraft.minigame.listener.GameListener;
+import me.ferrybig.javacoding.minecraft.minigame.util.ChainedFuture;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -244,12 +248,49 @@ public class DefaultGameCore implements GameCore {
 	}
 
 	private Future<AreaContext> createContext(Area area) {
-		Controller controller = null; // TODO
-		Pipeline pipeline = null; // TODO
-		return info.getAreaContextConstructor()
-				.construct(this, area, controller, pipeline).addListener(f -> {
+		AtomicReference<AreaContext> ref = new AtomicReference<>();
+		Pipeline pipeline = new DefaultGamePipeline(); // TODO
+		Controller controller = new DefaultGameController(info, pipeline.entrance());
+		controller.addListener(new Controller.ControllerListener() {
+			@Override
+			public boolean canAddPlayerToGame(Player player) {
+				return ref.get().equals(playerGames.get(player.getUniqueId()));
+			}
 
+			@Override
+			public boolean canAddPlayerPreToGame(OfflinePlayer player) {
+				return !playerGames.containsKey(player.getUniqueId());
+			}
+
+			@Override
+			public void addedPlayerPreToGame(OfflinePlayer player) {
+				playerGames.put(player.getUniqueId(), ref.get());
+			}
+
+			@Override
+			public void addedPlayerToGame(Player player) {
+				playerGames.put(player.getUniqueId(), ref.get());
+			}
+
+			@Override
+			public void removedPlayerFromGame(Player player) {
+				playerGames.put(player.getUniqueId(), ref.get());
+			}
+
+			@Override
+			public void removedPlayerFromPreGame(OfflinePlayer player) {
+				playerGames.put(player.getUniqueId(), ref.get());
+			}
 		});
+		return ChainedFuture.of(info.getExecutor(), 
+				()->info.getAreaContextConstructor().construct(this, area, controller, pipeline))
+				.addListener((Future<AreaContext> f) -> ref.set(f.get()))
+				.addListener((Future<AreaContext> f) -> areaContexts
+						.computeIfAbsent(area.getName(), i -> new ArrayList<>()).add(f.get()))
+				.addListener((Future<AreaContext> f) -> f.get().pipeline().runLoop(f.get()))
+				.addListener((Future<AreaContext> f) -> f.get().pipeline().getClosureFuture()
+						.addListener(f2 -> areaContexts
+								.getOrDefault(area.getName(),emptyList()).remove(f.get())));
 	}
 
 	public static Function<Stream<Entry<Area, Integer>>, Area> defaultRandomAreaSelector() {

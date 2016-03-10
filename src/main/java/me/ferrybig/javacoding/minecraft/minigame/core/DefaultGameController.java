@@ -3,6 +3,7 @@ package me.ferrybig.javacoding.minecraft.minigame.core;
 import io.netty.util.DefaultAttributeMap;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -10,8 +11,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import me.ferrybig.javacoding.minecraft.minigame.Controller;
 import me.ferrybig.javacoding.minecraft.minigame.InformationContext;
@@ -23,6 +24,7 @@ import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreLeaveMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreLeaveMessage.Reason;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerSpectateMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerTeamMessage;
+import static me.ferrybig.javacoding.minecraft.minigame.util.SafeUtil.safeCall;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -34,34 +36,38 @@ public class DefaultGameController implements Controller {
 
 	private final InformationContext info;
 	private final Triggerable trigger;
-	private final Predicate<OfflinePlayer> beforePreJoin;
-	private final Predicate<Player> beforeJoin;
-	private final Consumer<Player> afterJoin;
-	private final Consumer<OfflinePlayer> afterPreJoin;
-	private final Consumer<Player> afterLeave;
-	private final Consumer<OfflinePlayer> afterPreLeave;
+	private final List<ControllerListener> listeners = new ArrayList<>();
 	private final Map<UUID, DefaultPlayerInfo> playerStates = new HashMap<>();
 
-	public DefaultGameController(InformationContext info, Triggerable trigger,
-			Predicate<OfflinePlayer> beforePreJoin, Predicate<Player> beforeJoin,
-			Consumer<Player> afterJoin, Consumer<OfflinePlayer> afterPreJoin,
-			Consumer<Player> afterLeave, Consumer<OfflinePlayer> afterPreLeave) {
+	public DefaultGameController(InformationContext info, Triggerable trigger) {
 		this.info = Objects.requireNonNull(info, "info == null");
 		this.trigger = Objects.requireNonNull(trigger, "trigger == null");
-		this.beforePreJoin = Objects.requireNonNull(beforePreJoin, "beforePreJoin == null");
-		this.beforeJoin = Objects.requireNonNull(beforeJoin, "beforeJoin == null");
-		this.afterJoin = Objects.requireNonNull(afterJoin, "afterJoin == null");
-		this.afterPreJoin = Objects.requireNonNull(afterPreJoin, "afterPreJoin == null");
-		this.afterLeave = Objects.requireNonNull(afterLeave, "afterLeave == null");
-		this.afterPreLeave = Objects.requireNonNull(afterPreLeave, "afterPreLeave == null");
 		this.info.getPlugin().getServer().getPluginManager().registerEvents(
 				new PlayerQuitListener(this), this.info.getPlugin());
+	}
+
+	@Override
+	public void addListener(ControllerListener listener) {
+		this.listeners.add(listener);
+	}
+
+	private <T> void callListeners(BiConsumer<ControllerListener, T> caller, T argument) {
+		listeners.stream().forEachOrdered((l) -> safeCall(info.getLogger(), () -> caller.accept(l, argument)));
+	}
+
+	private <T> boolean askListeners(BiFunction<ControllerListener, T, Boolean> caller, T argument) {
+		return listeners.stream().allMatch((l) -> safeCall(info.getLogger(), () -> caller.apply(l, argument), false));
 	}
 
 	@Override
 	public void kickAll() {
 		this.playerStates.values().stream().map(PlayerInfo::getOfflinePlayer)
 				.collect(Collectors.toList()).forEach(this::removePlayer);
+	}
+
+	@Override
+	public void removeListener(ControllerListener listener) {
+		this.listeners.remove(listener);
 	}
 
 	private void updateState(OfflinePlayer player, boolean fullyJoined) {
@@ -93,14 +99,9 @@ public class DefaultGameController implements Controller {
 	@Override
 	public boolean addPlayer(Player player) {
 		if (!hasState(player)) {
-			if (beforePreJoin.test(player)) {
-				updateState(player, false);
-				afterPreJoin.accept(player);
-			} else {
-				return false;
-			}
+			tryAddPlayer(player);
 		}
-		if (!beforeJoin.test(player)) {
+		if (!askListeners(ControllerListener::canAddPlayerToGame, player)) {
 			removePlayer(player);
 			return false;
 		}
@@ -109,7 +110,7 @@ public class DefaultGameController implements Controller {
 		boolean succesful = !join.isCancelled();
 		if (succesful) {
 			updateState(player, true);
-			afterJoin.accept(player);
+			callListeners(ControllerListener::addedPlayerToGame, player);
 		} else {
 			removePlayer(player);
 		}
@@ -152,11 +153,30 @@ public class DefaultGameController implements Controller {
 				}
 				trigger.triggerPlayerLeave(new PlayerLeaveMessage(p, reason));
 				updateState(player, false);
-				afterLeave.accept(p);
+				callListeners(ControllerListener::removedPlayerFromGame, p);
 			}
 			trigger.triggerPlayerPreLeave(new PlayerPreLeaveMessage(player, reason));
 			removeState(player);
-			afterPreLeave.accept(player);
+			callListeners(ControllerListener::removedPlayerFromPreGame, player);
+		}
+	}
+
+	public boolean tryAddPlayer(OfflinePlayer player) {
+		if (!hasState(player)) {
+			if (askListeners(ControllerListener::canAddPlayerPreToGame, player)) {
+				PlayerPreJoinMessage pl = new PlayerPreJoinMessage(player);
+				this.trigger.triggerPlayerPreJoin(pl);
+				if (pl.isCancelled()) {
+					return false;
+				}
+				updateState(player, false);
+				callListeners(ControllerListener::addedPlayerPreToGame, player);
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return true;
 		}
 	}
 
@@ -174,22 +194,10 @@ public class DefaultGameController implements Controller {
 				if (p == null) {
 					throw new IllegalArgumentException("players.contains(null) == true");
 				}
-				if (this.hasState(p)) {
-					continue;
-				}
-				if (!this.beforePreJoin.test(p)) {
+				if (!tryAddPlayer(p)) {
 					failed = true;
 					break;
 				}
-				PlayerPreJoinMessage pl = new PlayerPreJoinMessage(p);
-				this.trigger.triggerPlayerPreJoin(pl);
-				// This method will automatic call the listeners
-				if (pl.isCancelled()) {
-					failed = true;
-					break;
-				}
-				updateState(p, false);
-				afterPreJoin.accept(p);
 				seen++;
 			}
 		} finally {
