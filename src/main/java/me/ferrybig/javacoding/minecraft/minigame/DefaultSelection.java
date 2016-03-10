@@ -7,12 +7,12 @@ import org.bukkit.util.Vector;
 public class DefaultSelection implements Selection {
 
 	private final World world;
+	private final Vector first = new Vector();
+	private final Vector second = new Vector();
 
 	public DefaultSelection(World world) {
 		this.world = Objects.requireNonNull(world, "world == null");
 	}
-	private final Vector first = new Vector();
-	private final Vector second = new Vector();
 
 	@Override
     public DefaultSelection deepClone() {
