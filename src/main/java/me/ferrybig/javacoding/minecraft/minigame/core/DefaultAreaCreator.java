@@ -31,39 +31,17 @@ public class DefaultAreaCreator implements AreaCreator {
 	private Selection selection;
 	private boolean enabled;
 	private int maxPlayers = 0;
+	
+	public DefaultAreaCreator(Function<? super AreaCreator, Area> constructor,
+			AreaVerifier verifier) {
+		this.constructor = Objects.requireNonNull(constructor, "constructor == null");
+		this.verifier = Objects.requireNonNull(verifier, "verifier == null");
+	}
 
 	public DefaultAreaCreator(World w, Function<? super AreaCreator, Area> constructor,
 			AreaVerifier verifier) {
+		this(constructor, verifier);
 		this.selection = new DefaultSelection(w);
-		this.constructor = constructor;
-		this.verifier = verifier;
-	}
-	
-	public DefaultAreaCreator(AreaInformation area, Function<? super AreaCreator, Area> constructor,
-			AreaVerifier verifier) {
-		Objects.requireNonNull(area, "area == null");
-		Objects.requireNonNull(area, "constructor == null");
-		Objects.requireNonNull(area, "verifier == null");
-		
-		this.selection = area.getBounds().deepClone();
-		this.name = area.getName();
-		this.description = area.getDescription();
-		this.taggedBlocks = new HashMap<>();
-		for(Entry<String, List<Block>> t : area.getTaggedBlocks().entrySet()) {
-			if(t.getValue() == null || t.getValue().isEmpty())
-				continue;
-			this.taggedBlocks.put(t.getKey(), new ArrayList<>(t.getValue()));
-		}
-		this.taggedLocations = new HashMap<>();
-		for(Entry<String, List<Location>> t : area.getTaggedLocations().entrySet()) {
-			if(t.getValue() == null || t.getValue().isEmpty())
-				continue;
-			this.taggedLocations.put(t.getKey(), new ArrayList<>(t.getValue()));
-		}
-		this.maxPlayers = Math.max(0, area.maxPlayers());
-		this.enabled = area.isEnabled();
-		this.verifier = verifier;
-		this.constructor = constructor;
 	}
 
 	@Override

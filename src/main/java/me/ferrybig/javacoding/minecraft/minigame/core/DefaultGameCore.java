@@ -8,7 +8,6 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import static java.util.Collections.emptyList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -86,11 +85,17 @@ public class DefaultGameCore implements GameCore {
 				requestedRandomAreaContexts.stream()).forEach(f -> f.cancel(true));
 		requestedAreaContexts.clear();
 		requestedRandomAreaContexts.clear();
+		areaContexts.values().stream().flatMap(l -> new ArrayList<>(l).stream())
+				.map(AreaContext::pipeline).forEach(Pipeline::terminate);
+	}
+
+	protected AreaCreator createAreaCreator() {
+		return new DefaultAreaCreator(this::resolvArea, info.getAreaVerifier());
 	}
 
 	@Override
 	public AreaCreator createArea(String name) {
-		throw new UnsupportedOperationException("Not supported yet."); //TODO
+		return createAreaCreator().setName(name);
 	}
 
 	@Override
@@ -236,7 +241,7 @@ public class DefaultGameCore implements GameCore {
 	}
 
 	private AreaCreator editArea(Area area) {
-		return new DefaultAreaCreator(area, this::resolvArea, info.getAreaVerifier());
+		return this.createAreaCreator().copyInformation(area);
 	}
 
 	private Area resolvArea(ResolvedAreaInformation area) {
@@ -253,14 +258,15 @@ public class DefaultGameCore implements GameCore {
 			private AtomicReference<AreaContext> reference = ref;
 
 			private AreaContext get() {
-				if(con == null) {
+				if (con == null) {
 					con = reference.get();
-					if(con != null) {
+					if (con != null) {
 						reference = null;
 					}
 				}
 				return con;
 			}
+
 			@Override
 			public boolean canAddPlayerToGame(Player player) {
 				return get().equals(playerGames.get(player.getUniqueId()));
@@ -292,8 +298,8 @@ public class DefaultGameCore implements GameCore {
 				playerGames.put(player.getUniqueId(), get());
 			}
 		});
-		return ChainedFuture.of(info.getExecutor(), 
-				()->info.getAreaContextConstructor().construct(this, area, controller, pipeline))
+		return ChainedFuture.of(info.getExecutor(),
+				() -> info.getAreaContextConstructor().construct(this, area, controller, pipeline))
 				.addListener((Future<AreaContext> f) -> {
 					AreaContext c = f.get();
 					ref.set(c);
