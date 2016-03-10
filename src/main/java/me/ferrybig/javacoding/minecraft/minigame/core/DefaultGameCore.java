@@ -235,10 +235,6 @@ public class DefaultGameCore implements GameCore {
 		}
 	}
 
-	private void addPlayerToGame(Player p, AreaContext game) {
-		playerGames.put(p.getUniqueId(), game);
-	}
-
 	private AreaCreator editArea(Area area) {
 		return new DefaultAreaCreator(area, this::resolvArea, info.getAreaVerifier());
 	}
@@ -252,9 +248,22 @@ public class DefaultGameCore implements GameCore {
 		Pipeline pipeline = new DefaultGamePipeline(); // TODO
 		Controller controller = new DefaultGameController(info, pipeline.entrance());
 		controller.addListener(new Controller.ControllerListener() {
+
+			private AreaContext con;
+			private AtomicReference<AreaContext> reference = ref;
+
+			private AreaContext get() {
+				if(con == null) {
+					con = reference.get();
+					if(con != null) {
+						reference = null;
+					}
+				}
+				return con;
+			}
 			@Override
 			public boolean canAddPlayerToGame(Player player) {
-				return ref.get().equals(playerGames.get(player.getUniqueId()));
+				return get().equals(playerGames.get(player.getUniqueId()));
 			}
 
 			@Override
@@ -264,37 +273,54 @@ public class DefaultGameCore implements GameCore {
 
 			@Override
 			public void addedPlayerPreToGame(OfflinePlayer player) {
-				playerGames.put(player.getUniqueId(), ref.get());
+				playerGames.put(player.getUniqueId(), get());
 			}
 
 			@Override
 			public void addedPlayerToGame(Player player) {
-				playerGames.put(player.getUniqueId(), ref.get());
+				playerGames.put(player.getUniqueId(), get());
 			}
 
 			@Override
 			public void removedPlayerFromGame(Player player) {
-				playerGames.put(player.getUniqueId(), ref.get());
+				playerGames.put(player.getUniqueId(), get());
+				listeners.playerLeaveGame(get(), player);
 			}
 
 			@Override
 			public void removedPlayerFromPreGame(OfflinePlayer player) {
-				playerGames.put(player.getUniqueId(), ref.get());
+				playerGames.put(player.getUniqueId(), get());
 			}
 		});
 		return ChainedFuture.of(info.getExecutor(), 
 				()->info.getAreaContextConstructor().construct(this, area, controller, pipeline))
-				.addListener((Future<AreaContext> f) -> ref.set(f.get()))
-				.addListener((Future<AreaContext> f) -> areaContexts
-						.computeIfAbsent(area.getName(), i -> new ArrayList<>()).add(f.get()))
-				.addListener((Future<AreaContext> f) -> f.get().pipeline().runLoop(f.get()))
-				.addListener((Future<AreaContext> f) -> f.get().getClosureFuture()
-						.addListener(f2 -> areaContexts
-								.getOrDefault(area.getName(),emptyList()).remove(f.get())));
+				.addListener((Future<AreaContext> f) -> {
+					AreaContext c = f.get();
+					ref.set(c);
+					areaContextCreated(c);
+					c.pipeline().runLoop(c);
+					c.getClosureFuture().addListener(f2 -> areaContextDestroyed(f.get()));
+				});
 	}
 
 	public static Function<Stream<Entry<Area, Integer>>, Area> defaultRandomAreaSelector() {
 		return l -> l.min((a, b) -> a.getValue().compareTo(b.getValue())).map(Entry::getKey).orElse(null);
+	}
+
+	private void areaContextCreated(AreaContext context) {
+		areaContexts.computeIfAbsent(context.getName(), i -> new ArrayList<>()).add(context);
+		listeners.gameInstanceStarted(context);
+	}
+
+	private void areaContextDestroyed(AreaContext context) {
+		Collection<AreaContext> l = areaContexts.get(context.getName());
+		if (l != null) {
+			l.remove(context);
+			if (l.isEmpty()) {
+				areaContexts.remove(context.getName());
+			}
+		}
+		listeners.gameInstanceFinished(context);
 	}
 
 }
