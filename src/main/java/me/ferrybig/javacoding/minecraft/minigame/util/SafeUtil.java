@@ -2,6 +2,7 @@
 package me.ferrybig.javacoding.minecraft.minigame.util;
 
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,5 +37,22 @@ public class SafeUtil {
 		if(suppressed != null)
 			ex.addSuppressed(suppressed);
 		return ex;
+	}
+
+	public static <T> T safeCall(Logger log, Callable<? extends T> call, T failureState) {
+		try {
+			return call.call();
+		} catch (Throwable t) {
+			log.log(Level.SEVERE, "Error calling " + toString(call), t);
+			return failureState;
+		}
+	}
+
+	public static void safeCall(Logger log, Runnable call) {
+		try {
+			call.run();
+		} catch (Throwable t) {
+			log.log(Level.SEVERE, "Error calling " + toString(call), t);
+		}
 	}
 }
