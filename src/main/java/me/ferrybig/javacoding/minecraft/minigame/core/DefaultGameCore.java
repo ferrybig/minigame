@@ -288,7 +288,7 @@ public class DefaultGameCore implements GameCore {
 				.addListener((Future<AreaContext> f) -> areaContexts
 						.computeIfAbsent(area.getName(), i -> new ArrayList<>()).add(f.get()))
 				.addListener((Future<AreaContext> f) -> f.get().pipeline().runLoop(f.get()))
-				.addListener((Future<AreaContext> f) -> f.get().pipeline().getClosureFuture()
+				.addListener((Future<AreaContext> f) -> f.get().getClosureFuture()
 						.addListener(f2 -> areaContexts
 								.getOrDefault(area.getName(),emptyList()).remove(f.get())));
 	}
