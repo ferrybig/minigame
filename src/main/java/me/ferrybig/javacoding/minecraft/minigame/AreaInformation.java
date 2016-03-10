@@ -92,4 +92,19 @@ public interface AreaInformation {
 			}
 		};
 	}
+	
+	public static <T> Map<String, List<T>> copyTaggedInformation(
+			Map<String, List<T>> info, boolean unmodifeable) {
+		Map<String, List<T>> t;
+		if(info != null)
+			t = new HashMap<>(info);
+		else
+			t = new HashMap<>();
+		t.replaceAll((k,v)->new ArrayList<>(v));
+		if (!unmodifeable) {
+			return t;
+		}
+		t.replaceAll((k,v)->Collections.unmodifiableList(v));
+		return Collections.unmodifiableMap(t);
+	}
 }
