@@ -48,9 +48,8 @@ public class DefaultGameCore implements GameCore {
 	private final Function<Stream<Map.Entry<Area, Integer>>, Area> areaSelector;
 	private final Map<String, Area> areas = new HashMap<>();
 	private final Map<String, List<AreaContext>> areaContexts = new HashMap<>();
-	private final Map<String, List<Promise<AreaContext>>> requestedAreaContexts = new HashMap<>();
 	private final Map<UUID, AreaContext> playerGames = new HashMap<>();
-	private final Queue<Promise<AreaContext>> requestedRandomAreaContexts = new LinkedList<>();
+	private final LinkedList<Future<AreaContext>> requestedAreaContexts = new LinkedList<>();
 	private final InformationContext info;
 	private final CombinedListener listeners = new CombinedListener();
 	private final Promise<Object> terminationFuture;
@@ -81,10 +80,8 @@ public class DefaultGameCore implements GameCore {
 	public void close() {
 		Exception closureFailure = new CoreClosedException();
 		terminationFuture.setSuccess(closureFailure);
-		Stream.concat(requestedAreaContexts.values().stream().flatMap(List::stream),
-				requestedRandomAreaContexts.stream()).forEach(f -> f.cancel(true));
+		requestedAreaContexts.stream().forEach(f -> f.cancel(true));
 		requestedAreaContexts.clear();
-		requestedRandomAreaContexts.clear();
 		areaContexts.values().stream().flatMap(l -> new ArrayList<>(l).stream())
 				.map(AreaContext::pipeline).forEach(Pipeline::terminate);
 	}
@@ -103,8 +100,7 @@ public class DefaultGameCore implements GameCore {
 		checkState();
 		Area randomArea = areaSelector.apply(areas.entrySet().stream()
 				.map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getValue(),
-						areaContexts.getOrDefault(e.getKey(), Collections.emptyList()).size()
-						+ requestedAreaContexts.getOrDefault(e.getKey(), Collections.emptyList()).size())
+						areaContexts.getOrDefault(e.getKey(), Collections.emptyList()).size())
 				));
 		if (randomArea == null) {
 			return executor.newFailedFuture(new NoSuchElementException("No Areas found"));
