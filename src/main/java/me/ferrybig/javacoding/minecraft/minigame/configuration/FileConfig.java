@@ -68,7 +68,7 @@ public class FileConfig extends AbstractFullConfig {
 			return;
 		}
 		saveTask = executor.schedule(() -> {
-            saveConfig(conf);
+			saveConfig(conf);
 			saveTask = null;
 			return null;
 		}, 5, TimeUnit.MINUTES);

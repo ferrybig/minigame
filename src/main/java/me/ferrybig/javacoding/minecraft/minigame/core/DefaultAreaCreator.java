@@ -24,7 +24,7 @@ public class DefaultAreaCreator implements AreaCreator {
 
 	private final AreaVerifier verifier;
 	private final Function<? super AreaCreator, Area> constructor;
-    private String name = "Unnamed";
+	private String name = "Unnamed";
 	private String description = "";
 	private Map<String, List<Block>> taggedBlocks = new HashMap<>();
 	private Map<String, List<Location>> taggedLocations = new HashMap<>();

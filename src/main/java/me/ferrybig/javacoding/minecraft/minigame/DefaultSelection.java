@@ -15,7 +15,7 @@ public class DefaultSelection implements Selection {
 	}
 
 	@Override
-    public DefaultSelection deepClone() {
+	public DefaultSelection deepClone() {
 		DefaultSelection n = new DefaultSelection(world);
 		n.getFirstPoint().add(first);
 		n.getSecondPoint().add(second);
