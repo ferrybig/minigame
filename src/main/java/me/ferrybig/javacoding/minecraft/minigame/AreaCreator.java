@@ -2,7 +2,7 @@ package me.ferrybig.javacoding.minecraft.minigame;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import static me.ferrybig.javacoding.minecraft.minigame.AreaInformation.copyTaggedInformation;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
@@ -21,5 +21,15 @@ public interface AreaCreator extends ResolvedAreaInformation {
 	public AreaCreator setTaggedLocations(Map<String, List<Location>> taggedLocations);
 
 	public Area createArea();
-	
+
+	public default AreaCreator copyInformation(AreaInformation info) {
+		setDescription(info.getDescription());
+		setMaxPlayers(info.maxPlayers());
+		setName(info.getName());
+		setSelection(info.getBounds().deepClone());
+		setTaggedBlocks(copyTaggedInformation(info.getTaggedBlocks(), false));
+		setTaggedLocations(copyTaggedInformation(info.getTaggedLocations(), false));
+		return this;
+	}
+
 }
