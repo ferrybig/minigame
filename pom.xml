@@ -76,6 +76,7 @@
 							<consoleOutput>true</consoleOutput>
 							<!-- Fail until we properly fix the errors -->
 							<failsOnError>false</failsOnError>
+							<failOnViolation>false</failOnViolation>
 							<linkXRef>false</linkXRef>
 						</configuration>
 						<goals>
