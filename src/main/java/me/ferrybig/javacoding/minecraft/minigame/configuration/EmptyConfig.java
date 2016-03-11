@@ -11,9 +11,9 @@ import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
 import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
 import org.bukkit.block.Block;
 
-public class EmpyConfig extends AbstractFullConfig {
+public class EmptyConfig extends AbstractFullConfig {
 
-	public EmpyConfig(EventExecutor executor) {
+	public EmptyConfig(EventExecutor executor) {
 		super(executor);
 	}
 
