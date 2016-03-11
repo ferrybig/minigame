@@ -2,6 +2,7 @@ package me.ferrybig.javacoding.minecraft.minigame.core;
 
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.Promise;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
@@ -22,6 +23,8 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.stream.Stream;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.AreaContext;
@@ -35,6 +38,7 @@ import me.ferrybig.javacoding.minecraft.minigame.ResolvedAreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.exceptions.CoreClosedException;
 import me.ferrybig.javacoding.minecraft.minigame.listener.CombinedListener;
 import me.ferrybig.javacoding.minecraft.minigame.listener.GameListener;
+import me.ferrybig.javacoding.minecraft.minigame.util.ChainedFuture;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -53,9 +57,8 @@ public class DefaultGameCore implements GameCore {
 	private final CombinedListener listeners = new CombinedListener();
 	private final Promise<Object> terminationFuture;
 	private final Promise<Object> startingFuture;
-	private Promise<Object> runningStartFuture;
-	private Promise<Object> runningStopFuture;
-	private boolean running = false;
+	private boolean running = true;
+	private boolean stopped = false;
 	private final EventExecutor executor;
 
 	public DefaultGameCore(InformationContext info) {
@@ -68,13 +71,16 @@ public class DefaultGameCore implements GameCore {
 		this.executor = Objects.requireNonNull(info.getExecutor(), "executor == null");
 		this.terminationFuture = executor.newPromise();
 		this.startingFuture = executor.newPromise();
-		this.runningStartFuture = executor.newPromise();
-		this.runningStopFuture = executor.newPromise();
 		this.areaSelector = areaSelector;
+		this.terminationFuture.setUncancellable();
+		this.startingFuture.setUncancellable();
 	}
 
 	@Override
 	public void addArea(AreaInformation ar) {
+		if (isTerminating()) {
+			throw new IllegalStateException("Core has been shut down");
+		}
 		Objects.requireNonNull(ar, "ar == null");
 		Area area = this.resolvArea(info.getAreaVerifier().validate(ar));
 		DefaultGameCore.this.areas.put(area.getName(), area);
@@ -82,34 +88,51 @@ public class DefaultGameCore implements GameCore {
 
 	@Override
 	public void close() {
+		if (stopped) {
+			return;
+		}
+		running = false;
 		Exception closureFailure = new CoreClosedException();
-		terminationFuture.setSuccess(closureFailure);
+		if (!terminationFuture.isDone()) {
+			terminationFuture.setSuccess(closureFailure);
+		}
 		Collection<Future<?>> toCancel = new ArrayList<>();
 		pendingAreaContexts.values().forEach(toCancel::addAll);
 		toCancel.forEach(f -> f.cancel(true));
 		areaContexts.values().stream().flatMap(l -> new ArrayList<>(l).stream())
 				.map(AreaContext::pipeline).forEach(Pipeline::terminate);
+		this.info.getConfig().flushChanges();
+		stopped = true;
 	}
 
 	protected AreaCreator createAreaCreator() {
-		return new DefaultAreaCreator(this::resolvArea, info.getAreaVerifier());
+		return new DefaultAreaCreator(a -> {
+			Area area = resolvArea(a);
+			areas.put(area.getName(), area);
+			info.getConfig().saveArea(area.getName(), area).addListener(new ErrorLoggingHandler(
+					"Failed to save area {0}", "Success save area {0}", area));
+			return area;
+		}, info.getAreaVerifier());
 	}
 
 	@Override
 	public AreaCreator createArea(String name) {
+		if (isTerminating()) {
+			throw new IllegalStateException("Core has been shut down");
+		}
 		return createAreaCreator().setName(name);
 	}
 
 	@Override
 	public Future<AreaContext> createRandomGameContext() {
-		checkState();
-		if(!running) {
+		if (!running) {
 			return info.getExecutor().newFailedFuture(new CancellationException());
 		}
+		checkState();
 		Area randomArea = areaSelector.apply(areas.entrySet().stream()
 				.map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getValue(),
-						areaContexts.getOrDefault(e.getKey(), Collections.emptyList()).size() +
-						pendingAreaContexts.getOrDefault(e.getKey(), Collections.emptyList()).size()		)
+						areaContexts.getOrDefault(e.getKey(), Collections.emptyList()).size()
+						+ pendingAreaContexts.getOrDefault(e.getKey(), Collections.emptyList()).size())
 				));
 		if (randomArea == null) {
 			return executor.newFailedFuture(new NoSuchElementException("No Areas found"));
@@ -177,16 +200,31 @@ public class DefaultGameCore implements GameCore {
 	}
 
 	@Override
-	public Future<?> initializeAndStart() {
-		executor.execute(() -> {
+	public Future<?> gracefulStop() {
+		this.running = false;
+		checkStopped();
+		return terminationFuture();
+	}
 
-		});
+	private void checkStopped() {
+		if (this.running == false) {
+			if (this.pendingAreaContexts.isEmpty() && this.areaContexts.isEmpty()) {
+				if (!this.terminationFuture.isDone()) {
+					this.terminationFuture.setSuccess(null);
+				}
+			}
+		}
+	}
+
+	@Override
+	public Future<?> initializeAndStart() {
+		startingFuture.setSuccess(this);
 		return startingFuture;
 	}
 
 	@Override
 	public boolean isRunning() {
-		throw new UnsupportedOperationException("Not supported yet."); //TODO
+		return running == true;
 	}
 
 	@Override
@@ -195,23 +233,20 @@ public class DefaultGameCore implements GameCore {
 	}
 
 	@Override
-	public boolean isStopping() {
-		throw new UnsupportedOperationException("Not supported yet."); //TODO
-	}
-
-	@Override
 	public boolean isTerminating() {
-		throw new UnsupportedOperationException("Not supported yet."); //TODO
+		return running == false;
 	}
 
 	@Override
 	public boolean removeArea(String area) {
-		throw new UnsupportedOperationException("Not supported yet."); //TODO
-	}
-
-	@Override
-	public Future<?> setRunning(boolean stopping) {
-		throw new UnsupportedOperationException("Not supported yet."); //TODO
+		Area ar = this.areas.get(area);
+		if (ar == null) {
+			return false;
+		}
+		ChainedFuture.of(executor, () -> this.info.getConfig().saveArea(area, null))
+				.addListener(new ErrorLoggingHandler(
+						"Failed to remove area {0}", "Success removing area {0}", area));
+		return true;
 	}
 
 	@Override
@@ -306,7 +341,7 @@ public class DefaultGameCore implements GameCore {
 		Future<AreaContext> context = info.getAreaContextConstructor().construct(this, area, controller, pipeline)
 				.addListener((Future<AreaContext> f) -> {
 					removeAreaFuture(area, f);
-					if(f.isSuccess() && f.get() != null) {
+					if (f.isSuccess() && f.get() != null) {
 						AreaContext c = f.get();
 						ref.set(c);
 						areaContextCreated(c);
@@ -315,7 +350,7 @@ public class DefaultGameCore implements GameCore {
 					}
 				});
 		addAreaFuture(area, context);
-		if(context.isDone()) {
+		if (context.isDone()) {
 			removeAreaFuture(area, context);
 		}
 		return context;
@@ -339,23 +374,50 @@ public class DefaultGameCore implements GameCore {
 			}
 		}
 		listeners.gameInstanceFinished(context);
+		checkStopped();
 	}
-	
+
 	private void addAreaFuture(Area main, Future<AreaContext> context) {
 		List<Future<AreaContext>> l = pendingAreaContexts.get(main.getName());
 		if (l == null) {
 			pendingAreaContexts.put(main.getName(), l = new LinkedList<>());
 		}
 		l.add(context);
-		
+
 	}
-	
+
 	private void removeAreaFuture(Area main, Future<AreaContext> context) {
 		Collection<Future<AreaContext>> l = pendingAreaContexts.get(main.getName());
 		if (l != null) {
 			l.remove(context);
 			if (l.isEmpty()) {
 				pendingAreaContexts.remove(main.getName());
+			}
+		}
+		checkStopped();
+	}
+
+	private class ErrorLoggingHandler implements GenericFutureListener<Future<Object>> {
+
+		private final Object[] args;
+		private final String fail;
+		private final String success;
+
+		public ErrorLoggingHandler(String fail, String success, Object... args) {
+			this.fail = fail;
+			this.success = success;
+			this.args = args;
+		}
+
+		@Override
+		public void operationComplete(Future<Object> f) throws Exception {
+			if (f.isSuccess()) {
+				info.getLogger().log(Level.FINE, success, args);
+			} else {
+				LogRecord log = new LogRecord(Level.SEVERE, fail);
+				log.setParameters(args);
+				log.setThrown(f.cause());
+				info.getLogger().log(log);
 			}
 		}
 	}

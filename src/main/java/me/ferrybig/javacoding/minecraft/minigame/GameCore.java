@@ -27,24 +27,26 @@ public interface GameCore extends AutoCloseable, GameListenable {
 
 	public Future<AreaContext> createRandomGameContext(long maxDelay, TimeUnit unit);
 
-	public boolean isRunning();
-
-	public boolean isStopping();
-
-	public boolean isTerminating();
-
-	public Future<?> setRunning(boolean stopping);
-
-	public Future<?> terminationFuture();
-
-	@Override
-	public void close();
+	public Future<?> initializeAndStart();
 
 	public Future<?> startingFuture();
 
 	public boolean isStarted();
 
-	public Future<?> initializeAndStart();
+	public boolean isRunning();
+
+	public boolean isTerminating();
+	
+	public default boolean isTerminated() {
+		return terminationFuture().isDone();
+	}
+
+	public Future<?> gracefulStop();
+
+	public Future<?> terminationFuture();
+
+	@Override
+	public void close();
 
 	public InformationContext getInfo();
 
