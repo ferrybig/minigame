@@ -290,7 +290,7 @@ public class DefaultGameCore implements GameCore {
 
 	private Future<AreaContext> createContext(Area area) {
 		AtomicReference<AreaContext> ref = new AtomicReference<>();
-		Pipeline pipeline = new DefaultGamePipeline(); // TODO
+		Pipeline pipeline = new DefaultGamePipeline(executor); // TODO
 		Controller controller = new DefaultGameController(info, pipeline.entrance());
 		controller.addListener(new Controller.ControllerListener() {
 

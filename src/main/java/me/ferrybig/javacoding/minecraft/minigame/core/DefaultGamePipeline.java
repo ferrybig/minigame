@@ -1,149 +1,367 @@
 package me.ferrybig.javacoding.minecraft.minigame.core;
 
+import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
-import java.util.ArrayList;
+import io.netty.util.concurrent.Promise;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.function.Supplier;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import me.ferrybig.javacoding.minecraft.minigame.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.Phase;
 import me.ferrybig.javacoding.minecraft.minigame.PhaseContext;
 import me.ferrybig.javacoding.minecraft.minigame.Pipeline;
+import me.ferrybig.javacoding.minecraft.minigame.exceptions.PhaseException;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerJoinMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerLeaveMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreJoinMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreLeaveMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerSpectateMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerTeamMessage;
+import org.bukkit.event.Listener;
 
-
+@SuppressWarnings(value = "") // TODO unsuppresses findbugs errors
 public class DefaultGamePipeline implements Pipeline {
-	
-	public int currPhaseIndex;
-	
-	private static Supplier<List<Phase>> listCreator;
-	
-	static {
-		listCreator = ()->{
-			try {
-				Class<?> l = DefaultGamePipeline.class.getClassLoader().loadClass(
-						System.getProperty("minigameAPI.phaseCreator", "java.util.ArayList"));
-				if(!List.class.isAssignableFrom(l)) 
-					throw new ClassCastException(l + " not a list");
-				@SuppressWarnings("unchecked")
-				List<Phase> list = (List<Phase>)l.newInstance();
-				return list;
-			} catch (ClassNotFoundException | ClassCastException | 
-					InstantiationException | IllegalAccessException ex) {
-				Logger.getLogger(DefaultGamePipeline.class.getName()).log(Level.WARNING, 
-						"Cannot use provided list creator", ex);
-				return (listCreator = ArrayList::new).get();
-			}
-		};
+
+	private static final int STARTING_AT_FIRST_PHASE = -1;
+	private final static int PRIORITY_EXCEPTION = 100;
+	private final static int PRIORITY_USER_OBJECT = 0;
+	private final static int PRIORITY_UNREGISTER = 11;
+	private final static int PRIORITY_REGISTER = 10;
+	private final static int PRIORITY_LOAD = 20;
+	private final static int PRIORITY_UNLOAD = 21;
+
+	private int currPhaseIndex;
+
+	private final List<PhaseHolder> removedPhases = new CopyOnWriteArrayList<>();
+
+	private final List<PhaseHolder> mainPhases = new CopyOnWriteArrayList<>();
+
+	private final Queue<PriorityTask> runQueue = new PriorityQueue<>();
+
+	private AreaContext area;
+
+	private boolean terminating = false;
+
+	private final Promise<AreaContext> terminationFuture;
+
+	private boolean inLoop = false;
+
+	public DefaultGamePipeline(EventExecutor executor) {
+		terminationFuture = executor.newPromise();
+		terminationFuture.setUncancellable();
 	}
-	
-	public List<Phase> mainPhases = listCreator.get();
 
 	@Override
 	public Pipeline addFirst(Iterable<Phase> phases) {
-		if(currPhaseIndex > 0) {
-			throw new IllegalStateException("pipeline already running");
-		}
-		phases.forEach(mainPhases.listIterator()::add);
-		return this;
+		throw new UnsupportedOperationException("Not supported yet."); // TODO
 	}
 
 	@Override
 	public Pipeline addLast(Iterable<Phase> phases) {
-		phases.forEach(mainPhases::add);
-		return this;
+		throw new UnsupportedOperationException("Not supported yet."); // TODO
 	}
 
 	@Override
 	public boolean contains(Phase phase) {
-		return mainPhases.contains(phase);
+		throw new UnsupportedOperationException("Not supported yet."); // TODO
 	}
 
 	@Override
 	public PhaseContext entrance() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		throw new UnsupportedOperationException("Not supported yet."); // TODO
 	}
 
 	@Override
 	public Phase get(int index) {
-		return mainPhases.get(index);
+		throw new UnsupportedOperationException("Not supported yet."); // TODO
 	}
 
 	@Override
 	public Future<?> getClosureFuture() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		throw new UnsupportedOperationException("Not supported yet."); // TODO
+	}
+
+	@Override
+	public int getCurrentIndex() {
+		throw new UnsupportedOperationException("Not supported yet."); // TODO
 	}
 
 	@Override
 	public int indexOf(Phase phase) {
-		return mainPhases.indexOf(phase);
+		throw new UnsupportedOperationException("Not supported yet."); // TODO
 	}
 
 	@Override
 	public Pipeline insert(int index, Phase phase) {
-		if(currPhaseIndex > index) {
-			throw new IllegalStateException("Cannot change running code");
-		}
-		mainPhases.listIterator(index).add(phase);
-		return this;
+		throw new UnsupportedOperationException("Not supported yet."); // TODO
 	}
 
 	@Override
 	public boolean isStopped() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		throw new UnsupportedOperationException("Not supported yet."); // TODO
 	}
 
 	@Override
 	public boolean isStopping() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		throw new UnsupportedOperationException("Not supported yet."); // TODO
 	}
 
 	@Override
 	public Iterator<Phase> iterator() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		throw new UnsupportedOperationException("Not supported yet."); // TODO
 	}
 
 	@Override
 	public Pipeline replace(int index, Phase phase) {
-		if(currPhaseIndex > index) {
-			throw new IllegalStateException("Cannot change running code");
+		throw new UnsupportedOperationException("Not supported yet."); // TODO
+	}
+
+	private void runLoop() {
+		if (area == null) {
+			return;
 		}
-		mainPhases.listIterator(index).add(phase);
-		return this;
+		if (inLoop) {
+			return;
+		}
+		inLoop = true;
+		try {
+			Runnable task;
+			while ((task = runQueue.poll()) != null) {
+				task.run();
+			}
+		} finally {
+			assert inLoop == true;
+			inLoop = false;
+		}
+	}
+
+	private void runLoop(int priority, Runnable run) {
+		runQueue.add(new PriorityTask(run, priority));
+		runLoop();
 	}
 
 	@Override
 	public void runLoop(AreaContext area) {
-		
+		if (this.area == null) {
+			this.area = area;
+		}
+		runLoop();
+	}
+
+	private <T> void onException(int index, Throwable message) {
+		if (terminating) {
+			return;
+		}
+		runLoop(PRIORITY_EXCEPTION, () -> {
+			if (index >= currPhaseIndex - 1) {
+				terminate();
+				area.getCore().getInfo().getLogger()
+						.log(Level.SEVERE, "Exception reached top of pipeline, terminating:", message);
+				return;
+			}
+			PhaseHolder phase = this.mainPhases.get(index + 1);
+			try {
+				phase.phase.exceptionCaucht(phase.context, message);
+			} catch (Throwable a) {
+				message.addSuppressed(a);
+				area.getCore().getInfo().getLogger()
+						.log(Level.SEVERE, "Caught exception in pipeline:", message);
+			}
+		});
+	}
+
+	private <T> void callMethod(int index, boolean reversedDirection,
+			PhaseCaller<T> callable, T message) {
+		if (terminating) {
+			return;
+		}
+		runLoop(PRIORITY_USER_OBJECT, () -> {
+			if (reversedDirection && index <= 0) {
+				return;
+			}
+			if (!reversedDirection && index >= currPhaseIndex - 1) {
+				return;
+			}
+			PhaseHolder phase = this.mainPhases.get(reversedDirection ? index - 1 : index + 1);
+			try {
+				callable.consume(phase.phase, phase.context, message);
+			} catch (Throwable a) {
+				onException(STARTING_AT_FIRST_PHASE, new PhaseException("Exception calling " + callable, a));
+			}
+		});
 	}
 
 	@Override
 	public int size() {
 		return mainPhases.size();
 	}
-	
-	@Override
-	public int getCurrentIndex() {
-		return currPhaseIndex;
-	}
-	
-	public void setCurrentIndex(int index) {
-		currPhaseIndex = index;
-	}
 
 	@Override
 	public void stop() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		terminate();
 	}
 
 	@Override
 	public void terminate() {
-		throw new UnsupportedOperationException("Not supported yet.");
+		throw new UnsupportedOperationException("Not supported yet."); // TODO
 	}
-	
-	
-	
+
+	private class PhaseHolder {
+
+		private boolean loaded = false;
+		private boolean shouldBeLoaded = false;
+		private boolean registered = false;
+		private boolean shouldBeRegistered = false;
+		private final Phase phase;
+		private final DefaultPhaseContext context;
+
+		public PhaseHolder(Phase phase, DefaultPhaseContext context) {
+			this.phase = phase;
+			this.context = context;
+		}
+
+		public boolean isLoaded() {
+			return loaded;
+		}
+
+		public void setLoaded(boolean loaded) {
+			this.loaded = loaded;
+		}
+
+		public boolean isRegistered() {
+			return registered;
+		}
+
+		public void setRegistered(boolean registered) {
+			this.registered = registered;
+		}
+
+		public boolean isShouldBeLoaded() {
+			return shouldBeLoaded;
+		}
+
+		public void setShouldBeLoaded(boolean shouldBeLoaded) {
+			this.shouldBeLoaded = shouldBeLoaded;
+		}
+
+		public boolean isShouldBeRegistered() {
+			return shouldBeRegistered;
+		}
+
+		public void setShouldBeRegistered(boolean shouldBeRegistered) {
+			this.shouldBeRegistered = shouldBeRegistered;
+		}
+
+	}
+
+	private class DefaultPhaseContext implements PhaseContext {
+
+		private int currIndex;
+
+		@Override
+		public AreaContext getAreaContext() {
+			return area;
+		}
+
+		@Override
+		public void registerNativeListener(Listener listener) {
+			area.getCore().getInfo().getPlugin().getServer().getPluginManager()
+					.registerEvents(listener, area.getCore().getInfo().getPlugin());
+		}
+
+		@Override
+		public boolean triggerExceptionCaucht(Throwable exception) {
+			throw new UnsupportedOperationException("Not supported yet."); // TODO
+		}
+
+		@Override
+		public void triggerNextPhase() {
+			throw new UnsupportedOperationException("Not supported yet."); // TODO
+		}
+
+		@Override
+		public void triggerPlayerChangeTeam(PlayerTeamMessage player) {
+			throw new UnsupportedOperationException("Not supported yet."); // TODO
+		}
+
+		@Override
+		public void triggerPlayerJoin(PlayerJoinMessage player) {
+			throw new UnsupportedOperationException("Not supported yet."); // TODO
+		}
+
+		@Override
+		public void triggerPlayerLeave(PlayerLeaveMessage player) {
+			throw new UnsupportedOperationException("Not supported yet."); // TODO
+		}
+
+		@Override
+		public void triggerPlayerPreJoin(PlayerPreJoinMessage player) {
+			throw new UnsupportedOperationException("Not supported yet."); // TODO
+		}
+
+		@Override
+		public void triggerPlayerPreLeave(PlayerPreLeaveMessage player) {
+			throw new UnsupportedOperationException("Not supported yet."); // TODO
+		}
+
+		@Override
+		public void triggerPlayerSpectate(PlayerSpectateMessage player) {
+			throw new UnsupportedOperationException("Not supported yet."); // TODO
+		}
+
+		@Override
+		public void triggerReset() {
+			throw new UnsupportedOperationException("Not supported yet."); // TODO
+		}
+
+		@Override
+		public void triggerUserEvent(Object event) {
+			throw new UnsupportedOperationException("Not supported yet."); // TODO
+		}
+
+		@Override
+		public void unregisterNativeListener(Listener listener) {
+			throw new UnsupportedOperationException("Not supported yet."); // TODO
+		}
+
+	}
+
+	private interface PhaseCaller<T> {
+
+		public void consume(Phase phase, PhaseContext context, T message) throws Exception;
+	}
+
+	private class PriorityTask implements Runnable, Comparable<PriorityTask> {
+
+		private final Runnable runnable;
+		private final int priority;
+
+		public PriorityTask(Runnable run, int priority) {
+			this.runnable = run;
+			this.priority = priority;
+		}
+
+		@Override
+		public int compareTo(PriorityTask o) {
+			return Integer.compare(priority, o.priority);
+		}
+
+		public Runnable getRunnable() {
+			return runnable;
+		}
+
+		public int getPriority() {
+			return priority;
+		}
+
+		@Override
+		public void run() {
+			runnable.run();
+		}
+
+	}
+
 }
