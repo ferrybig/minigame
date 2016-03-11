@@ -4,14 +4,13 @@ import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.Promise;
+import java.lang.ref.WeakReference;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -52,45 +51,52 @@ public class ChainedFuture<T> implements Future<T> {
 
 	private final EventExecutor executor;
 	private final Future<T> future;
-	
+	private final WeakReference<Future<T>> reference;
+
 	private ChainedFuture(EventExecutor executor, Supplier<Future<T>> futureSupplier) {
 		Objects.requireNonNull(futureSupplier, "futureSupplier == null");
 		this.executor = Objects.requireNonNull(executor, "executor == null");
 		Promise<T> prom = executor.newPromise();
 		this.future = prom;
+		this.reference = new WeakReference<>(future);
 		try {
 			Future<T> result = futureSupplier.get();
-			if(result == null) {
-				prom.setFailure(SafeUtil.createException(IllegalStateException::new, 
-							"Suplier returned null: %s", futureSupplier));
+			if (result == null) {
+				prom.setFailure(SafeUtil.createException(IllegalStateException::new,
+						"Suplier returned null: %s", futureSupplier));
 			} else {
 				applyMappingOperation(result, prom);
+				prom.addListener(new CancelationHandler<>(new WeakReference<>(result)));
 			}
 		} catch (Throwable e) {
 			prom.setFailure(e);
 		}
+
 	}
-	
+
 	private ChainedFuture(EventExecutor executor, Future<T> future) {
 		this.executor = executor;
 		this.future = future;
+		this.reference = new WeakReference<>(future);
 	}
-	
+
 	@SuppressWarnings("UseSpecificCatch")
 	public <O> ChainedFuture<O> map(Function<? super T, Future<O>> mapper) {
 		Objects.requireNonNull(mapper, "mapper == null");
 		Promise<O> prom = executor.newPromise();
 		this.future.addListener((Future<T> f) -> {
 			try {
-				if(!f.isSuccess()) {
-					prom.setFailure(f.cause());
+				if (!f.isSuccess()) {
+					if (!f.isCancelled()) {
+						prom.setFailure(f.cause());
+					}
 					return;
 				}
 				Future<O> result = mapper.apply(f.get());
-				if(result == null) {
+				if (result == null) {
 					prom.setFailure(
-							SafeUtil.createException(IllegalStateException::new, 
-							"Mapper returned null: %s", mapper));
+							SafeUtil.createException(IllegalStateException::new,
+									"Mapper returned null: %s", mapper));
 				} else {
 					applyMappingOperation(result, prom);
 				}
@@ -98,24 +104,27 @@ public class ChainedFuture<T> implements Future<T> {
 				prom.setFailure(e);
 			}
 		});
+		prom.addListener(new CancelationHandler<>(this.reference));
 		return new ChainedFuture<>(executor, prom);
 	}
-	
+
 	@SuppressWarnings("UseSpecificCatch")
 	public <O> ChainedFuture<O> flatMap(Function<? super T, O> mapper) {
 		Objects.requireNonNull(mapper, "mapper == null");
 		Promise<O> prom = executor.newPromise();
 		this.future.addListener((Future<T> f) -> {
 			try {
-				if(!f.isSuccess()) {
-					prom.setFailure(f.cause());
+				if (!f.isSuccess()) {
+					if (!f.isCancelled()) {
+						prom.setFailure(f.cause());
+					}
 					return;
 				}
 				O result = mapper.apply(f.get());
-				if(result == null) {
+				if (result == null) {
 					prom.setFailure(
-							SafeUtil.createException(IllegalStateException::new, 
-							"Mapper returned null: %s", mapper));
+							SafeUtil.createException(IllegalStateException::new,
+									"Mapper returned null: %s", mapper));
 				} else {
 					prom.setSuccess(result);
 				}
@@ -123,6 +132,7 @@ public class ChainedFuture<T> implements Future<T> {
 				prom.setFailure(e);
 			}
 		});
+		prom.addListener(new CancelationHandler<>(this.reference));
 		return new ChainedFuture<>(executor, prom);
 	}
 
@@ -232,10 +242,10 @@ public class ChainedFuture<T> implements Future<T> {
 	public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
 		return future.get(timeout, unit);
 	}
-	
+
 	private static <T> void applyMappingOperation(Future<T> in, Promise<? super T> out) {
-		if(in.isDone()) {
-			if(in.isSuccess()) {
+		if (in.isDone()) {
+			if (in.isSuccess()) {
 				try {
 					out.setSuccess(in.get());
 				} catch (InterruptedException | ExecutionException ex) {
@@ -246,14 +256,32 @@ public class ChainedFuture<T> implements Future<T> {
 			}
 		} else {
 			in.addListener((Future<T> f) -> {
-				if(f.isSuccess()) {
+				if (f.isSuccess()) {
 					out.setSuccess(f.get());
-				} else {
+				} else if (!f.isCancelled()) {
 					out.setFailure(f.cause());
 				}
 			});
 		}
 	}
-	
-	
+
+	private static class CancelationHandler<T, R> implements GenericFutureListener<Future<T>> {
+
+		private final WeakReference<? extends Future<R>> ref;
+
+		public CancelationHandler(WeakReference<? extends Future<R>> ref) {
+			this.ref = ref;
+		}
+
+		@Override
+		public void operationComplete(Future<T> f) throws Exception {
+			if (f.isCancelled()) {
+				Future<R> r = ref.get();
+				if (r != null) {
+					r.cancel(true);
+				}
+			}
+		}
+	}
+
 }

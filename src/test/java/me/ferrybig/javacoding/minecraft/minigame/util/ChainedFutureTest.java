@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -21,25 +22,25 @@ import org.junit.Before;
  * @author Fernando
  */
 public class ChainedFutureTest {
-	
+
 	private EventExecutor executor;
-	
+
 	@Before
 	public void before() {
-		executor = (EventExecutor) Proxy.newProxyInstance(getClass().getClassLoader(), 
+		executor = (EventExecutor) Proxy.newProxyInstance(getClass().getClassLoader(),
 				new Class<?>[]{EventExecutor.class}, new InvocationHandler() {
 			@Override
 			@SuppressWarnings({"rawtypes", "unchecked"})
 			public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 				switch (method.getName()) {
 					case "newPromise":
-						return new DefaultPromise((EventExecutor)proxy);
+						return new DefaultPromise((EventExecutor) proxy);
 					case "shutdownGracefully":
 						return null;
 					case "newSucceededFuture":
-						return new SucceededFuture((EventExecutor)proxy, args[0]);
+						return new SucceededFuture((EventExecutor) proxy, args[0]);
 					case "newFailedFuture":
-						return new FailedFuture((EventExecutor)proxy, (Throwable) args[0]);
+						return new FailedFuture((EventExecutor) proxy, (Throwable) args[0]);
 					case "inEventLoop":
 						return true;
 				}
@@ -47,12 +48,12 @@ public class ChainedFutureTest {
 			}
 		});
 	}
-	
+
 	@After
 	public void after() {
 		executor.shutdownGracefully();
 	}
-	
+
 	@Test
 	public void doesProperlyWorkWithSimpleSucceededFutureTest() throws InterruptedException, ExecutionException {
 		Future<Object> succeded = executor.newSucceededFuture(this);
@@ -61,7 +62,7 @@ public class ChainedFutureTest {
 		assertTrue(chained.isSuccess());
 		assertEquals(this, chained.get());
 	}
-	
+
 	@Test
 	public void doesProperlyWorkWithSimpleFailedFutureTest() {
 		OutOfMemoryError error = new OutOfMemoryError();
@@ -71,7 +72,7 @@ public class ChainedFutureTest {
 		assertFalse(chained.isSuccess());
 		assertEquals(error, chained.cause());
 	}
-	
+
 	@Test
 	public void doesProperlyWorkWithDelayedSuccededFutureTest() {
 		Promise<Object> promise = executor.newPromise();
@@ -81,7 +82,7 @@ public class ChainedFutureTest {
 		assertTrue(chained.isDone());
 		assertTrue(chained.isSuccess());
 	}
-	
+
 	@Test
 	public void doesProperlyWorkWithDelayedFailedFutureTest() {
 		Promise<Object> promise = executor.newPromise();
@@ -91,13 +92,13 @@ public class ChainedFutureTest {
 		assertTrue(chained.isDone());
 		assertFalse(chained.isSuccess());
 	}
-	
+
 	@Test
 	public void canUseSuplierConstructorTest() throws InterruptedException, ExecutionException {
 		String first = "first";
-		ChainedFuture<String> chained = ChainedFuture.of(executor, 
-				()->executor.newSucceededFuture(first));
-		
+		ChainedFuture<String> chained = ChainedFuture.of(executor,
+				() -> executor.newSucceededFuture(first));
+
 		assertTrue(chained.isDone());
 		assertEquals(first, chained.get());
 	}
@@ -107,11 +108,11 @@ public class ChainedFutureTest {
 		String first = "first";
 		String second = "second";
 		String third = "third";
-		
+
 		String firstResult = first;
 		String secondResult = first + second;
 		String thirdResult = first + second + third;
-		
+
 		ChainedFuture<String> firstFuture = ChainedFuture.of(executor, () -> executor.newSucceededFuture(first));
 		ChainedFuture<String> secondFuture = firstFuture.map(i -> executor.newSucceededFuture(i + second));
 		ChainedFuture<String> thirdFuture = secondFuture.map(i -> executor.newSucceededFuture(i + third));
@@ -155,5 +156,42 @@ public class ChainedFutureTest {
 
 		assertTrue(thirdFuture.isDone());
 		assertEquals(thirdResult, thirdFuture.get());
+	}
+
+	@Test
+	public void doesProperlyDelegateCancelUsingMapTest() {
+		Promise<String> prom = executor.newPromise();
+
+		ChainedFuture<String> firstFuture = ChainedFuture.of(executor, () -> prom);
+		ChainedFuture<String> secondFuture = firstFuture.map(i -> executor.newSucceededFuture(i));
+
+		assertFalse(secondFuture.isCancelled());
+		assertFalse(firstFuture.isCancelled());
+		assertFalse(prom.isCancelled());
+
+		secondFuture.cancel(true);
+
+		assertTrue(secondFuture.isCancelled());
+		assertTrue(firstFuture.isCancelled());
+		assertTrue(prom.isCancelled());
+
+	}
+
+	@Test
+	public void doesProperlyDelegateCancelUsingFlatMapTest() {
+		Promise<String> prom = executor.newPromise();
+
+		ChainedFuture<String> firstFuture = ChainedFuture.of(executor, () -> prom);
+		ChainedFuture<String> secondFuture = firstFuture.flatMap(i -> i);
+
+		assertFalse(secondFuture.isCancelled());
+		assertFalse(firstFuture.isCancelled());
+		assertFalse(prom.isCancelled());
+
+		secondFuture.cancel(true);
+
+		assertTrue(secondFuture.isCancelled());
+		assertTrue(firstFuture.isCancelled());
+		assertTrue(prom.isCancelled());
 	}
 }
