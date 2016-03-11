@@ -17,8 +17,8 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Queue;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -35,7 +35,6 @@ import me.ferrybig.javacoding.minecraft.minigame.ResolvedAreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.exceptions.CoreClosedException;
 import me.ferrybig.javacoding.minecraft.minigame.listener.CombinedListener;
 import me.ferrybig.javacoding.minecraft.minigame.listener.GameListener;
-import me.ferrybig.javacoding.minecraft.minigame.util.ChainedFuture;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -47,13 +46,16 @@ public class DefaultGameCore implements GameCore {
 
 	private final Function<Stream<Map.Entry<Area, Integer>>, Area> areaSelector;
 	private final Map<String, Area> areas = new HashMap<>();
+	private final Map<String, List<Future<AreaContext>>> pendingAreaContexts = new HashMap<>();
 	private final Map<String, List<AreaContext>> areaContexts = new HashMap<>();
 	private final Map<UUID, AreaContext> playerGames = new HashMap<>();
-	private final LinkedList<Future<AreaContext>> requestedAreaContexts = new LinkedList<>();
 	private final InformationContext info;
 	private final CombinedListener listeners = new CombinedListener();
 	private final Promise<Object> terminationFuture;
 	private final Promise<Object> startingFuture;
+	private Promise<Object> runningStartFuture;
+	private Promise<Object> runningStopFuture;
+	private boolean running = false;
 	private final EventExecutor executor;
 
 	public DefaultGameCore(InformationContext info) {
@@ -66,6 +68,8 @@ public class DefaultGameCore implements GameCore {
 		this.executor = Objects.requireNonNull(info.getExecutor(), "executor == null");
 		this.terminationFuture = executor.newPromise();
 		this.startingFuture = executor.newPromise();
+		this.runningStartFuture = executor.newPromise();
+		this.runningStopFuture = executor.newPromise();
 		this.areaSelector = areaSelector;
 	}
 
@@ -80,8 +84,9 @@ public class DefaultGameCore implements GameCore {
 	public void close() {
 		Exception closureFailure = new CoreClosedException();
 		terminationFuture.setSuccess(closureFailure);
-		requestedAreaContexts.stream().forEach(f -> f.cancel(true));
-		requestedAreaContexts.clear();
+		Collection<Future<?>> toCancel = new ArrayList<>();
+		pendingAreaContexts.values().forEach(toCancel::addAll);
+		toCancel.forEach(f -> f.cancel(true));
 		areaContexts.values().stream().flatMap(l -> new ArrayList<>(l).stream())
 				.map(AreaContext::pipeline).forEach(Pipeline::terminate);
 	}
@@ -98,9 +103,13 @@ public class DefaultGameCore implements GameCore {
 	@Override
 	public Future<AreaContext> createRandomGameContext() {
 		checkState();
+		if(!running) {
+			return info.getExecutor().newFailedFuture(new CancellationException());
+		}
 		Area randomArea = areaSelector.apply(areas.entrySet().stream()
 				.map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getValue(),
-						areaContexts.getOrDefault(e.getKey(), Collections.emptyList()).size())
+						areaContexts.getOrDefault(e.getKey(), Collections.emptyList()).size() +
+						pendingAreaContexts.getOrDefault(e.getKey(), Collections.emptyList()).size()		)
 				));
 		if (randomArea == null) {
 			return executor.newFailedFuture(new NoSuchElementException("No Areas found"));
@@ -294,15 +303,22 @@ public class DefaultGameCore implements GameCore {
 				playerGames.put(player.getUniqueId(), get());
 			}
 		});
-		return ChainedFuture.of(info.getExecutor(),
-				() -> info.getAreaContextConstructor().construct(this, area, controller, pipeline))
+		Future<AreaContext> context = info.getAreaContextConstructor().construct(this, area, controller, pipeline)
 				.addListener((Future<AreaContext> f) -> {
-					AreaContext c = f.get();
-					ref.set(c);
-					areaContextCreated(c);
-					c.pipeline().runLoop(c);
-					c.getClosureFuture().addListener(f2 -> areaContextDestroyed(f.get()));
+					removeAreaFuture(area, f);
+					if(f.isSuccess() && f.get() != null) {
+						AreaContext c = f.get();
+						ref.set(c);
+						areaContextCreated(c);
+						c.pipeline().runLoop(c);
+						c.getClosureFuture().addListener(f2 -> areaContextDestroyed(f.get()));
+					}
 				});
+		addAreaFuture(area, context);
+		if(context.isDone()) {
+			removeAreaFuture(area, context);
+		}
+		return context;
 	}
 
 	public static Function<Stream<Entry<Area, Integer>>, Area> defaultRandomAreaSelector() {
@@ -323,6 +339,25 @@ public class DefaultGameCore implements GameCore {
 			}
 		}
 		listeners.gameInstanceFinished(context);
+	}
+	
+	private void addAreaFuture(Area main, Future<AreaContext> context) {
+		List<Future<AreaContext>> l = pendingAreaContexts.get(main.getName());
+		if (l == null) {
+			pendingAreaContexts.put(main.getName(), l = new LinkedList<>());
+		}
+		l.add(context);
+		
+	}
+	
+	private void removeAreaFuture(Area main, Future<AreaContext> context) {
+		Collection<Future<AreaContext>> l = pendingAreaContexts.get(main.getName());
+		if (l != null) {
+			l.remove(context);
+			if (l.isEmpty()) {
+				pendingAreaContexts.remove(main.getName());
+			}
+		}
 	}
 
 }
