@@ -2,6 +2,7 @@ package me.ferrybig.javacoding.minecraft.minigame.bootstrap;
 
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
+import java.util.logging.Logger;
 import me.ferrybig.javacoding.minecraft.minigame.AreaConstructor;
 import me.ferrybig.javacoding.minecraft.minigame.AreaContextConstructor;
 import me.ferrybig.javacoding.minecraft.minigame.verrifier.AreaVerifier;
@@ -20,6 +21,8 @@ public interface Bootstrap {
 	public Bootstrap withGlobalGameListener(GameListener listen);
 
 	public Bootstrap withConfig(FullConfig config);
+
+	public Bootstrap withLogger(Logger logger);
 
 	public default Bootstrap withAreaVerifier(AreaVerifier verifier) {
 		return withAreaVerifier(TranslateableAreaVerrifer.wrap(verifier));
