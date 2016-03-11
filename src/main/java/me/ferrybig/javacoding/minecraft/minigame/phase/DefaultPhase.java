@@ -51,4 +51,9 @@ public abstract class DefaultPhase implements Phase {
 		area.triggerUserEvent(userEvent);
 	}
 
+	@Override
+	public void afterReset(PhaseContext area) {
+		area.triggerReset();
+	}
+
 }
