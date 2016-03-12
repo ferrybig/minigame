@@ -5,6 +5,7 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -81,7 +82,7 @@ public class DefaultGamePipeline implements Pipeline {
 
 	@Override
 	public Future<?> getClosureFuture() {
-		throw new UnsupportedOperationException("Not supported yet."); // TODO
+		return terminationFuture;
 	}
 
 	@Override
@@ -209,7 +210,7 @@ public class DefaultGamePipeline implements Pipeline {
 		throw new UnsupportedOperationException("Not supported yet."); // TODO
 	}
 
-	private class PhaseHolder {
+	private static class PhaseHolder {
 
 		private boolean loaded = false;
 		private boolean shouldBeLoaded = false;
@@ -334,7 +335,7 @@ public class DefaultGamePipeline implements Pipeline {
 		public void consume(Phase phase, PhaseContext context, T message) throws Exception;
 	}
 
-	private class PriorityTask implements Runnable, Comparable<PriorityTask> {
+	private static class PriorityTask implements Runnable, Comparable<PriorityTask> {
 
 		private final Runnable runnable;
 		private final int priority;
@@ -360,6 +361,35 @@ public class DefaultGamePipeline implements Pipeline {
 		@Override
 		public void run() {
 			runnable.run();
+		}
+
+		@Override
+		public int hashCode() {
+			int hash = 7;
+			hash = 71 * hash + Objects.hashCode(this.runnable);
+			hash = 71 * hash + this.priority;
+			return hash;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			final PriorityTask other = (PriorityTask) obj;
+			if (this.priority != other.priority) {
+				return false;
+			}
+			if (!Objects.equals(this.runnable, other.runnable)) {
+				return false;
+			}
+			return true;
 		}
 
 	}
