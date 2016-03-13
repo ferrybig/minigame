@@ -31,7 +31,7 @@ public class DefaultGamePipeline implements Pipeline {
 	private final static int PRIORITY_USER_OBJECT = 0;
 	private final static int PRIORITY_UNREGISTER = 11;
 	private final static int PRIORITY_REGISTER = 10;
-	private final static int PRIORITY_LOAD = 20;
+	private final static int PRIORITY_LOAD = 9;
 	private final static int PRIORITY_UNLOAD = 21;
 
 	private int currPhaseIndex;
