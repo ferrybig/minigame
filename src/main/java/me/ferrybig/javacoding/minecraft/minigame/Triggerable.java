@@ -9,7 +9,7 @@ import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerTeamMessage;
 
 public interface Triggerable {
 
-	boolean triggerExceptionCaucht(Throwable exception);
+	void triggerExceptionCaucht(Throwable exception);
 
 	void triggerNextPhase();
 

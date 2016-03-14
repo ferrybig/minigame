@@ -3,14 +3,17 @@ package me.ferrybig.javacoding.minecraft.minigame.core;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.lang.ref.PhantomReference;
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.ListIterator;
 import java.util.Objects;
-import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.phase.Phase;
 import me.ferrybig.javacoding.minecraft.minigame.context.PhaseContext;
@@ -23,67 +26,71 @@ import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreLeaveMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerSpectateMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerTeamMessage;
 import me.ferrybig.javacoding.minecraft.minigame.util.SafeUtil;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
-@SuppressWarnings(value = "") // TODO unsuppresses findbugs errors
 public class DefaultGamePipeline implements Pipeline {
 
 	private static final int STARTING_AT_FIRST_PHASE = -1;
-	private final static int PRIORITY_EXCEPTION = 100;
-	private final static int PRIORITY_USER_OBJECT = 0;
-	private final static int PRIORITY_UNREGISTER = 11;
-	private final static int PRIORITY_REGISTER = 10;
-	private final static int PRIORITY_LOAD = 9;
-	private final static int PRIORITY_UNLOAD = 21;
-
-	private int currPhaseIndex;
-
-	private final List<PhaseHolder> removedPhases = new ArrayList<>();
 	private final LinkedList<PhaseHolder> mainPhases = new LinkedList<>();
-	private final Queue<PriorityTask> runQueue = new PriorityQueue<>();
+	private final Deque<Runnable> runQueue = new ArrayDeque<>();
+	private final Deque<Runnable> pendingTasks = new ArrayDeque<>();
+	private final Promise<AreaContext> terminationFuture;
+	private Reference<DefaultPhaseContext> entrance = new PhantomReference<>(null, null);
+	private int currPhaseIndex = -1;
 	private AreaContext area;
 	private boolean terminating = false;
-	private final Promise<AreaContext> terminationFuture;
 	private boolean inLoop = false;
+
+	private Logger logger;
 
 	public DefaultGamePipeline(EventExecutor executor) {
 		terminationFuture = executor.newPromise();
 		terminationFuture.setUncancellable();
+		runLoop(() -> advancePhase());
 	}
 
 	@Override
 	public Pipeline addFirst(Phase phase) {
 		Objects.requireNonNull(phase, "phase == null");
 		PhaseHolder holder;
-		mainPhases.forEach(p-> p.context.incrementCurrIndex());
-		mainPhases.addFirst(holder = new PhaseHolder(phase, new DefaultPhaseContext()));
-		if(this.currPhaseIndex > 0) {
+		mainPhases.forEach(p -> p.context.incrementCurrIndex());
+		mainPhases.addFirst(holder = new PhaseHolder(phase, new DefaultPhaseContext(0)));
+		if (this.currPhaseIndex > 0) {
 			this.currPhaseIndex++;
-			holder.shouldBeLoaded = true;
+			holder.shouldBeLoaded = false;
 			holder.shouldBeRegistered = true;
+			registerPhase(holder);
 		}
-		
 		return this;
 	}
 
 	@Override
-	public Pipeline addLast(Phase phases) {
-		throw new UnsupportedOperationException("Not supported yet."); // TODO
+	public Pipeline addLast(Phase phase) {
+		int newIndex = this.mainPhases.size();
+		PhaseHolder holder;
+		mainPhases.addLast(holder = new PhaseHolder(phase, new DefaultPhaseContext(newIndex)));
+		return this;
 	}
 
 	@Override
 	public boolean contains(Phase phase) {
-		throw new UnsupportedOperationException("Not supported yet."); // TODO
+		return this.mainPhases.stream().map(p -> p.phase).anyMatch(p -> p.equals(phase));
 	}
 
 	@Override
 	public PhaseContext entrance() {
-		throw new UnsupportedOperationException("Not supported yet."); // TODO
+		DefaultPhaseContext entr = entrance.get();
+		if (entr == null) {
+			entrance = new SoftReference<>(entr = new DefaultPhaseContext(-1));
+			entr.removed = true;
+		}
+		return entr;
 	}
 
 	@Override
 	public Phase get(int index) {
-		throw new UnsupportedOperationException("Not supported yet."); // TODO
+		return this.mainPhases.size() > index ? this.mainPhases.get(index).phase : null;
 	}
 
 	@Override
@@ -93,59 +100,125 @@ public class DefaultGamePipeline implements Pipeline {
 
 	@Override
 	public int getCurrentIndex() {
-		throw new UnsupportedOperationException("Not supported yet."); // TODO
+		return currPhaseIndex;
 	}
 
 	@Override
 	public int indexOf(Phase phase) {
-		throw new UnsupportedOperationException("Not supported yet."); // TODO
+		int i = 0;
+		for (PhaseHolder h : mainPhases) {
+			if (Objects.equals(phase, h.phase)) {
+				return i;
+			}
+			i++;
+		}
+		return i == Integer.MAX_VALUE || i == 0 ? Integer.MIN_VALUE : -i;
 	}
 
 	@Override
 	public Pipeline insert(int index, Phase phase) {
-		throw new UnsupportedOperationException("Not supported yet."); // TODO
+		int firstTo = Math.min(index, mainPhases.size());
+		int i;
+		for (i = 0; i < firstTo; i++) {
+			assert mainPhases.get(i).context.getCurrIndex() == i;
+		}
+		PhaseHolder holder;
+		mainPhases.add(i, holder = new PhaseHolder(phase, new DefaultPhaseContext(i)));
+		int insertedId = i;
+		for (i++; i < mainPhases.size(); i++) {
+			mainPhases.get(i).context.setCurrIndex(i);
+		}
+		if (this.currPhaseIndex > insertedId) {
+			this.currPhaseIndex++;
+			holder.shouldBeLoaded = false;
+			holder.shouldBeRegistered = true;
+			registerPhase(holder);
+		}
+		return this;
 	}
 
 	@Override
 	public boolean isStopped() {
-		throw new UnsupportedOperationException("Not supported yet."); // TODO
+		return terminating;
 	}
 
 	@Override
 	public boolean isStopping() {
-		throw new UnsupportedOperationException("Not supported yet."); // TODO
+		return terminationFuture.isDone();
 	}
 
-	@Override
-	public Iterator<Phase> iterator() {
-		throw new UnsupportedOperationException("Not supported yet."); // TODO
+	private PhaseHolder getHolder(int index) {
+		return this.mainPhases.size() > index ? this.mainPhases.get(index) : null;
 	}
 
 	@Override
 	public Pipeline replace(int index, Phase phase) {
-		throw new UnsupportedOperationException("Not supported yet."); // TODO
+		ListIterator<PhaseHolder> itr = mainPhases.listIterator(index);
+		if (!itr.hasNext()) {
+			throw new IndexOutOfBoundsException(index + " too high");
+		}
+		PhaseHolder old = itr.next();
+		assert old.context.getCurrIndex() == index;
+		PhaseHolder newHolder = new PhaseHolder(phase, new DefaultPhaseContext(index));
+		newHolder.shouldBeLoaded = old.shouldBeLoaded;
+		newHolder.shouldBeRegistered = old.shouldBeRegistered;
+		itr.set(newHolder);
+		old.shouldBeLoaded = false;
+		old.shouldBeRegistered = false;
+		old.context.removed = true;
+		unloadPhase(old);
+		unregisterPhase(old);
+		registerPhase(newHolder);
+		loadPhase(newHolder);
+		return this;
 	}
-	
+
 	private void loadPhase(PhaseHolder holder) {
-		if(!holder.shouldBeLoaded) {
+		if (!holder.shouldBeLoaded || holder.loaded) {
 			return;
 		}
-		if(holder.loaded) {
-			return;
-		}
-		runLoop(PRIORITY_LOAD, ()->{
-			if(!holder.shouldBeLoaded) {
+		runLoop(() -> {
+			if (!holder.shouldBeLoaded || holder.loaded) {
 				return;
 			}
-			if(holder.loaded) {
-				return;
-			}
-			wrapWithException(()->holder.phase.onPhaseLoad(holder.context), holder);
+			wrapWithException(() -> holder.phase.onPhaseLoad(holder.context), holder);
 		});
 	}
-	
+
+	private void unloadPhase(PhaseHolder holder) {
+		if (holder.shouldBeLoaded || !holder.loaded) {
+			return;
+		}
+		runLoop(() -> {
+			if (holder.shouldBeLoaded || !holder.loaded) {
+				return;
+			}
+			wrapWithException(() -> holder.phase.onPhaseLoad(holder.context), holder);
+		});
+	}
+
 	private void registerPhase(PhaseHolder holder) {
-		
+		if (!holder.shouldBeRegistered || holder.registered) {
+			return;
+		}
+		runLoop(() -> {
+			if (!holder.shouldBeRegistered || holder.registered) {
+				return;
+			}
+			wrapWithException(() -> holder.phase.onPhaseLoad(holder.context), holder);
+		});
+	}
+
+	private void unregisterPhase(PhaseHolder holder) {
+		if (holder.shouldBeRegistered || !holder.registered) {
+			return;
+		}
+		runLoop(() -> {
+			if (holder.shouldBeRegistered || !holder.registered) {
+				return;
+			}
+			wrapWithException(() -> holder.phase.onPhaseLoad(holder.context), holder);
+		});
 	}
 
 	private void runLoop() {
@@ -158,24 +231,49 @@ public class DefaultGamePipeline implements Pipeline {
 		inLoop = true;
 		try {
 			Runnable task;
+			int tasksRun = 0;
 			while ((task = runQueue.poll()) != null) {
+				tasksRun++;
 				task.run();
+				if (logger.isLoggable(Level.FINER)) {
+					LogRecord record = new LogRecord(Level.FINER,
+							"Ran iteration {0}, {1} tasks left and {2} pending");
+					record.setParameters(new Object[]{tasksRun, runQueue.size(),
+						pendingTasks.size()});
+					logger.log(record);
+				}
+				while ((task = pendingTasks.poll()) != null) {
+					runQueue.addFirst(task);
+				}
+				assert pendingTasks.isEmpty();
+				pendingTasks.clear(); //reset internal state of deque
+			}
+			if (logger.isLoggable(Level.FINE)) {
+				logger.log(Level.FINE, "Ran {0} tasks correctly", tasksRun);
 			}
 		} finally {
 			assert inLoop == true;
 			inLoop = false;
 		}
+		if (terminating) {
+			decreasePhase();
+		}
 	}
 
-	private void runLoop(int priority, Runnable run) {
-		runQueue.add(new PriorityTask(run, priority));
-		runLoop();
+	private void runLoop(Runnable run) {
+		if (inLoop) {
+			this.pendingTasks.add(run);
+		} else {
+			runQueue.add(run);
+			runLoop();
+		}
 	}
 
 	@Override
 	public void runLoop(AreaContext area) {
 		if (this.area == null) {
 			this.area = area;
+			this.logger = this.area.getCore().getInfo().getLogger();
 		}
 		runLoop();
 	}
@@ -184,9 +282,9 @@ public class DefaultGamePipeline implements Pipeline {
 		if (terminating) {
 			return;
 		}
-		runLoop(PRIORITY_EXCEPTION, () -> {
+		runLoop(() -> {
 			if (index >= currPhaseIndex - 1) {
-				area.getCore().getInfo().getLogger()
+				logger
 						.log(Level.SEVERE, "Exception reached top of pipeline, terminating...", message);
 				terminate();
 				return;
@@ -196,36 +294,31 @@ public class DefaultGamePipeline implements Pipeline {
 				phase.phase.exceptionCaucht(phase.context, message);
 			} catch (Throwable a) {
 				message.addSuppressed(a);
-				area.getCore().getInfo().getLogger()
+				logger
 						.log(Level.SEVERE, "Caught exception in pipeline:", message);
 				terminate();
 			}
 		});
 	}
-	
+
 	private void wrapWithException(ExceptionRunnable call, Object namedClass) {
 		try {
 			call.run();
 		} catch (Throwable a) {
-			onException(STARTING_AT_FIRST_PHASE, 
+			onException(STARTING_AT_FIRST_PHASE,
 					SafeUtil.createException(PhaseException::new, "Exception calling %s", namedClass));
 		}
 	}
 
-	private <T> void callMethod(int index, boolean reversedDirection,
-			PhaseCaller<T> callable, T message) {
+	private <T> void callMethod(int index, PhaseCaller<T> callable, T message) {
 		if (terminating) {
 			return;
 		}
-		runLoop(PRIORITY_USER_OBJECT, () -> {
-			if (reversedDirection && index <= 0) {
-				return;
+		runLoop(() -> {
+			if (index < currPhaseIndex - 1) {
+				PhaseHolder phase = this.mainPhases.get(index + 1);
+				wrapWithException(() -> callable.consume(phase.phase, phase.context, message), phase);
 			}
-			if (!reversedDirection && index >= currPhaseIndex - 1) {
-				return;
-			}
-			PhaseHolder phase = this.mainPhases.get(reversedDirection ? index - 1 : index + 1);
-			wrapWithException(()->callable.consume(phase.phase, phase.context, message), phase);
 		});
 	}
 
@@ -246,6 +339,55 @@ public class DefaultGamePipeline implements Pipeline {
 			area.getCore().getInfo().getExecutor().submit((Runnable) this::runLoop);
 		}
 		return this.getClosureFuture();
+	}
+
+	private void advancePhase() {
+		PhaseHolder curr = getHolder(this.currPhaseIndex);
+		curr.shouldBeLoaded = false;
+		unloadPhase(curr);
+		int oldIndex = this.currPhaseIndex;
+		this.currPhaseIndex++;
+		runLoop(() -> {
+			PhaseHolder newPhase = getHolder(this.currPhaseIndex);
+			if (newPhase == null) {
+				// Reached end of pipeline
+				if (logger.isLoggable(Level.FINE)) {
+					logger.fine("Reached end of pipeline");
+				}
+				wrapWithException(() -> curr.phase.afterReset(curr.context), curr.phase);
+				runLoop(() -> {
+					if (oldIndex == this.currPhaseIndex) {
+						curr.shouldBeLoaded = true;
+						loadPhase(curr);
+					}
+				});
+			} else {
+				newPhase.shouldBeLoaded = true;
+				newPhase.shouldBeRegistered = true;
+				registerPhase(newPhase);
+				loadPhase(newPhase);
+			}
+		});
+	}
+
+	private void decreasePhase() {
+		PhaseHolder curr = getHolder(this.currPhaseIndex);
+		curr.shouldBeLoaded = false;
+		curr.shouldBeRegistered = false;
+		unloadPhase(curr);
+		unregisterPhase(curr);
+		this.currPhaseIndex--;
+		if (this.currPhaseIndex < 0) {
+			terminationFuture.setSuccess(area);
+			terminating = true;
+		} else {
+			PhaseHolder newPhase = getHolder(this.currPhaseIndex);
+			newPhase.shouldBeLoaded = true;
+			wrapWithException(() -> newPhase.phase.afterReset(curr.context), curr.phase);
+			runLoop(() -> {
+				loadPhase(newPhase);
+			});
+		}
 	}
 
 	private static class PhaseHolder {
@@ -299,15 +441,28 @@ public class DefaultGamePipeline implements Pipeline {
 	private class DefaultPhaseContext implements PhaseContext {
 
 		private int currIndex;
-		
+		private boolean removed = false;
+
+		public boolean isRemoved() {
+			return removed || terminating;
+		}
+
+		public DefaultPhaseContext(int currIndex) {
+			this.currIndex = currIndex;
+		}
+
+		public void setCurrIndex(int newValue) {
+			currIndex = newValue;
+		}
+
 		public int incrementCurrIndex() {
 			return currIndex++;
 		}
-		
+
 		public int decrementCurrIndex() {
 			return currIndex--;
 		}
-		
+
 		public int getCurrIndex() {
 			return currIndex;
 		}
@@ -324,58 +479,91 @@ public class DefaultGamePipeline implements Pipeline {
 		}
 
 		@Override
-		public boolean triggerExceptionCaucht(Throwable exception) {
-			throw new UnsupportedOperationException("Not supported yet."); // TODO
+		public void triggerExceptionCaucht(Throwable exception) {
+			onException(currIndex, exception);
 		}
 
 		@Override
 		public void triggerNextPhase() {
-			throw new UnsupportedOperationException("Not supported yet."); // TODO
+			if (isRemoved()) {
+				return;
+			}
+			if (this.currIndex == -1) {
+				throw new UnsupportedOperationException("Not supported.");
+			}
+			if (this.currIndex != currPhaseIndex) {
+				throw new IllegalStateException("Cannot change phase from non-loaded phase");
+			}
+			advancePhase();
 		}
 
 		@Override
 		public void triggerPlayerChangeTeam(PlayerTeamMessage player) {
-			throw new UnsupportedOperationException("Not supported yet."); // TODO
+			callMethod(currIndex, Phase::onPlayerChangeTeam, player);
+			if (currIndex == -1) {
+				runLoop(() -> player.getListeners().forEach(Runnable::run));
+			}
 		}
 
 		@Override
 		public void triggerPlayerJoin(PlayerJoinMessage player) {
-			throw new UnsupportedOperationException("Not supported yet."); // TODO
+			callMethod(currIndex, Phase::onPlayerJoin, player);
+			if (currIndex == -1) {
+				runLoop(() -> player.getListeners().forEach(Runnable::run));
+			}
 		}
 
 		@Override
 		public void triggerPlayerLeave(PlayerLeaveMessage player) {
-			throw new UnsupportedOperationException("Not supported yet."); // TODO
+			callMethod(currIndex, Phase::onPlayerLeave, player);
+			if (currIndex == -1) {
+				runLoop(() -> player.getListeners().forEach(Runnable::run));
+			}
 		}
 
 		@Override
 		public void triggerPlayerPreJoin(PlayerPreJoinMessage player) {
-			throw new UnsupportedOperationException("Not supported yet."); // TODO
+			callMethod(currIndex, Phase::onPlayerPreJoin, player);
+			if (currIndex == -1) {
+				runLoop(() -> player.getListeners().forEach(Runnable::run));
+			}
 		}
 
 		@Override
 		public void triggerPlayerPreLeave(PlayerPreLeaveMessage player) {
-			throw new UnsupportedOperationException("Not supported yet."); // TODO
+			callMethod(currIndex, Phase::onPlayerPreLeave, player);
+			if (currIndex == -1) {
+				runLoop(() -> player.getListeners().forEach(Runnable::run));
+			}
 		}
 
 		@Override
 		public void triggerPlayerSpectate(PlayerSpectateMessage player) {
-			throw new UnsupportedOperationException("Not supported yet."); // TODO
+			callMethod(currIndex, Phase::onPlayerSpectate, player);
+			if (currIndex == -1) {
+				runLoop(() -> player.getListeners().forEach(Runnable::run));
+			}
 		}
 
 		@Override
 		public void triggerReset() {
-			throw new UnsupportedOperationException("Not supported yet."); // TODO
+			if (this.currIndex == -1) {
+				throw new UnsupportedOperationException("Not supported.");
+			}
+			if (this.currIndex != currPhaseIndex) {
+				throw new IllegalStateException("Cannot change phase from non-loaded phase");
+			}
+			decreasePhase();
 		}
 
 		@Override
 		public void triggerUserEvent(Object event) {
-			throw new UnsupportedOperationException("Not supported yet."); // TODO
+			callMethod(currIndex, Phase::onUserEvent, event);
 		}
 
 		@Override
 		public void unregisterNativeListener(Listener listener) {
-			throw new UnsupportedOperationException("Not supported yet."); // TODO
+			HandlerList.unregisterAll(listener);
 		}
 
 	}
@@ -385,66 +573,8 @@ public class DefaultGamePipeline implements Pipeline {
 		public void consume(Phase phase, PhaseContext context, T message) throws Exception;
 	}
 
-	private static class PriorityTask implements Runnable, Comparable<PriorityTask> {
-
-		private final Runnable runnable;
-		private final int priority;
-
-		public PriorityTask(Runnable run, int priority) {
-			this.runnable = run;
-			this.priority = priority;
-		}
-
-		@Override
-		public int compareTo(PriorityTask o) {
-			return Integer.compare(priority, o.priority);
-		}
-
-		public Runnable getRunnable() {
-			return runnable;
-		}
-
-		public int getPriority() {
-			return priority;
-		}
-
-		@Override
-		public void run() {
-			runnable.run();
-		}
-
-		@Override
-		public int hashCode() {
-			int hash = 7;
-			hash = 71 * hash + Objects.hashCode(this.runnable);
-			hash = 71 * hash + this.priority;
-			return hash;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			final PriorityTask other = (PriorityTask) obj;
-			if (this.priority != other.priority) {
-				return false;
-			}
-			if (!Objects.equals(this.runnable, other.runnable)) {
-				return false;
-			}
-			return true;
-		}
-
-	}
-	
 	private interface ExceptionRunnable {
+
 		public void run() throws Exception;
 	}
 

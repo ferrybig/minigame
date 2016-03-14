@@ -3,7 +3,6 @@ package me.ferrybig.javacoding.minecraft.minigame;
 import io.netty.util.concurrent.Future;
 import java.util.Iterator;
 import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
-import me.ferrybig.javacoding.minecraft.minigame.context.PhaseContext;
 import me.ferrybig.javacoding.minecraft.minigame.phase.Phase;
 
 public interface Pipeline extends Iterable<Phase> {
@@ -57,7 +56,7 @@ public interface Pipeline extends Iterable<Phase> {
 
 	public Future<?> terminate();
 
-	public PhaseContext entrance();
+	public Triggerable entrance();
 
 	public boolean isStopping();
 
