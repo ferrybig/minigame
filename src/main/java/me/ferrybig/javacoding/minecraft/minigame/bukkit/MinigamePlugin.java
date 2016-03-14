@@ -9,7 +9,7 @@ import java.util.Set;
 import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.GameCore;
 import me.ferrybig.javacoding.minecraft.minigame.Pipeline;
-import me.ferrybig.javacoding.minecraft.minigame.bootstrap.Bootstrap;
+import me.ferrybig.javacoding.minecraft.minigame.Bootstrap;
 import me.ferrybig.javacoding.minecraft.minigame.core.DefaultBootstrap;
 import me.ferrybig.javacoding.minecraft.minigame.executors.BukkitEventExecutor;
 import me.ferrybig.javacoding.minecraft.minigame.util.ChainedFuture;

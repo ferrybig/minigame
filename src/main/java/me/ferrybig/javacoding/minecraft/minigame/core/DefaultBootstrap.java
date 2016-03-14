@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 import me.ferrybig.javacoding.minecraft.minigame.AreaConstructor;
 import me.ferrybig.javacoding.minecraft.minigame.context.AreaContextConstructor;
 import me.ferrybig.javacoding.minecraft.minigame.GameCore;
-import me.ferrybig.javacoding.minecraft.minigame.bootstrap.Bootstrap;
+import me.ferrybig.javacoding.minecraft.minigame.Bootstrap;
 import me.ferrybig.javacoding.minecraft.minigame.configuration.EmptyConfig;
 import me.ferrybig.javacoding.minecraft.minigame.configuration.FullConfig;
 import me.ferrybig.javacoding.minecraft.minigame.listener.GameListener;

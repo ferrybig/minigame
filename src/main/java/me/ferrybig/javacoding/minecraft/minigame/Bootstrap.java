@@ -1,4 +1,4 @@
-package me.ferrybig.javacoding.minecraft.minigame.bootstrap;
+package me.ferrybig.javacoding.minecraft.minigame;
 
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
