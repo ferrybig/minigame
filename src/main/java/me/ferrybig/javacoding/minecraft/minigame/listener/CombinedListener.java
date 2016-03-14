@@ -21,7 +21,7 @@ public class CombinedListener implements GameListener, GameListenable {
 	
 	@Override
 	public boolean removeListener(GameListener listener) {
-		return listeners.add(listener);
+		return listeners.remove(listener);
 	}
 
 	@Override
