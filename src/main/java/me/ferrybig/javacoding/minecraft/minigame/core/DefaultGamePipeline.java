@@ -3,12 +3,16 @@ package me.ferrybig.javacoding.minecraft.minigame.core;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import me.ferrybig.javacoding.minecraft.minigame.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.Phase;
@@ -21,6 +25,7 @@ import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreJoinMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreLeaveMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerSpectateMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerTeamMessage;
+import me.ferrybig.javacoding.minecraft.minigame.util.SafeUtil;
 import org.bukkit.event.Listener;
 
 @SuppressWarnings(value = "") // TODO unsuppresses findbugs errors
@@ -36,18 +41,12 @@ public class DefaultGamePipeline implements Pipeline {
 
 	private int currPhaseIndex;
 
-	private final List<PhaseHolder> removedPhases = new CopyOnWriteArrayList<>();
-
-	private final List<PhaseHolder> mainPhases = new CopyOnWriteArrayList<>();
-
+	private final List<PhaseHolder> removedPhases = new ArrayList<>();
+	private final LinkedList<PhaseHolder> mainPhases = new LinkedList<>();
 	private final Queue<PriorityTask> runQueue = new PriorityQueue<>();
-
 	private AreaContext area;
-
 	private boolean terminating = false;
-
 	private final Promise<AreaContext> terminationFuture;
-
 	private boolean inLoop = false;
 
 	public DefaultGamePipeline(EventExecutor executor) {
@@ -56,12 +55,22 @@ public class DefaultGamePipeline implements Pipeline {
 	}
 
 	@Override
-	public Pipeline addFirst(Iterable<Phase> phases) {
-		throw new UnsupportedOperationException("Not supported yet."); // TODO
+	public Pipeline addFirst(Phase phase) {
+		Objects.requireNonNull(phase, "phase == null");
+		PhaseHolder holder;
+		mainPhases.forEach(p-> p.context.incrementCurrIndex());
+		mainPhases.addFirst(holder = new PhaseHolder(phase, new DefaultPhaseContext()));
+		if(this.currPhaseIndex > 0) {
+			this.currPhaseIndex++;
+			holder.shouldBeLoaded = true;
+			holder.shouldBeRegistered = true;
+		}
+		
+		return this;
 	}
 
 	@Override
-	public Pipeline addLast(Iterable<Phase> phases) {
+	public Pipeline addLast(Phase phases) {
 		throw new UnsupportedOperationException("Not supported yet."); // TODO
 	}
 
@@ -119,6 +128,28 @@ public class DefaultGamePipeline implements Pipeline {
 	public Pipeline replace(int index, Phase phase) {
 		throw new UnsupportedOperationException("Not supported yet."); // TODO
 	}
+	
+	private void loadPhase(PhaseHolder holder) {
+		if(!holder.shouldBeLoaded) {
+			return;
+		}
+		if(holder.loaded) {
+			return;
+		}
+		runLoop(PRIORITY_LOAD, ()->{
+			if(!holder.shouldBeLoaded) {
+				return;
+			}
+			if(holder.loaded) {
+				return;
+			}
+			wrapWithException(()->holder.phase.onPhaseLoad(holder.context), holder);
+		});
+	}
+	
+	private void registerPhase(PhaseHolder holder) {
+		
+	}
 
 	private void runLoop() {
 		if (area == null) {
@@ -158,9 +189,9 @@ public class DefaultGamePipeline implements Pipeline {
 		}
 		runLoop(PRIORITY_EXCEPTION, () -> {
 			if (index >= currPhaseIndex - 1) {
-				terminate();
 				area.getCore().getInfo().getLogger()
-						.log(Level.SEVERE, "Exception reached top of pipeline, terminating:", message);
+						.log(Level.SEVERE, "Exception reached top of pipeline, terminating...", message);
+				terminate();
 				return;
 			}
 			PhaseHolder phase = this.mainPhases.get(index + 1);
@@ -170,8 +201,18 @@ public class DefaultGamePipeline implements Pipeline {
 				message.addSuppressed(a);
 				area.getCore().getInfo().getLogger()
 						.log(Level.SEVERE, "Caught exception in pipeline:", message);
+				terminate();
 			}
 		});
+	}
+	
+	private void wrapWithException(ExceptionRunnable call, Object namedClass) {
+		try {
+			call.run();
+		} catch (Throwable a) {
+			onException(STARTING_AT_FIRST_PHASE, 
+					SafeUtil.createException(PhaseException::new, "Exception calling %s", namedClass));
+		}
 	}
 
 	private <T> void callMethod(int index, boolean reversedDirection,
@@ -187,11 +228,7 @@ public class DefaultGamePipeline implements Pipeline {
 				return;
 			}
 			PhaseHolder phase = this.mainPhases.get(reversedDirection ? index - 1 : index + 1);
-			try {
-				callable.consume(phase.phase, phase.context, message);
-			} catch (Throwable a) {
-				onException(STARTING_AT_FIRST_PHASE, new PhaseException("Exception calling " + callable, a));
-			}
+			wrapWithException(()->callable.consume(phase.phase, phase.context, message), phase);
 		});
 	}
 
@@ -201,13 +238,17 @@ public class DefaultGamePipeline implements Pipeline {
 	}
 
 	@Override
-	public void stop() {
-		terminate();
-	}
-
-	@Override
-	public void terminate() {
-		throw new UnsupportedOperationException("Not supported yet."); // TODO
+	public Future<?> terminate() {
+		if (terminating) {
+			return this.getClosureFuture();
+		}
+		terminating = true;
+		if (area == null) {
+			terminationFuture.trySuccess(null);
+		} else {
+			area.getCore().getInfo().getExecutor().submit((Runnable) this::runLoop);
+		}
+		return this.getClosureFuture();
 	}
 
 	private static class PhaseHolder {
@@ -261,6 +302,18 @@ public class DefaultGamePipeline implements Pipeline {
 	private class DefaultPhaseContext implements PhaseContext {
 
 		private int currIndex;
+		
+		public int incrementCurrIndex() {
+			return currIndex++;
+		}
+		
+		public int decrementCurrIndex() {
+			return currIndex--;
+		}
+		
+		public int getCurrIndex() {
+			return currIndex;
+		}
 
 		@Override
 		public AreaContext getAreaContext() {
@@ -392,6 +445,10 @@ public class DefaultGamePipeline implements Pipeline {
 			return true;
 		}
 
+	}
+	
+	private interface ExceptionRunnable {
+		public void run() throws Exception;
 	}
 
 }
