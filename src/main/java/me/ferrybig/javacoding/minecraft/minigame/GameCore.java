@@ -77,7 +77,7 @@ public interface GameCore extends AutoCloseable, GameListenable {
 	public Collection<? extends AreaContext> getAreaContexts();
 
 	/**
-	 * Creates a random game context. he core may choose an area to generate a
+	 * Creates a random game context. The core may choose an area to generate a
 	 * <code>AreaContext</code> from. This choose may or may not be fairly
 	 * distributed over the existing area's
 	 * @return a <code>Future</code> containg a random <code>AreaContext</code>
@@ -86,7 +86,7 @@ public interface GameCore extends AutoCloseable, GameListenable {
 	public Future<AreaContext> createRandomGameContext();
 
 	/**
-	 * Creates a random game context. he core may choose an area to generate a
+	 * Creates a random game context. The core may choose an area to generate a
 	 * <code>AreaContext</code> from. This choose may or may not be fairly
 	 * distributed over the existing area's
 	 * @param maxDelay Max delay to wait for the area
