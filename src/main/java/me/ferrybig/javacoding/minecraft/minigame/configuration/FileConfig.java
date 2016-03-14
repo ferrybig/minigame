@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
-import me.ferrybig.javacoding.minecraft.minigame.AreaInformation;
+import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.exceptions.ConfigurationException;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
 import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;

@@ -1,9 +1,12 @@
-package me.ferrybig.javacoding.minecraft.minigame;
+package me.ferrybig.javacoding.minecraft.minigame.core;
 
 import io.netty.util.concurrent.EventExecutor;
 import java.util.Objects;
 import java.util.logging.Logger;
+import me.ferrybig.javacoding.minecraft.minigame.AreaConstructor;
+import me.ferrybig.javacoding.minecraft.minigame.InformationContext;
 import me.ferrybig.javacoding.minecraft.minigame.configuration.FullConfig;
+import me.ferrybig.javacoding.minecraft.minigame.context.AreaContextConstructor;
 import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
 import me.ferrybig.javacoding.minecraft.minigame.verrifier.AreaVerifier;
 import org.bukkit.plugin.Plugin;

@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
-import me.ferrybig.javacoding.minecraft.minigame.AreaInformation;
+import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
 import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
 import me.ferrybig.javacoding.minecraft.minigame.util.CombinedFuture;

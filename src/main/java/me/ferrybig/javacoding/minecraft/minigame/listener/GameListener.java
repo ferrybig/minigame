@@ -3,7 +3,7 @@ package me.ferrybig.javacoding.minecraft.minigame.listener;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import me.ferrybig.javacoding.minecraft.minigame.AreaContext;
+import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
 import org.bukkit.entity.Player;
 
 public interface GameListener {

@@ -4,7 +4,7 @@ import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import java.util.logging.Logger;
 import me.ferrybig.javacoding.minecraft.minigame.AreaConstructor;
-import me.ferrybig.javacoding.minecraft.minigame.AreaContextConstructor;
+import me.ferrybig.javacoding.minecraft.minigame.context.AreaContextConstructor;
 import me.ferrybig.javacoding.minecraft.minigame.verrifier.AreaVerifier;
 import me.ferrybig.javacoding.minecraft.minigame.GameCore;
 import me.ferrybig.javacoding.minecraft.minigame.listener.GameListener;

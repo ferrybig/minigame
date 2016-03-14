@@ -2,7 +2,7 @@ package me.ferrybig.javacoding.minecraft.minigame.verrifier;
 
 import java.util.List;
 import java.util.Set;
-import me.ferrybig.javacoding.minecraft.minigame.AreaInformation;
+import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
 
 /**

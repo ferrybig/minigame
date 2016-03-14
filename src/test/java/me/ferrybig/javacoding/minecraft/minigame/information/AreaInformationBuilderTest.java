@@ -1,8 +1,11 @@
-package me.ferrybig.javacoding.minecraft.minigame;
+package me.ferrybig.javacoding.minecraft.minigame.information;
 
+import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformationBuilder;
+import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import me.ferrybig.javacoding.minecraft.minigame.Selection;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.junit.Test;

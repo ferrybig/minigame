@@ -5,6 +5,8 @@ import io.netty.util.concurrent.Future;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
+import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.listener.GameListenable;
 import org.bukkit.OfflinePlayer;
 

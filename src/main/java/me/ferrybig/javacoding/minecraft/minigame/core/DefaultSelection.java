@@ -1,6 +1,7 @@
-package me.ferrybig.javacoding.minecraft.minigame;
+package me.ferrybig.javacoding.minecraft.minigame.core;
 
 import java.util.Objects;
+import me.ferrybig.javacoding.minecraft.minigame.Selection;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
 

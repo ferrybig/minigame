@@ -1,5 +1,6 @@
 package me.ferrybig.javacoding.minecraft.minigame;
 
+import me.ferrybig.javacoding.minecraft.minigame.core.DefaultSelection;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;

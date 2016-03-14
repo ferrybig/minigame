@@ -4,9 +4,9 @@ package me.ferrybig.javacoding.minecraft.minigame.verrifier;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import me.ferrybig.javacoding.minecraft.minigame.AreaInformation;
-import me.ferrybig.javacoding.minecraft.minigame.DefaultResolvedAreaInformation;
-import me.ferrybig.javacoding.minecraft.minigame.ResolvedAreaInformation;
+import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
+import me.ferrybig.javacoding.minecraft.minigame.information.DefaultResolvedAreaInformation;
+import me.ferrybig.javacoding.minecraft.minigame.information.ResolvedAreaInformation;
 
 /**
  * Verifies if a area is correctly build for this minigame

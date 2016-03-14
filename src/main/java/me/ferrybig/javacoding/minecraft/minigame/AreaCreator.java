@@ -2,7 +2,9 @@ package me.ferrybig.javacoding.minecraft.minigame;
 
 import java.util.List;
 import java.util.Map;
-import static me.ferrybig.javacoding.minecraft.minigame.AreaInformation.copyTaggedInformation;
+import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
+import static me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation.copyTaggedInformation;
+import me.ferrybig.javacoding.minecraft.minigame.information.ResolvedAreaInformation;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 

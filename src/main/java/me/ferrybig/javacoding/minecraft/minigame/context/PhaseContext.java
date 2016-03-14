@@ -1,6 +1,7 @@
-package me.ferrybig.javacoding.minecraft.minigame;
+package me.ferrybig.javacoding.minecraft.minigame.context;
 
 import java.util.concurrent.ExecutorService;
+import me.ferrybig.javacoding.minecraft.minigame.Triggerable;
 import org.bukkit.event.Listener;
 
 public interface PhaseContext extends Triggerable {

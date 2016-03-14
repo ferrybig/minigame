@@ -6,7 +6,7 @@ import io.netty.util.concurrent.Future;
 import java.util.Collections;
 import java.util.Map;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
-import me.ferrybig.javacoding.minecraft.minigame.AreaInformation;
+import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
 import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
 import org.bukkit.block.Block;

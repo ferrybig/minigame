@@ -1,6 +1,6 @@
 package me.ferrybig.javacoding.minecraft.minigame.listener;
 
-import me.ferrybig.javacoding.minecraft.minigame.AreaContext;
+import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
 import org.bukkit.entity.Player;
 import org.junit.Test;
 import static org.junit.Assert.*;

@@ -6,7 +6,7 @@ import io.netty.util.concurrent.Future;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import me.ferrybig.javacoding.minecraft.minigame.AreaInformation;
+import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.GameCore;
 import me.ferrybig.javacoding.minecraft.minigame.Pipeline;
 import me.ferrybig.javacoding.minecraft.minigame.bootstrap.Bootstrap;

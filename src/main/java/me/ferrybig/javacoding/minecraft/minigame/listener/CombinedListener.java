@@ -3,7 +3,7 @@ package me.ferrybig.javacoding.minecraft.minigame.listener;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import me.ferrybig.javacoding.minecraft.minigame.AreaContext;
+import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
 import org.bukkit.entity.Player;
 
 /**

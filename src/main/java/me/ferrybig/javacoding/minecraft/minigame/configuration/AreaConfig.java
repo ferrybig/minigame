@@ -3,7 +3,7 @@ package me.ferrybig.javacoding.minecraft.minigame.configuration;
 import io.netty.util.concurrent.Future;
 import java.util.Map;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
-import me.ferrybig.javacoding.minecraft.minigame.AreaInformation;
+import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 
 public interface AreaConfig extends Config {
 

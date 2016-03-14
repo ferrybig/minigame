@@ -2,6 +2,8 @@ package me.ferrybig.javacoding.minecraft.minigame;
 
 import io.netty.util.concurrent.Future;
 import java.util.function.Function;
+import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
+import me.ferrybig.javacoding.minecraft.minigame.information.ResolvedAreaInformation;
 
 public interface AreaConstructor {
 
