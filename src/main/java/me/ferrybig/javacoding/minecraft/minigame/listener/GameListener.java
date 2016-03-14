@@ -16,6 +16,7 @@ public interface GameListener {
 	
 	public void gameInstanceStarted(AreaContext area);
 	
+	@Deprecated
 	public default GameListener combineListeners(GameListener other) {
 		return new GameListener() {
 			@Override
