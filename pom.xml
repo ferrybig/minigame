@@ -38,6 +38,7 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
 			<version>1.10.19</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.bukkit</groupId>
@@ -88,10 +89,33 @@
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
 				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.10.3</version>
+				<configuration>
+					<links>
+						<link>https://hub.spigotmc.org/javadocs/bukkit/</link>
+						<link>http://netty.io/5.0/api/</link>
+					</links>
+					<detectLinks>true</detectLinks>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
