@@ -1,5 +1,6 @@
 package me.ferrybig.javacoding.minecraft.minigame;
 
+import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import java.util.Collection;
 import java.util.Optional;
@@ -36,7 +37,7 @@ public interface GameCore extends AutoCloseable, GameListenable {
 	public boolean isRunning();
 
 	public boolean isTerminating();
-	
+
 	public default boolean isTerminated() {
 		return terminationFuture().isDone();
 	}
@@ -49,5 +50,9 @@ public interface GameCore extends AutoCloseable, GameListenable {
 	public void close();
 
 	public InformationContext getInfo();
+
+	public default EventExecutor getExecutor() {
+		return getInfo().getExecutor();
+	}
 
 }
