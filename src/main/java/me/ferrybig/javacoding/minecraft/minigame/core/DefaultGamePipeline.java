@@ -259,33 +259,39 @@ public class DefaultGamePipeline implements Pipeline {
 				runQueue.clear();
 				return;
 			}
-			Runnable task;
-			int tasksRun = 0;
-			while ((task = runQueue.poll()) != null) {
-				tasksRun++;
-				task.run();
-				if (logger.isLoggable(Level.FINER)) {
-					LogRecord record = new LogRecord(Level.FINER,
-							"Ran iteration {0}, {1} tasks left and {2} pending");
-					record.setParameters(new Object[]{tasksRun, runQueue.size(),
-						pendingTasks.size()});
-					logger.log(record);
+			do {
+				Runnable task;
+				int tasksRun = 0;
+				while ((task = runQueue.poll()) != null) {
+					tasksRun++;
+					task.run();
+					if (logger.isLoggable(Level.FINER)) {
+						LogRecord record = new LogRecord(Level.FINER,
+								"Ran iteration {0}, {1} tasks left and {2} pending");
+						record.setParameters(new Object[]{tasksRun, runQueue.size(),
+							pendingTasks.size()});
+						logger.log(record);
+					}
+					while ((task = pendingTasks.pollLast()) != null) {
+						runQueue.addFirst(task);
+					}
+					assert pendingTasks.isEmpty();
+					pendingTasks.clear(); //reset internal state of deque
 				}
-				while ((task = pendingTasks.pollLast()) != null) {
-					runQueue.addFirst(task);
+				if (logger.isLoggable(Level.FINE)) {
+					logger.log(Level.FINE, "Ran {0} tasks correctly", tasksRun);
 				}
-				assert pendingTasks.isEmpty();
-				pendingTasks.clear(); //reset internal state of deque
-			}
-			if (logger.isLoggable(Level.FINE)) {
-				logger.log(Level.FINE, "Ran {0} tasks correctly", tasksRun);
-			}
+				if(terminating) {
+					if(currPhaseIndex < 0) {
+						break;
+					} else {
+						decreasePhase();
+					}
+				}
+			} while(terminating);
 		} finally {
 			assert inLoop == true;
 			inLoop = false;
-		}
-		if (terminating) {
-			decreasePhase();
 		}
 	}
 
