@@ -57,6 +57,8 @@ public class DefaultGamePipeline implements Pipeline {
 	@Override
 	public Pipeline addFirst(Phase phase) {
 		Objects.requireNonNull(phase, "phase == null");
+		if(this.contains(phase))
+			throw new IllegalArgumentException("Phase already added");
 		PhaseHolder holder;
 		mainPhases.forEach(p -> p.context.incrementCurrIndex());
 		mainPhases.addFirst(holder = new PhaseHolder(phase, new DefaultPhaseContext(0)));
@@ -74,6 +76,9 @@ public class DefaultGamePipeline implements Pipeline {
 		if (terminating) {
 			throw new IllegalStateException("Cannot add to terminating pipeline");
 		}
+		Objects.requireNonNull(phase, "phase == null");
+		if(this.contains(phase))
+			throw new IllegalArgumentException("Phase already added");
 		int newIndex = this.mainPhases.size();
 		mainPhases.addLast(new PhaseHolder(phase, new DefaultPhaseContext(newIndex)));
 		assert this.mainPhases.size() == newIndex + 1;
