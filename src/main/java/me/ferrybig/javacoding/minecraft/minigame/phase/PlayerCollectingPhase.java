@@ -11,9 +11,8 @@ import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreJoinMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreLeaveMessage;
 import org.apache.commons.lang.Validate;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 
-public class PlayerCollectingPhase extends DefaultPlayerPhase{
+public class PlayerCollectingPhase extends DefaultPhase{
 	
 	private final Set<UUID> onlinePlayers = new HashSet<>();
 	
