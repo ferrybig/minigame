@@ -45,7 +45,7 @@ public class DefaultGamePipeline implements Pipeline {
 	private AreaContext area;
 	private boolean terminating = false;
 	private boolean inLoop = false;
-
+	private boolean hasFailedWithException = false;
 	private Logger logger;
 
 	public DefaultGamePipeline(EventExecutor executor) {
@@ -71,9 +71,12 @@ public class DefaultGamePipeline implements Pipeline {
 
 	@Override
 	public Pipeline addLast(Phase phase) {
+		if (terminating) {
+			throw new IllegalStateException("Cannot add to terminating pipeline");
+		}
 		int newIndex = this.mainPhases.size();
-		PhaseHolder holder;
-		mainPhases.addLast(holder = new PhaseHolder(phase, new DefaultPhaseContext(newIndex)));
+		mainPhases.addLast(new PhaseHolder(phase, new DefaultPhaseContext(newIndex)));
+		assert this.mainPhases.size() == newIndex + 1;
 		return this;
 	}
 
@@ -242,7 +245,7 @@ public class DefaultGamePipeline implements Pipeline {
 		}
 		inLoop = true;
 		try {
-			if(this.killed) {
+			if (this.killed) {
 				pendingTasks.clear();
 				runQueue.clear();
 				return;
@@ -278,15 +281,15 @@ public class DefaultGamePipeline implements Pipeline {
 	}
 
 	private void runLoop(Runnable run) {
-		if(this.sizeCheckCounter-- < 0) {
+		if (this.sizeCheckCounter-- < 0) {
 			this.sizeCheckCounter = PIPELINE_COUNTER;
-			if(pendingTasks.size() + runQueue.size() > PIPELINE_TASK_LIMIT) {
+			if (pendingTasks.size() + runQueue.size() > PIPELINE_TASK_LIMIT) {
 				this.killed = true;
 				this.terminating = true;
 				this.terminationFuture.setFailure(new IllegalStateException("Pipeline crashed"));
 			}
 		}
-		if(this.killed) {
+		if (this.killed) {
 			return;
 		}
 		if (inLoop) {
@@ -307,13 +310,15 @@ public class DefaultGamePipeline implements Pipeline {
 	}
 
 	private <T> void onException(int index, Throwable message) {
-		if (terminating) {
+		if (hasFailedWithException) {
+			logger.log(Level.SEVERE, "Caught exception in pipeline while terminating:", message);
 			return;
 		}
 		runLoop(() -> {
 			if (index >= currPhaseIndex - 1) {
-				logger.log(Level.SEVERE,"Exception reached top of pipeline, terminating...", message);
+				logger.log(Level.SEVERE, "Exception reached top of pipeline, terminating...", message);
 				terminate();
+				hasFailedWithException = true;
 				return;
 			}
 			PhaseHolder phase = this.mainPhases.get(index + 1);
@@ -323,6 +328,7 @@ public class DefaultGamePipeline implements Pipeline {
 				message.addSuppressed(a);
 				logger.log(Level.SEVERE, "Caught exception in pipeline:", message);
 				terminate();
+				hasFailedWithException = true;
 			}
 		});
 	}
@@ -406,7 +412,7 @@ public class DefaultGamePipeline implements Pipeline {
 	}
 
 	private void decreasePhase() {
-		if(this.currPhaseIndex < 0) {
+		if (this.currPhaseIndex < 0) {
 			return;
 		}
 		PhaseHolder curr = getHolder(this.currPhaseIndex);
@@ -445,12 +451,12 @@ public class DefaultGamePipeline implements Pipeline {
 
 		@Override
 		public String toString() {
-			return "PhaseHolder{" + 
-					"loaded=" + loaded +
-					", shouldBeLoaded=" + shouldBeLoaded +
-					", registered=" + registered +
-					", shouldBeRegistered=" + shouldBeRegistered +
-					", phase=" + phase + ", "
+			return "PhaseHolder{"
+					+ "loaded=" + loaded
+					+ ", shouldBeLoaded=" + shouldBeLoaded
+					+ ", registered=" + registered
+					+ ", shouldBeRegistered=" + shouldBeRegistered
+					+ ", phase=" + phase + ", "
 					+ "context=" + context + '}';
 		}
 
