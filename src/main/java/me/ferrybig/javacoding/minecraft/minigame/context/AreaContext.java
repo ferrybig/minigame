@@ -39,13 +39,13 @@ public interface AreaContext extends AttributeMap, ResolvedAreaInformation {
 		return getCore().getInfo().getLogger();
 	}
 
-	public default void sendBroadcastMessage(String message) {
+	public default void sendBroadcast(String message) {
 		for (Player p : getController().getPlayers().keySet()) {
 			p.sendMessage(message);
 		}
 	}
 
-	public default void sendBroadcastMessage(Translation message, Object ... args) {
-		sendBroadcastMessage(getInformationContext().getTranslations().get(message, args));
+	public default void sendBroadcast(Translation message, Object ... args) {
+		sendBroadcast(getInformationContext().getTranslations().get(message, args));
 	}
 }
