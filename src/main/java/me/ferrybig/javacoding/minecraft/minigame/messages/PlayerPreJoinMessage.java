@@ -5,7 +5,7 @@ import org.bukkit.event.Cancellable;
 
 public class PlayerPreJoinMessage extends Message implements Cancellable {
 
-	protected boolean cancelled = false;
+	protected boolean cancelled = true;
 
 	protected final OfflinePlayer player;
 
