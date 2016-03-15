@@ -4,6 +4,9 @@ public enum BaseTranslation implements Translation {
 
 	AREA_PLAYER_JOINED("area.player.join"),
 	AREA_PLAYER_LEFT("area.player.left"),
+	COUNTDOWN_STARTED("countdown.started"),
+	COUNTDOWN_SECONDS_LEFT("countdown.left"),
+	COUNTDOWN_STARTING("countdown.starting"),
 	;
 
 	private final String key;
