@@ -1,8 +1,8 @@
 package me.ferrybig.javacoding.minecraft.minigame.context;
 
 import io.netty.util.AttributeMap;
+import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
-import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.Controller;
@@ -16,7 +16,7 @@ public interface AreaContext extends AttributeMap, ResolvedAreaInformation {
 	
 	public Pipeline pipeline();
 	
-	public ExecutorService getExecutor();
+	public EventExecutor getExecutor();
 	
 	public long instanceId();
 	

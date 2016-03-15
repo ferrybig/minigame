@@ -1,13 +1,13 @@
 package me.ferrybig.javacoding.minecraft.minigame.core;
 
 import io.netty.util.DefaultAttributeMap;
+import io.netty.util.concurrent.EventExecutor;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
@@ -50,7 +50,7 @@ public class DefaultAreaContext extends DefaultAttributeMap implements AreaConte
 	}
 
 	@Override
-	public ExecutorService getExecutor() {
+	public EventExecutor getExecutor() {
 		return getCore().getInfo().getExecutor();
 	}
 
