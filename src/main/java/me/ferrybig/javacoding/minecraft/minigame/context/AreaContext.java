@@ -10,6 +10,7 @@ import me.ferrybig.javacoding.minecraft.minigame.GameCore;
 import me.ferrybig.javacoding.minecraft.minigame.InformationContext;
 import me.ferrybig.javacoding.minecraft.minigame.Pipeline;
 import me.ferrybig.javacoding.minecraft.minigame.information.ResolvedAreaInformation;
+import me.ferrybig.javacoding.minecraft.minigame.translation.Translation;
 import org.bukkit.entity.Player;
 
 public interface AreaContext extends AttributeMap, ResolvedAreaInformation {
@@ -42,5 +43,9 @@ public interface AreaContext extends AttributeMap, ResolvedAreaInformation {
 		for (Player p : getController().getPlayers().keySet()) {
 			p.sendMessage(message);
 		}
+	}
+
+	public default void sendBroadcastMessage(Translation message, Object ... args) {
+		sendBroadcastMessage(getInformationContext().getTranslations().get(message, args));
 	}
 }
