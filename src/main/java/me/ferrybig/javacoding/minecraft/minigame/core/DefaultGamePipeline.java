@@ -32,12 +32,16 @@ import org.bukkit.event.Listener;
 public class DefaultGamePipeline implements Pipeline {
 
 	private static final int STARTING_AT_FIRST_PHASE = -1;
+	private static final int PIPELINE_TASK_LIMIT = 512;
+	private static final int PIPELINE_COUNTER = 512;
 	private final LinkedList<PhaseHolder> mainPhases = new LinkedList<>();
 	private final Deque<Runnable> runQueue = new ArrayDeque<>();
 	private final Deque<Runnable> pendingTasks = new ArrayDeque<>();
 	private final Promise<AreaContext> terminationFuture;
 	private Reference<DefaultPhaseContext> entrance = new PhantomReference<>(null, null);
 	private int currPhaseIndex = -1;
+	private int sizeCheckCounter = PIPELINE_COUNTER;
+	private boolean killed = false;
 	private AreaContext area;
 	private boolean terminating = false;
 	private boolean inLoop = false;
@@ -238,6 +242,11 @@ public class DefaultGamePipeline implements Pipeline {
 		}
 		inLoop = true;
 		try {
+			if(this.killed) {
+				pendingTasks.clear();
+				runQueue.clear();
+				return;
+			}
 			Runnable task;
 			int tasksRun = 0;
 			while ((task = runQueue.poll()) != null) {
@@ -269,6 +278,17 @@ public class DefaultGamePipeline implements Pipeline {
 	}
 
 	private void runLoop(Runnable run) {
+		if(this.sizeCheckCounter-- < 0) {
+			this.sizeCheckCounter = PIPELINE_COUNTER;
+			if(pendingTasks.size() + runQueue.size() > PIPELINE_TASK_LIMIT) {
+				this.killed = true;
+				this.terminating = true;
+				this.terminationFuture.setFailure(new IllegalStateException("Pipeline crashed"));
+			}
+		}
+		if(this.killed) {
+			return;
+		}
 		if (inLoop) {
 			this.pendingTasks.add(run);
 		} else {
@@ -386,6 +406,9 @@ public class DefaultGamePipeline implements Pipeline {
 	}
 
 	private void decreasePhase() {
+		if(this.currPhaseIndex < 0) {
+			return;
+		}
 		PhaseHolder curr = getHolder(this.currPhaseIndex);
 		curr.shouldBeLoaded = false;
 		curr.shouldBeRegistered = false;
@@ -393,7 +416,7 @@ public class DefaultGamePipeline implements Pipeline {
 		unregisterPhase(curr);
 		this.currPhaseIndex--;
 		if (this.currPhaseIndex < 0) {
-			terminationFuture.setSuccess(area);
+			terminationFuture.setSuccess(null);
 			terminating = true;
 		} else {
 			PhaseHolder newPhase = getHolder(this.currPhaseIndex);
