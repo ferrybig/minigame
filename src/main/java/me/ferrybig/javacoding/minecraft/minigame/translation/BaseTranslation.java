@@ -7,6 +7,7 @@ public enum BaseTranslation implements Translation {
 	COUNTDOWN_STARTED("countdown.started"),
 	COUNTDOWN_SECONDS_LEFT("countdown.left"),
 	COUNTDOWN_STARTING("countdown.starting"),
+	COUNTDOWN_CANCELLED("countdown.cancelled"),
 	;
 
 	private final String key;
