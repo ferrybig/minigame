@@ -317,9 +317,13 @@ public class DefaultGamePipeline implements Pipeline {
 
 	@Override
 	public void runLoop(AreaContext area) {
-		if (this.area == null) {
+		if (area != null && this.area == null) {
 			this.area = area;
 			this.logger = this.area.getLogger();
+			if(this.logger == null) {
+				this.logger = Logger.getLogger(this.getClass().getName());
+				this.logger.warning("Using own logger because none logger has been provided");
+			}
 		}
 		runLoop();
 	}
