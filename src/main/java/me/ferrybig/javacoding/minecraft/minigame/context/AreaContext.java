@@ -3,6 +3,7 @@ package me.ferrybig.javacoding.minecraft.minigame.context;
 import io.netty.util.AttributeMap;
 import io.netty.util.concurrent.Future;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Logger;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.Controller;
 import me.ferrybig.javacoding.minecraft.minigame.GameCore;
@@ -29,5 +30,9 @@ public interface AreaContext extends AttributeMap, ResolvedAreaInformation {
 	
 	public default Future<?> getClosureFuture() {
 		return pipeline().getClosureFuture();
+	}
+
+	public default Logger getLogger() {
+		return getCore().getInfo().getLogger();
 	}
 }
