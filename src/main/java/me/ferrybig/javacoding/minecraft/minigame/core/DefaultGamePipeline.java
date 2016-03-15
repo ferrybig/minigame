@@ -87,7 +87,11 @@ public class DefaultGamePipeline implements Pipeline {
 
 	@Override
 	public boolean contains(Phase phase) {
-		return this.mainPhases.stream().map(p -> p.phase).anyMatch(p -> p.equals(phase));
+		for(PhaseHolder p : this.mainPhases) {
+			if(p.phase == phase)
+				return true;
+		}
+		return false;
 	}
 
 	@Override
