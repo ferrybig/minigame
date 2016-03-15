@@ -97,7 +97,7 @@ public class DefaultGamePipeline implements Pipeline {
 
 	@Override
 	public Phase get(int index) {
-		return this.mainPhases.size() > index ? this.mainPhases.get(index).phase : null;
+		return this.mainPhases.get(index).phase;
 	}
 
 	@Override
