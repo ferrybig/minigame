@@ -117,6 +117,8 @@ public class PlayerCollectingPhase extends DefaultPhase {
 			case 1:
 				this.area.getAreaContext().sendBroadcast(
 						BaseTranslation.COUNTDOWN_SECONDS_LEFT, tickCount);
+				break;
+			default:
 		}
 		if(tickCount < 1) {
 			start();
