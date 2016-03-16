@@ -8,6 +8,14 @@ public enum BaseTranslation implements Translation {
 	COUNTDOWN_SECONDS_LEFT("countdown.left"),
 	COUNTDOWN_STARTING("countdown.starting"),
 	COUNTDOWN_CANCELLED("countdown.cancelled"),
+	SIGNS_FOOTER("signs.footer"),
+	SIGNS_HEADER("signs.header"),
+	SIGNS_PLAYERCOUNTER("signs.playercounter"),
+	SIGNS_STATE_LOADING("signs.state.loading"),
+	SIGNS_STATE_JOINABLE("signs.state.joinable"),
+	SIGNS_STATE_PROGRESS("signs.state.in_progress"),
+	SIGNS_STATE_ENDING("signs.state.ending"),
+	SIGNS_STATE_ERROR("signs.state.error"),
 	;
 
 	private final String key;
