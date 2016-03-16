@@ -7,6 +7,10 @@ import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreLeaveMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerSpectateMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerTeamMessage;
 
+/**
+ * Represents a context that is triggerable.
+ * @author Fernando
+ */
 public interface Triggerable {
 
 	void triggerExceptionCaucht(Throwable exception);
