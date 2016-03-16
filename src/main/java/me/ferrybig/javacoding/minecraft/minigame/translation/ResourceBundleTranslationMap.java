@@ -1,13 +1,10 @@
 package me.ferrybig.javacoding.minecraft.minigame.translation;
 
-import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class ResourceBundleTranslationMap extends TranslationMap {
-
-	private final MessageFormat formatter;
 
 	private final ResourceBundle bundle;
 
@@ -22,7 +19,6 @@ public class ResourceBundleTranslationMap extends TranslationMap {
 	public ResourceBundleTranslationMap(TranslationMap parent, ResourceBundle bundle, Locale loc) {
 		super(parent);
 		this.bundle = Objects.requireNonNull(bundle, "bundle == null");
-		formatter = new MessageFormat("");
 		formatter.setLocale(Objects.requireNonNull(loc, "loc == null"));
 	}
 
@@ -30,14 +26,6 @@ public class ResourceBundleTranslationMap extends TranslationMap {
 	protected String getMessage(Translation key, Object[] args) {
 		String strKey = key.key();
 		return bundle.containsKey(strKey) ? replaceArgs(bundle.getString(strKey), args) : null;
-	}
-
-	private String replaceArgs(String bundleResult, Object[] args) {
-		if (args.length == 0) {
-			return bundleResult;
-		}
-		formatter.applyPattern(bundleResult);
-		return formatter.format(args);
 	}
 
 	private static ResourceBundle getInternalBundle(Locale loc) {

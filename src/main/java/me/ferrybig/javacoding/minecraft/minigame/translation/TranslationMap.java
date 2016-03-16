@@ -1,5 +1,6 @@
 package me.ferrybig.javacoding.minecraft.minigame.translation;
 
+import java.text.MessageFormat;
 import java.util.Objects;
 
 /**
@@ -11,6 +12,8 @@ public abstract class TranslationMap {
 	private static final Object[] CACHED_EMPTY_ARRAY;
 	private static final TranslationMap DEFAULT_MAPPING;
 	private static final TranslationMap FAILURE_MAPPINGS;
+	protected final MessageFormat formatter = new MessageFormat("");;
+	protected final TranslationMap parent;
 
 	static {
 		FAILURE_MAPPINGS = new NullTranslationMap();
@@ -25,8 +28,6 @@ public abstract class TranslationMap {
 	public static TranslationMap getFailureMappings() {
 		return FAILURE_MAPPINGS;
 	}
-
-	private final TranslationMap parent;
 
 	TranslationMap() {
 		this.parent = null;
@@ -56,6 +57,14 @@ public abstract class TranslationMap {
 
 	public TranslationMap getParent() {
 		return parent;
+	}
+	
+	protected String replaceArgs(String bundleResult, Object[] args) {
+		if (args.length == 0) {
+			return bundleResult;
+		}
+		formatter.applyPattern(bundleResult);
+		return formatter.format(args);
 	}
 
 }
