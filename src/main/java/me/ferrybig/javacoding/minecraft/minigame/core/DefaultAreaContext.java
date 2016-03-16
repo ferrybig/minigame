@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
@@ -130,9 +131,13 @@ public class DefaultAreaContext extends DefaultAttributeMap implements AreaConte
 		return pipeline;
 	}
 
-	public static AreaContextConstructor factory(EventExecutor executor) {
-		return (core, a, c, p) -> executor.newSucceededFuture(new DefaultAreaContext
-		(core, a, c, p));
+	public static AreaContextConstructor factory(EventExecutor executor,
+			Consumer<Pipeline> pipelineDecorator) {
+		Objects.requireNonNull(pipelineDecorator, "pipelineDecorator == null");
+		return (core, a, c, p) -> {
+			pipelineDecorator.accept(p);
+			return executor.newSucceededFuture(new DefaultAreaContext(core, a, c, p));
+		};
 	}
 
 }
