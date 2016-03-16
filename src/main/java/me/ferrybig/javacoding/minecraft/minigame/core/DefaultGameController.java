@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -38,6 +39,7 @@ public class DefaultGameController implements Controller {
 	private final Triggerable trigger;
 	private final List<ControllerListener> listeners = new ArrayList<>();
 	private final Map<UUID, DefaultPlayerInfo> playerStates = new HashMap<>();
+	private final AtomicBoolean inCheckLoop = new AtomicBoolean(false);
 
 	public DefaultGameController(InformationContext info, Triggerable trigger) {
 		this.info = Objects.requireNonNull(info, "info == null");
@@ -98,23 +100,31 @@ public class DefaultGameController implements Controller {
 
 	@Override
 	public boolean addPlayer(Player player) {
-		if (!hasState(player)) {
-			tryAddPlayer(player);
-		}
-		if (!askListeners(ControllerListener::canAddPlayerToGame, player)) {
-			removePlayer(player);
+		Objects.requireNonNull(player, "player == null");
+		if(inCheckLoop.get())
 			return false;
+		inCheckLoop.set(true);
+		try {
+			if (!hasState(player)) {
+				tryAddPlayer(player);
+			}
+			if (!askListeners(ControllerListener::canAddPlayerToGame, player)) {
+				removePlayer(player);
+				return false;
+			}
+			PlayerJoinMessage join = new PlayerJoinMessage(player);
+			trigger.triggerPlayerJoin(join);
+			boolean succesful = !join.isCancelled();
+			if (succesful) {
+				updateState(player, true);
+				callListeners(ControllerListener::addedPlayerToGame, player);
+			} else {
+				removePlayer(player);
+			}
+			return succesful;
+		} finally {
+			inCheckLoop.set(false);
 		}
-		PlayerJoinMessage join = new PlayerJoinMessage(player);
-		trigger.triggerPlayerJoin(join);
-		boolean succesful = !join.isCancelled();
-		if (succesful) {
-			updateState(player, true);
-			callListeners(ControllerListener::addedPlayerToGame, player);
-		} else {
-			removePlayer(player);
-		}
-		return succesful;
 	}
 
 	@Override
@@ -162,51 +172,66 @@ public class DefaultGameController implements Controller {
 	}
 
 	public boolean tryAddPlayer(OfflinePlayer player) {
-		if (!hasState(player)) {
-			if (askListeners(ControllerListener::canAddPlayerPreToGame, player)) {
-				PlayerPreJoinMessage pl = new PlayerPreJoinMessage(player);
-				this.trigger.triggerPlayerPreJoin(pl);
-				if (pl.isCancelled()) {
+		Objects.requireNonNull(player, "player == null");
+		if(inCheckLoop.get())
+			return false;
+		inCheckLoop.set(true);
+		try {
+			if (!hasState(player)) {
+				if (askListeners(ControllerListener::canAddPlayerPreToGame, player)) {
+					PlayerPreJoinMessage pl = new PlayerPreJoinMessage(player);
+					this.trigger.triggerPlayerPreJoin(pl);
+					if (pl.isCancelled()) {
+						return false;
+					}
+					updateState(player, false);
+					callListeners(ControllerListener::addedPlayerPreToGame, player);
+					return true;
+				} else {
 					return false;
 				}
-				updateState(player, false);
-				callListeners(ControllerListener::addedPlayerPreToGame, player);
-				return true;
 			} else {
-				return false;
+				return true;
 			}
-		} else {
-			return true;
+		} finally {
+			inCheckLoop.set(false);
 		}
 	}
 
 	@Override
 	public boolean tryAddPlayer(List<? extends OfflinePlayer> players) {
 		Objects.requireNonNull(players, "players == null");
-		players = players.stream().filter(Objects::nonNull).collect(Collectors.toList());
-		boolean failed = false;
-		int seen = 0;
-		int total = players.size();
+		if(inCheckLoop.get())
+			return false;
+		inCheckLoop.set(true);
 		try {
-			Iterator<? extends OfflinePlayer> it = players.iterator();
-			while (it.hasNext()) {
-				OfflinePlayer p = it.next();
-				if (p == null) {
-					throw new IllegalArgumentException("players.contains(null) == true");
+			players = players.stream().filter(Objects::nonNull).collect(Collectors.toList());
+			boolean failed = false;
+			int seen = 0;
+			int total = players.size();
+			try {
+				Iterator<? extends OfflinePlayer> it = players.iterator();
+				while (it.hasNext()) {
+					OfflinePlayer p = it.next();
+					if (p == null) {
+						throw new IllegalArgumentException("players.contains(null) == true");
+					}
+					if (!tryAddPlayer(p)) {
+						failed = true;
+						break;
+					}
+					seen++;
 				}
-				if (!tryAddPlayer(p)) {
+			} finally {
+				if (failed || seen != total) {
+					players.forEach(this::removePlayer);
 					failed = true;
-					break;
 				}
-				seen++;
 			}
+			return !failed;
 		} finally {
-			if (failed || seen != total) {
-				players.forEach(this::removePlayer);
-				failed = true;
-			}
+			inCheckLoop.set(false);
 		}
-		return !failed;
 	}
 
 	private static class PlayerQuitListener implements Listener {
