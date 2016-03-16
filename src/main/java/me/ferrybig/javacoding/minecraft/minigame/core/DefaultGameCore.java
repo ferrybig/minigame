@@ -130,6 +130,7 @@ public class DefaultGameCore implements GameCore {
 		}
 		checkState();
 		Area randomArea = areaSelector.apply(areas.entrySet().stream()
+				.filter(m -> m.getValue().canBeUsed())
 				.map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getValue(),
 						areaContexts.getOrDefault(e.getKey(), Collections.emptyList()).size()
 						+ pendingAreaContexts.getOrDefault(e.getKey(), Collections.emptyList()).size())
@@ -169,7 +170,7 @@ public class DefaultGameCore implements GameCore {
 
 			@Override
 			public int size() {
-				return (int) stream().count();
+				return areaContexts.values().stream().mapToInt(List::size).sum();
 			}
 
 		};
@@ -289,8 +290,12 @@ public class DefaultGameCore implements GameCore {
 	}
 
 	private Future<AreaContext> createContext(Area area) {
+		if(!area.canBeUsed()) {
+			return executor.newFailedFuture(
+					new IllegalStateException("area.canBeUsed() == false"));
+		}
 		AtomicReference<AreaContext> ref = new AtomicReference<>();
-		Pipeline pipeline = new DefaultGamePipeline(executor); // TODO
+		Pipeline pipeline = new DefaultGamePipeline(executor);
 		Controller controller = new DefaultGameController(info, pipeline.entrance());
 		controller.addListener(new Controller.ControllerListener() {
 
