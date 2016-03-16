@@ -42,6 +42,10 @@ public abstract class MinigamePlugin extends JavaPlugin implements GameCoreAcces
 			this.initBasicSettings(b);
 			return executor.newSucceededFuture(b);
 		}).map(Bootstrap::build);
+		gameCoreLoader.addListener((Future<GameCore> c)-> {
+			gameCore = c.get();
+			onGameCoreLoaded(gameCore);
+		});
 	}
 	
 	protected void onInternalUnload() {
@@ -89,7 +93,10 @@ public abstract class MinigamePlugin extends JavaPlugin implements GameCoreAcces
 	@Override
 	public GameCore getCore() {
 		if(!isLoaded())
-			throw new IllegalStateException();
+			throw new IllegalStateException("Game core not loaded yet");
 		return gameCore;
+	}
+
+	protected void onGameCoreLoaded(GameCore core) {
 	}
 }
