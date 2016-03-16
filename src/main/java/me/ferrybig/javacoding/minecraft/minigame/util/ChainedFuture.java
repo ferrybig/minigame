@@ -6,11 +6,11 @@ import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.Promise;
 import java.lang.ref.WeakReference;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  *
@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 public class ChainedFuture<T> implements Future<T> {
 
 	public static <T> ChainedFuture<T> of(EventExecutor executor,
-			Supplier<Future<T>> futureSupplier) {
+			Callable<Future<T>> futureSupplier) {
 		return new ChainedFuture<>(executor, futureSupplier);
 	}
 
@@ -29,20 +29,20 @@ public class ChainedFuture<T> implements Future<T> {
 	}
 
 	public static <T1, T2> ChainedFuture<T2> of(EventExecutor executor,
-			Supplier<Future<T1>> futureSupplier,
+			Callable<Future<T1>> futureSupplier,
 			Function<? super T1, Future<T2>> map1) {
 		return of(executor, futureSupplier).map(map1);
 	}
 
 	public static <T1, T2, T3> ChainedFuture<T3> of(EventExecutor executor,
-			Supplier<Future<T1>> futureSupplier,
+			Callable<Future<T1>> futureSupplier,
 			Function<? super T1, Future<T2>> map1,
 			Function<? super T2, Future<T3>> map2) {
 		return of(executor, futureSupplier, map1).map(map2);
 	}
 
 	public static <T1, T2, T3, T4> ChainedFuture<T4> of(EventExecutor executor,
-			Supplier<Future<T1>> futureSupplier,
+			Callable<Future<T1>> futureSupplier,
 			Function<? super T1, Future<T2>> map1,
 			Function<? super T2, Future<T3>> map2,
 			Function<? super T3, Future<T4>> map3) {
@@ -53,14 +53,14 @@ public class ChainedFuture<T> implements Future<T> {
 	private final Future<T> future;
 	private final WeakReference<Future<T>> reference;
 
-	private ChainedFuture(EventExecutor executor, Supplier<Future<T>> futureSupplier) {
+	private ChainedFuture(EventExecutor executor, Callable<Future<T>> futureSupplier) {
 		Objects.requireNonNull(futureSupplier, "futureSupplier == null");
 		this.executor = Objects.requireNonNull(executor, "executor == null");
 		Promise<T> prom = executor.newPromise();
 		this.future = prom;
 		this.reference = new WeakReference<>(future);
 		try {
-			Future<T> result = futureSupplier.get();
+			Future<T> result = futureSupplier.call();
 			if (result == null) {
 				prom.setFailure(SafeUtil.createException(IllegalStateException::new,
 						"Suplier returned null: %s", futureSupplier));
