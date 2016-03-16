@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.Selection;
 import me.ferrybig.javacoding.minecraft.minigame.core.DefaultSelection;
@@ -60,6 +62,15 @@ public class FileConfig extends AbstractFullConfig {
 
 	@Override
 	public void close() {
+		if (saveTask == null) {
+			return;
+		}
+		saveTask.cancel(false);
+		try {
+			saveConfig(config.get());
+		} catch (IOException ex) {
+			Logger.getLogger(FileConfig.class.getName()).log(Level.SEVERE, "", ex);
+		}
 	}
 
 	@Override
@@ -215,13 +226,13 @@ public class FileConfig extends AbstractFullConfig {
 			if (signSection == null) {
 				return signs;
 			}
-			for(String key : signSection.getKeys(false)) {
+			for (String key : signSection.getKeys(false)) {
 				String[] split = key.split("|");
 				World w = server.getWorld(split[0]);
 				Block b = w.getBlockAt(Integer.parseInt(split[1]), Integer.parseInt(split[2]),
 						Integer.parseInt(split[3]));
-				SignType type = "RANDOM".equals(signSection.getString(key)) ?
-						SignType.RANDOM : SignType.FIXED_AREA; // TODO more types
+				SignType type = "RANDOM".equals(signSection.getString(key))
+						? SignType.RANDOM : SignType.FIXED_AREA; // TODO more types
 				signs.put(b, new StatusSign() {
 					@Override
 					public SignType getType() {
@@ -253,7 +264,7 @@ public class FileConfig extends AbstractFullConfig {
 	public Future<?> saveArea(String name, Area area) {
 		return executor.submit(() -> {
 			FileConfiguration conf = getConfig();
-			if(area == null) {
+			if (area == null) {
 				conf.set(SECTION_AREA + "." + name, null);
 			} else {
 				ConfigurationSection newSection = conf.createSection(SECTION_AREA + "." + name);
@@ -261,7 +272,7 @@ public class FileConfig extends AbstractFullConfig {
 				newSection.set(WORLD, area.getBounds().getWorld());
 				newSection.set(ENABLED, area.isEnabled());
 				newSection.set(MAXPLAYERS, area.maxPlayers());
-				
+
 				newSection.set(SELECTIONMINX, area.getBounds().getFirstPoint().getX());
 				newSection.set(SELECTIONMINY, area.getBounds().getFirstPoint().getY());
 				newSection.set(SELECTIONMINZ, area.getBounds().getFirstPoint().getZ());
@@ -270,28 +281,26 @@ public class FileConfig extends AbstractFullConfig {
 				newSection.set(SELECTIONMAXY, area.getBounds().getSecondPoint().getY());
 				newSection.set(SELECTIONMAXZ, area.getBounds().getSecondPoint().getZ());
 
-
 				ConfigurationSection block = newSection.createSection(BLOCKS);
 				area.getTaggedBlocks().entrySet().stream()
 						.filter((blockEntry) -> !(blockEntry.getValue().isEmpty()))
 						.forEach((blockEntry) -> {
-					List<String> list = new ArrayList<>();
-					blockEntry.getValue().stream().forEach((b) ->
-							list.add(b.getX() + "|" + b.getY() + "|" + b.getZ()));
-					block.set(blockEntry.getKey(), list);
-				});
+							List<String> list = new ArrayList<>();
+							blockEntry.getValue().stream().forEach((b)
+									-> list.add(b.getX() + "|" + b.getY() + "|" + b.getZ()));
+							block.set(blockEntry.getKey(), list);
+						});
 				ConfigurationSection loc = newSection.createSection(BLOCKS);
 				area.getTaggedLocations().entrySet().stream()
 						.filter((locEntry) -> !(locEntry.getValue().isEmpty()))
 						.forEach((locEntry) -> {
-					List<String> list = new ArrayList<>();
-					locEntry.getValue().stream().forEach((b) ->
-							list.add(b.getX() + "|" + b.getY() + "|" + b.getZ() +
-									"|" + b.getPitch() + "|" + b.getYaw()));
-					loc.set(locEntry.getKey(), list);
-				});
-				
-				
+							List<String> list = new ArrayList<>();
+							locEntry.getValue().stream().forEach((b)
+									-> list.add(b.getX() + "|" + b.getY() + "|" + b.getZ()
+											+ "|" + b.getPitch() + "|" + b.getYaw()));
+							loc.set(locEntry.getKey(), list);
+						});
+
 			}
 			scheduleSave();
 			return null;
