@@ -18,7 +18,7 @@ public class WaitingPhase extends DefaultPhase {
 	@Override
 	public void onPhaseUnload(PhaseContext area) throws Exception {
 		super.onPhaseUnload(area);
-		area.getAreaContext().attr(CURRENT_WAITING_LOOP).remove();
+		area.getAreaContext().attr(CURRENT_WAITING_LOOP).getAndRemove().cancel(false);
 	}
 
 	@Override
