@@ -50,11 +50,11 @@ public class DefaultBootstrap implements Bootstrap {
 			logger = plugin.getLogger();
 		}
 		return ChainedFuture.of(executor, config::loadFully,
-				(FullConfig.FullyLoadedConfig c) -> executor.submit(() -> {
+				c -> executor.submit(() -> {
 					GameCore core = new DefaultGameCore(new DefaultInformationContext(constructor,
 							areaContextConstructor, areaVerifier.unwrap(c.getTranslations()),
 							executor, logger,
-							plugin, c.getTranslations(), config));
+							plugin, c.getTranslations(), config, c.getSigns()));
 					c.getAreas().values().stream().forEach(core::addArea);
 					return core;
 				}));

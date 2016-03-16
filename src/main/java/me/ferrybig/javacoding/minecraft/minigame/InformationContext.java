@@ -1,11 +1,14 @@
 package me.ferrybig.javacoding.minecraft.minigame;
 
 import io.netty.util.concurrent.EventExecutor;
+import java.util.Map;
 import java.util.logging.Logger;
 import me.ferrybig.javacoding.minecraft.minigame.configuration.FullConfig;
 import me.ferrybig.javacoding.minecraft.minigame.context.AreaContextConstructor;
+import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
 import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
 import me.ferrybig.javacoding.minecraft.minigame.verrifier.AreaVerifier;
+import org.bukkit.block.Block;
 import org.bukkit.plugin.Plugin;
 
 public interface InformationContext {
@@ -15,6 +18,12 @@ public interface InformationContext {
 	 * @return the translationmap
 	 */
 	public TranslationMap getTranslations();
+
+	/**
+	 * Loads all defined status signs
+	 * @return
+	 */
+	public Map<Block, StatusSign> getSigns();
 
 	/**
 	 * Gets the logger used for this instance
