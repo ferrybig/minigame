@@ -31,6 +31,7 @@ import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.AreaCreator;
 import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.Controller;
+import me.ferrybig.javacoding.minecraft.minigame.Controller.ControllerListener;
 import me.ferrybig.javacoding.minecraft.minigame.GameCore;
 import me.ferrybig.javacoding.minecraft.minigame.InformationContext;
 import me.ferrybig.javacoding.minecraft.minigame.Pipeline;
@@ -290,59 +291,14 @@ public class DefaultGameCore implements GameCore {
 	}
 
 	private Future<AreaContext> createContext(Area area) {
-		if(!area.canBeUsed()) {
+		if (!area.canBeUsed()) {
 			return executor.newFailedFuture(
 					new IllegalStateException("area.canBeUsed() == false"));
 		}
 		AtomicReference<AreaContext> ref = new AtomicReference<>();
 		Pipeline pipeline = new DefaultGamePipeline(executor);
 		Controller controller = new DefaultGameController(info, pipeline.entrance());
-		controller.addListener(new Controller.ControllerListener() {
-
-			private AreaContext con;
-			private AtomicReference<AreaContext> reference = ref;
-
-			private AreaContext get() {
-				if (con == null) {
-					con = reference.get();
-					if (con != null) {
-						reference = null;
-					}
-				}
-				return con;
-			}
-
-			@Override
-			public boolean canAddPlayerToGame(Player player) {
-				return get().equals(playerGames.get(player.getUniqueId()));
-			}
-
-			@Override
-			public boolean canAddPlayerPreToGame(OfflinePlayer player) {
-				return !playerGames.containsKey(player.getUniqueId());
-			}
-
-			@Override
-			public void addedPlayerPreToGame(OfflinePlayer player) {
-				playerGames.put(player.getUniqueId(), get());
-			}
-
-			@Override
-			public void addedPlayerToGame(Player player) {
-				playerGames.put(player.getUniqueId(), get());
-			}
-
-			@Override
-			public void removedPlayerFromGame(Player player) {
-				playerGames.put(player.getUniqueId(), get());
-				listeners.playerLeaveGame(get(), player);
-			}
-
-			@Override
-			public void removedPlayerFromPreGame(OfflinePlayer player) {
-				playerGames.put(player.getUniqueId(), get());
-			}
-		});
+		controller.addListener(new ControllerCommander(ref));
 		Future<AreaContext> context = info.getAreaContextConstructor().construct(this, area, controller, pipeline)
 				.addListener((Future<AreaContext> f) -> {
 					removeAreaFuture(area, f);
@@ -424,6 +380,57 @@ public class DefaultGameCore implements GameCore {
 				log.setThrown(f.cause());
 				info.getLogger().log(log);
 			}
+		}
+	}
+
+	private class ControllerCommander implements ControllerListener {
+
+		private AtomicReference<AreaContext> ref;
+
+		public ControllerCommander(AtomicReference<AreaContext> ref) {
+			this.ref = ref;
+		}
+		private AreaContext con;
+
+		private AreaContext get() {
+			if (con == null) {
+				con = ref.get();
+				if (con != null) {
+					ref = null;
+				}
+			}
+			return con;
+		}
+
+		@Override
+		public boolean canAddPlayerToGame(Player player) {
+			return get().equals(playerGames.get(player.getUniqueId()));
+		}
+
+		@Override
+		public boolean canAddPlayerPreToGame(OfflinePlayer player) {
+			return !playerGames.containsKey(player.getUniqueId());
+		}
+
+		@Override
+		public void addedPlayerPreToGame(OfflinePlayer player) {
+			playerGames.put(player.getUniqueId(), get());
+		}
+
+		@Override
+		public void addedPlayerToGame(Player player) {
+			playerGames.put(player.getUniqueId(), get());
+		}
+
+		@Override
+		public void removedPlayerFromGame(Player player) {
+			playerGames.put(player.getUniqueId(), get());
+			listeners.playerLeaveGame(get(), player);
+		}
+
+		@Override
+		public void removedPlayerFromPreGame(OfflinePlayer player) {
+			playerGames.put(player.getUniqueId(), get());
 		}
 	}
 
