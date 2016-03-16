@@ -17,6 +17,7 @@ import me.ferrybig.javacoding.minecraft.minigame.Controller;
 import me.ferrybig.javacoding.minecraft.minigame.GameCore;
 import me.ferrybig.javacoding.minecraft.minigame.Pipeline;
 import me.ferrybig.javacoding.minecraft.minigame.Selection;
+import me.ferrybig.javacoding.minecraft.minigame.context.AreaContextConstructor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
@@ -33,7 +34,7 @@ public class DefaultAreaContext extends DefaultAttributeMap implements AreaConte
 	private final Set<String> teams;
 
 	public DefaultAreaContext(GameCore core, Area area,
-			Pipeline pipeline, Controller controller) {
+			Controller controller, Pipeline pipeline) {
 		Objects.requireNonNull(area, "area == null");
 		this.core = core;
 		this.area = area;
@@ -127,6 +128,11 @@ public class DefaultAreaContext extends DefaultAttributeMap implements AreaConte
 	@Override
 	public Pipeline pipeline() {
 		return pipeline;
+	}
+
+	public static AreaContextConstructor factory(EventExecutor executor) {
+		return (core, a, c, p) -> executor.newSucceededFuture(new DefaultAreaContext
+		(core, a, c, p));
 	}
 
 }
