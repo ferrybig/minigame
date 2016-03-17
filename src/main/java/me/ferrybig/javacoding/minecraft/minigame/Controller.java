@@ -32,6 +32,10 @@ public interface Controller {
 
 	public Optional<PlayerInfo> getPlayer(OfflinePlayer player);
 
+	public default boolean isInArea(OfflinePlayer player) {
+		return getPlayer(player).isPresent();
+	}
+
 	public interface PlayerInfo extends AttributeMap {
 
 		public OfflinePlayer getOfflinePlayer();
