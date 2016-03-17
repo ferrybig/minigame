@@ -1,20 +1,79 @@
 package me.ferrybig.javacoding.minecraft.minigame.phase;
 
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
-import static me.ferrybig.javacoding.minecraft.minigame.phase.StatusPhase.State.JOINABLE;
+import me.ferrybig.javacoding.minecraft.minigame.context.PhaseContext;
 import me.ferrybig.javacoding.minecraft.minigame.translation.BaseTranslation;
 import me.ferrybig.javacoding.minecraft.minigame.translation.Translation;
 
-public class StatusPhase {
+public class StatusPhase extends DefaultPhase {
+
+	private static final AttributeKey<State> CURRENT_STATE
+			= AttributeKey.valueOf(StatusPhase.class, "state");
+	private static final AttributeKey<List<BiConsumer<AreaContext, State>>> LISTENERS
+			= AttributeKey.valueOf(StatusPhase.class, "listeners");
+	private final State onLoadState;
+	private final State onResetState;
+
+	public StatusPhase(State onLoadState, State onResetState) {
+		this.onLoadState = onLoadState;
+		this.onResetState = onResetState;
+	}
+
+	@Override
+	public void afterReset(PhaseContext area) {
+		super.afterReset(area);
+		if(onResetState != null)
+			setState(area.getAreaContext(), onResetState);
+	}
+
+	@Override
+	public void onPhaseRegister(PhaseContext area) throws Exception {
+		super.onPhaseRegister(area);
+		if(onLoadState != null)
+			setState(area.getAreaContext(), onLoadState);
+		area.triggerNextPhase();
+	}
 
 	public static State getState(AreaContext area) {
-		return JOINABLE;
+		Objects.requireNonNull(area, "area == null");
+		State state = area.attr(CURRENT_STATE).get();
+		if (state == null) {
+			return State.JOINABLE;
+		}
+		return state;
+	}
+
+	public static void setState(AreaContext area, State state) {
+		Objects.requireNonNull(area, "area == null");
+		Attribute<State> attr = area.attr(CURRENT_STATE);
+		Attribute<List<BiConsumer<AreaContext, State>>> listeners = area.attr(LISTENERS);
+		if (Objects.equals(attr.get(), state)) {
+			return;
+		}
+		attr.set(state);
+		List<BiConsumer<AreaContext, State>> listen = listeners.get();
+		if (listen == null) {
+			return;
+		}
+		listen.forEach(l -> l.accept(area, state));
 	}
 
 	public static void registerForStateUpdates(AreaContext area,
 			BiConsumer<AreaContext, State> listener, boolean callDirect) {
-
+		Objects.requireNonNull(area, "area == null");
+		Objects.requireNonNull(listener, "listener == null");
+		Attribute<List<BiConsumer<AreaContext, State>>> listeners = area.attr(LISTENERS);
+		listeners.setIfAbsent(new CopyOnWriteArrayList<>());
+		listeners.get().add(listener);
+		if (callDirect) {
+			listener.accept(area, getState(area));
+		}
 	}
 
 	public enum State implements me.ferrybig.javacoding.minecraft.minigame.translation.Translation {
