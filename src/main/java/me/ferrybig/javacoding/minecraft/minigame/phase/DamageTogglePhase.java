@@ -31,8 +31,10 @@ public class DamageTogglePhase extends DefaultPhase {
 
 	@Override
 	public void afterReset(PhaseContext area) {
-		if(listener != null)
+		if(listener != null) {
 			area.unregisterNativeListener(listener);
+			area.getAreaContext().attr(TYPE).remove();
+		}
 		super.afterReset(area);
 	}
 
@@ -96,7 +98,7 @@ public class DamageTogglePhase extends DefaultPhase {
 				}
 			}
 		} else {
-			if(!area.attr(TYPE).get().contains(DamageType.OUTSIDE)) {
+			if(!isDamageAllowed(area, DamageType.OUTSIDE)) {
 				event.setCancelled(true);
 			}
 		}
