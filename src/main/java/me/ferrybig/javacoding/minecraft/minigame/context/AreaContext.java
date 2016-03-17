@@ -11,6 +11,7 @@ import me.ferrybig.javacoding.minecraft.minigame.InformationContext;
 import me.ferrybig.javacoding.minecraft.minigame.Pipeline;
 import me.ferrybig.javacoding.minecraft.minigame.information.ResolvedAreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.translation.Translation;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 public interface AreaContext extends AttributeMap, ResolvedAreaInformation {
@@ -47,5 +48,9 @@ public interface AreaContext extends AttributeMap, ResolvedAreaInformation {
 
 	public default void sendBroadcast(Translation message, Object ... args) {
 		sendBroadcast(getInformationContext().getTranslations().get(message, args));
+	}
+
+	public default boolean isInArea(OfflinePlayer player) {
+		return getController().isInArea(player);
 	}
 }
