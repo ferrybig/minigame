@@ -12,6 +12,7 @@ import me.ferrybig.javacoding.minecraft.minigame.Controller.PlayerInfo;
 import me.ferrybig.javacoding.minecraft.minigame.GameCore;
 import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.phase.StatusPhase;
+import me.ferrybig.javacoding.minecraft.minigame.phase.StatusPhase.State;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign.SignType;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSignManager;
@@ -22,20 +23,27 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 public class DefaultStatusSignManager implements StatusSignManager {
 
 	private final static AtomicLong MODIFICATION_COUNT = new AtomicLong();
 	private final Map<Block, StatusSign> signs = new HashMap<>();
 	private final Map<Block, Long> modCount = new HashMap<>();
+	private final Map<Block, AreaContext> areas = new HashMap<>();
 	private final GameCore core;
 	private final TranslationMap map;
+	private final Listener signListener = new SignListener();
 	private boolean stopped = false;
 
 	public DefaultStatusSignManager(GameCore core, Map<Block, StatusSign> signs) {
 		this.core = core;
 		this.map = core.getInfo().getTranslations();
 		this.core.terminationFuture().addListener(f->{
+			assert this.core.terminationFuture() == f;
 			stop();
 		});
 		this.signs.putAll(signs);
@@ -43,7 +51,10 @@ public class DefaultStatusSignManager implements StatusSignManager {
 			modCount.put(l, MODIFICATION_COUNT.incrementAndGet())
 		);
 		this.core.startingFuture().addListener(f->{
+			assert f == this.core.startingFuture();
 			this.signs.forEach(this::updateSign);
+			this.core.getInfo().getPlugin().getServer().getPluginManager()
+					.registerEvents(signListener, this.core.getInfo().getPlugin());
 		});
 	}
 
@@ -69,7 +80,8 @@ public class DefaultStatusSignManager implements StatusSignManager {
 	}
 
 	private void updateSign(Block block, StatusSign sign) {
-
+		if (stopped)
+			return;
 		long mod = modCount.getOrDefault(block, 0l);
 		BlockState state = block.getState();
 		if(!(state instanceof Sign)) {
@@ -96,6 +108,12 @@ public class DefaultStatusSignManager implements StatusSignManager {
 				return;
 			}
 			AreaContext c = future.get();
+			long mod2 = modCount.getOrDefault(block, 0l);
+			if(mod2 != mod) {
+				c.pipeline().terminate();
+				return;
+			}
+			this.areas.put(block, c);
 			s.setLine(0, map.get(BaseTranslation.SIGNS_HEADER, c.getName()));
 			updateSignPlayerCount(s, c);
 			s.update();
@@ -110,9 +128,11 @@ public class DefaultStatusSignManager implements StatusSignManager {
 			}));
 			c.getClosureFuture().addListener((f1)->{
 				assert f1 == c.getClosureFuture();
-				long mod2 = modCount.getOrDefault(block, 0l);
-				if(mod2 == mod)
+				long mod3 = modCount.getOrDefault(block, 0l);
+				if(mod3 == mod) {
+					this.areas.remove(block);
 					updateSign(block, sign);
+				}
 			});
 
 		});
@@ -180,6 +200,33 @@ public class DefaultStatusSignManager implements StatusSignManager {
 
 		@Override
 		public void removedPlayerFromPreGame(OfflinePlayer player) {
+		}
+	}
+
+	private class SignListener implements Listener {
+
+		@EventHandler
+		public void onInteract(PlayerInteractEvent evt) {
+			if(evt.getAction() == Action.RIGHT_CLICK_BLOCK) {
+				AreaContext area = areas.get(evt.getClickedBlock());
+				if(area == null)
+					return;
+				State state = StatusPhase.getState(area);
+				if(state != StatusPhase.State.JOINABLE) {
+					evt.getPlayer().sendMessage(core.getInfo().getTranslations()
+							.get(BaseTranslation.SIGNS_INTERACT_STARTED));
+					return;
+				}
+				boolean tryJoin = area.getController().addPlayer(evt.getPlayer());
+				if(!tryJoin) {
+					area.getController().removePlayer(evt.getPlayer());
+					evt.getPlayer().sendMessage(core.getInfo().getTranslations()
+							.get(BaseTranslation.SIGNS_INTERACT_FULL));
+				} else {
+					evt.getPlayer().sendMessage(core.getInfo().getTranslations()
+							.get(BaseTranslation.SIGNS_INTERACT_JOIN));
+				}
+			}
 		}
 	}
 

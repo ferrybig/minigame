@@ -17,6 +17,9 @@ public enum BaseTranslation implements Translation {
 	SIGNS_STATE_ENDING("signs.state.ending"),
 	SIGNS_STATE_ERROR("signs.state.error"),
 	SIGNS_STATE_SHUTDOWN("signs.state.shutdown"),
+	SIGNS_INTERACT_JOIN("signs.interact.join"),
+	SIGNS_INTERACT_FULL("signs.interact.full"),
+	SIGNS_INTERACT_STARTED("signs.interact.started"),
 	;
 
 	private final String key;
