@@ -44,22 +44,7 @@ public class DamageTogglePhase extends DefaultPhase {
 		Attribute<Set<DamageType>> type = area.getAreaContext().attr(TYPE);
 		if (type.get() == null) {
 			AreaContext ar = area.getAreaContext();
-			listener = new Listener() {
-				@EventHandler
-				public void onDamage(EntityDamageByEntityEvent event) {
-					Entity defender = event.getEntity();
-					Entity attacker = event.getDamager();
-					if (attacker instanceof Projectile) {
-						Projectile projectile = (Projectile) attacker;
-						if (projectile.getShooter() instanceof Entity) {
-							attacker = (Entity) projectile.getShooter();
-						}
-					}
-					if (attacker instanceof Player && defender instanceof Player) {
-						onPlayerVSPlayerDamage(ar, (Player) attacker, (Player) defender, event);
-					}
-				}
-			};
+			listener = new DamageListener(ar);
 			area.registerNativeListener(listener);
 		}
 		type.set(newTypes);
@@ -114,6 +99,30 @@ public class DamageTogglePhase extends DefaultPhase {
 		NORMAL,
 		OUTSIDE,
 		SELF,
+	}
+
+	private class DamageListener implements Listener {
+
+		private final AreaContext ar;
+
+		public DamageListener(AreaContext ar) {
+			this.ar = ar;
+		}
+
+		@EventHandler
+		public void onDamage(EntityDamageByEntityEvent event) {
+			Entity defender = event.getEntity();
+			Entity attacker = event.getDamager();
+			if (attacker instanceof Projectile) {
+				Projectile projectile = (Projectile) attacker;
+				if (projectile.getShooter() instanceof Entity) {
+					attacker = (Entity) projectile.getShooter();
+				}
+			}
+			if (attacker instanceof Player && defender instanceof Player) {
+				onPlayerVSPlayerDamage(ar, (Player) attacker, (Player) defender, event);
+			}
+		}
 	}
 
 }

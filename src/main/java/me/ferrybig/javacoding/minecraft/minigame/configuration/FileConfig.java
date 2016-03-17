@@ -65,12 +65,14 @@ public class FileConfig extends AbstractFullConfig {
 		if (saveTask == null) {
 			return;
 		}
-		saveTask.cancel(false);
 		try {
-			saveConfig(config.get());
+			FileConfiguration c = config.get();
+			if(c != null)
+				saveConfig(c);
 		} catch (IOException ex) {
 			Logger.getLogger(FileConfig.class.getName()).log(Level.SEVERE, "", ex);
 		}
+		saveTask.cancel(false);
 	}
 
 	@Override
@@ -106,7 +108,7 @@ public class FileConfig extends AbstractFullConfig {
 		});
 	}
 
-	public void scheduleSave() {
+	private void scheduleSave() {
 		if (saveTask != null) {
 			return;
 		}
@@ -121,7 +123,7 @@ public class FileConfig extends AbstractFullConfig {
 		}, 5, TimeUnit.MINUTES);
 	}
 
-	public void saveConfig(FileConfiguration conf) throws IOException {
+	private void saveConfig(FileConfiguration conf) throws IOException {
 		conf.save(configFile);
 	}
 
