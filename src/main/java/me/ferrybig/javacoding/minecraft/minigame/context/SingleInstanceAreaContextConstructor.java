@@ -53,6 +53,7 @@ public class SingleInstanceAreaContextConstructor
 		return f -> {
 			if(f.isSuccess() && f.get() != null ) {
 				f.get().getClosureFuture().addListener(f1->{
+					assert f1 == f.get().getClosureFuture();
 					triggerNextBuild(name);
 				});
 			} else {
@@ -93,6 +94,8 @@ public class SingleInstanceAreaContextConstructor
 
 			Future<AreaContext> result = ChainedFuture.of(executor, future);
 			promise.addListener(f -> {
+				assert promise == f;
+				assert promise.isDone();
 				if (result.isDone()) {
 					return;
 				}
@@ -101,6 +104,8 @@ public class SingleInstanceAreaContextConstructor
 				}
 			});
 			result.addListener(f -> {
+				assert result == f;
+				assert result.isDone();
 				if (promise.isDone()) {
 					return;
 				}
