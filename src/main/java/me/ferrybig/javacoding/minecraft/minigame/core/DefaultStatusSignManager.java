@@ -17,7 +17,7 @@ import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign.SignType;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSignManager;
 import me.ferrybig.javacoding.minecraft.minigame.translation.BaseTranslation;
-import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
+import me.ferrybig.javacoding.minecraft.minigame.translation.Translator;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -35,7 +35,7 @@ public class DefaultStatusSignManager implements StatusSignManager {
 	private final Map<Block, Long> modCount = new HashMap<>();
 	private final Map<Block, AreaContext> areas = new HashMap<>();
 	private final GameCore core;
-	private final TranslationMap map;
+	private final Translator map;
 	private final Listener signListener = new SignListener();
 	private boolean stopped = false;
 
@@ -89,10 +89,10 @@ public class DefaultStatusSignManager implements StatusSignManager {
 			return;
 		}
 		Sign s = (Sign)state;
-		s.setLine(0, map.get(BaseTranslation.SIGNS_HEADER, ""));
-		s.setLine(1, map.get(BaseTranslation.SIGNS_STATE_LOADING, ""));
+		s.setLine(0, map.translate(BaseTranslation.SIGNS_HEADER, ""));
+		s.setLine(1, map.translate(BaseTranslation.SIGNS_STATE_LOADING, ""));
 		s.setLine(2, "");
-		s.setLine(3, map.get(BaseTranslation.SIGNS_FOOTER));
+		s.setLine(3, map.translate(BaseTranslation.SIGNS_FOOTER));
 		s.update();
 
 		Future<AreaContext> future = this.core.createRandomGameContext();
@@ -103,7 +103,7 @@ public class DefaultStatusSignManager implements StatusSignManager {
 					core.getInfo().getLogger().log(Level.WARNING,
 							"Error while preparing area:", f.cause());
 				}
-				s.setLine(1, map.get(BaseTranslation.SIGNS_STATE_ERROR, ""));
+				s.setLine(1, map.translate(BaseTranslation.SIGNS_STATE_ERROR, ""));
 				s.update();
 				return;
 			}
@@ -114,12 +114,12 @@ public class DefaultStatusSignManager implements StatusSignManager {
 				return;
 			}
 			this.areas.put(block, c);
-			s.setLine(0, map.get(BaseTranslation.SIGNS_HEADER, c.getName()));
+			s.setLine(0, map.translate(BaseTranslation.SIGNS_HEADER, c.getName()));
 			updateSignPlayerCount(s, c);
 			s.update();
 			StatusPhase.registerForStateUpdates(c, (area, areaState)->{
 				assert area == c;
-				s.setLine(1, map.get(areaState));
+				s.setLine(1, map.translate(areaState));
 				s.update();
 			}, true);
 			c.getController().addListener(new ControllerUpdateListener(()->{
@@ -147,7 +147,7 @@ public class DefaultStatusSignManager implements StatusSignManager {
 				nonSpectator++;
 			}
 		}
-		sign.setLine(2, map.get(BaseTranslation.SIGNS_PLAYERCOUNTER,
+		sign.setLine(2, map.translate(BaseTranslation.SIGNS_PLAYERCOUNTER,
 			nonSpectator, ingame, context.maxPlayers()));
 
 	}
@@ -214,17 +214,17 @@ public class DefaultStatusSignManager implements StatusSignManager {
 				State state = StatusPhase.getState(area);
 				if(state != StatusPhase.State.JOINABLE) {
 					evt.getPlayer().sendMessage(core.getInfo().getTranslations()
-							.get(BaseTranslation.SIGNS_INTERACT_STARTED));
+							.translate(BaseTranslation.SIGNS_INTERACT_STARTED));
 					return;
 				}
 				boolean tryJoin = area.getController().addPlayer(evt.getPlayer());
 				if(!tryJoin) {
 					area.getController().removePlayer(evt.getPlayer());
 					evt.getPlayer().sendMessage(core.getInfo().getTranslations()
-							.get(BaseTranslation.SIGNS_INTERACT_FULL));
+							.translate(BaseTranslation.SIGNS_INTERACT_FULL));
 				} else {
 					evt.getPlayer().sendMessage(core.getInfo().getTranslations()
-							.get(BaseTranslation.SIGNS_INTERACT_JOIN));
+							.translate(BaseTranslation.SIGNS_INTERACT_JOIN));
 				}
 			}
 		}

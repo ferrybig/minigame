@@ -24,6 +24,7 @@ import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign.SignType;
 import me.ferrybig.javacoding.minecraft.minigame.translation.SimpleTranslationMap;
 import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
+import me.ferrybig.javacoding.minecraft.minigame.translation.Translator;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
@@ -88,7 +89,7 @@ public class FileConfig extends AbstractFullConfig {
 	}
 
 	@Override
-	public Future<TranslationMap> loadTranslationMap() {
+	public Future<? extends Translator> loadTranslationMap() {
 		return executor.submit(() -> {
 			FileConfiguration conf = this.config.get();
 			ConfigurationSection translationSection = conf.getConfigurationSection("translations");

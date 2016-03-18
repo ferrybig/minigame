@@ -1,4 +1,3 @@
-
 package me.ferrybig.javacoding.minecraft.minigame.configuration;
 
 import io.netty.util.concurrent.EventExecutor;
@@ -9,6 +8,7 @@ import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
 import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
+import me.ferrybig.javacoding.minecraft.minigame.translation.Translator;
 import org.bukkit.block.Block;
 
 public class EmptyConfig extends AbstractFullConfig {
@@ -28,7 +28,7 @@ public class EmptyConfig extends AbstractFullConfig {
 	}
 
 	@Override
-	public Future<TranslationMap> loadTranslationMap() {
+	public Future<? extends Translator> loadTranslationMap() {
 		return executor.newSucceededFuture(TranslationMap.getDefaultMappings());
 	}
 
@@ -51,7 +51,5 @@ public class EmptyConfig extends AbstractFullConfig {
 	public Future<?> saveArea(String name, Area area) {
 		return executor.newFailedFuture(new IllegalStateException("Does not support saving!"));
 	}
-	
-	
 
 }

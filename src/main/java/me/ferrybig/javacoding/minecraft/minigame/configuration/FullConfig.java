@@ -4,7 +4,7 @@ import io.netty.util.concurrent.Future;
 import java.util.Map;
 import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
-import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
+import me.ferrybig.javacoding.minecraft.minigame.translation.Translator;
 import org.bukkit.block.Block;
 
 /**
@@ -21,6 +21,6 @@ public interface FullConfig extends SignConfig, AreaConfig, TranslationConfig {
 
 		public Map<String, AreaInformation> getAreas();
 
-		public TranslationMap getTranslations();
+		public Translator getTranslations();
 	}
 }

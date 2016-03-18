@@ -9,6 +9,7 @@ import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
 import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
+import me.ferrybig.javacoding.minecraft.minigame.translation.Translator;
 import org.bukkit.block.Block;
 
 public class BlackHoleConfig extends AbstractFullConfig {
@@ -18,7 +19,7 @@ public class BlackHoleConfig extends AbstractFullConfig {
 	}
 
 	@Override
-	public Future<TranslationMap> loadTranslationMap() {
+	public Future<? extends Translator> loadTranslationMap() {
 		return executor.newSucceededFuture(TranslationMap.getFailureMappings());
 	}
 

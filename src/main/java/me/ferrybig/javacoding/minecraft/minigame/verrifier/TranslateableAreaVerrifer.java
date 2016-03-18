@@ -3,23 +3,24 @@ package me.ferrybig.javacoding.minecraft.minigame.verrifier;
 import java.util.List;
 import java.util.Set;
 import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
-import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
+import me.ferrybig.javacoding.minecraft.minigame.translation.Translator;
 
 /**
  *
  * @author Fernando
  */
 public interface TranslateableAreaVerrifer {
-	public List<String> getProblems(AreaInformation area, TranslationMap map);
+
+	public List<String> getProblems(AreaInformation area, Translator map);
 
 	public boolean isCorrect(AreaInformation area);
 
 	public Set<String> getValidTeams(AreaInformation area);
-	
+
 	public static TranslateableAreaVerrifer wrap(AreaVerifier ar) {
 		return new TranslateableAreaVerrifer() {
 			@Override
-			public List<String> getProblems(AreaInformation area, TranslationMap map) {
+			public List<String> getProblems(AreaInformation area, Translator map) {
 				return ar.getProblems(area);
 			}
 
@@ -34,8 +35,8 @@ public interface TranslateableAreaVerrifer {
 			}
 		};
 	}
-	
-	public default AreaVerifier unwrap(TranslationMap map) {
+
+	public default AreaVerifier unwrap(Translator map) {
 		return new AreaVerifier() {
 			@Override
 			public List<String> getProblems(AreaInformation area) {

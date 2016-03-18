@@ -8,7 +8,7 @@ import java.util.Map;
 import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.exceptions.ConfigurationException;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
-import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
+import me.ferrybig.javacoding.minecraft.minigame.translation.Translator;
 import org.bukkit.block.Block;
 
 public abstract class AbstractFullConfig extends AbstractConfig implements FullConfig {
@@ -21,7 +21,7 @@ public abstract class AbstractFullConfig extends AbstractConfig implements FullC
 	public Future<FullyLoadedConfig> loadFully() {
 		Future<Map<String, AreaInformation>> loadAreas = loadAreas();
 		Future<Map<Block, StatusSign>> loadSigns = loadSigns();
-		Future<TranslationMap> translationMap = loadTranslationMap();
+		Future<? extends Translator> translationMap = loadTranslationMap();
 		Promise<FullyLoadedConfig> loaded = executor.newPromise();
 		GenericFutureListener<Future<Object>> listener = (Future<Object> future) -> {
 			if (loadAreas.isDone() && loadSigns.isDone() && translationMap.isDone()) {
@@ -51,7 +51,7 @@ public abstract class AbstractFullConfig extends AbstractConfig implements FullC
 
 	protected FullyLoadedConfig newFullyLoadedConfig(
 			Map<String, AreaInformation> areas,
-			Map<Block, StatusSign> signs, TranslationMap translation) {
+			Map<Block, StatusSign> signs, Translator translation) {
 		return new FullyLoadedConfig() {
 			@Override
 			public Map<String, AreaInformation> getAreas() {
@@ -64,7 +64,7 @@ public abstract class AbstractFullConfig extends AbstractConfig implements FullC
 			}
 
 			@Override
-			public TranslationMap getTranslations() {
+			public Translator getTranslations() {
 				return translation;
 			}
 

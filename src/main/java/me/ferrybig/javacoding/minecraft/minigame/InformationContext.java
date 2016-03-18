@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 import me.ferrybig.javacoding.minecraft.minigame.configuration.FullConfig;
 import me.ferrybig.javacoding.minecraft.minigame.context.AreaContextConstructor;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
-import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
+import me.ferrybig.javacoding.minecraft.minigame.translation.Translator;
 import me.ferrybig.javacoding.minecraft.minigame.verrifier.AreaVerifier;
 import org.bukkit.block.Block;
 import org.bukkit.plugin.Plugin;
@@ -17,7 +17,7 @@ public interface InformationContext {
 	 * Get the translationmap, this map contains the defined translations
 	 * @return the translationmap
 	 */
-	public TranslationMap getTranslations();
+	public Translator getTranslations();
 
 	/**
 	 * Loads all defined status signs

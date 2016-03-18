@@ -8,7 +8,7 @@ import java.util.Objects;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
-import me.ferrybig.javacoding.minecraft.minigame.translation.TranslationMap;
+import me.ferrybig.javacoding.minecraft.minigame.translation.Translator;
 import me.ferrybig.javacoding.minecraft.minigame.util.CombinedFuture;
 import org.bukkit.block.Block;
 
@@ -27,7 +27,7 @@ public class CombinedConfig extends AbstractFullConfig {
 	}
 
 	@Override
-	public Future<TranslationMap> loadTranslationMap() {
+	public Future<? extends Translator> loadTranslationMap() {
 		return translationConfig.loadTranslationMap();
 	}
 
