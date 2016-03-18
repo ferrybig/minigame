@@ -2,6 +2,7 @@
 package me.ferrybig.javacoding.minecraft.minigame.phase;
 
 import io.netty.util.concurrent.ScheduledFuture;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -14,7 +15,7 @@ public class AreaEscapePreventPhase extends DefaultPhase {
 
 	private PhaseContext area;
 	private ScheduledFuture<?> future;
-	private Map<UUID, Location> lastLocations;
+	private final Map<UUID, Location> lastLocations = new HashMap<>();
 	private final Location locationCache = new Location(null, 0, 0, 0);
 
 	private void checkLocations() {
@@ -47,14 +48,14 @@ public class AreaEscapePreventPhase extends DefaultPhase {
 	@Override
 	public void onPhaseUnregister(PhaseContext area) throws Exception {
 		super.onPhaseUnregister(area);
-		future.cancel(true);
+		if(future != null) future.cancel(true);
 	}
 
 	@Override
 	public void onPhaseRegister(PhaseContext area) throws Exception {
 		super.onPhaseRegister(area);
 		this.area = area;
-		this.area.getExecutor().scheduleWithFixedDelay(
+		this.future = this.area.getExecutor().scheduleWithFixedDelay(
 				this::checkLocations, 0, 1, TimeUnit.SECONDS);
 		area.triggerNextPhase();
 	}

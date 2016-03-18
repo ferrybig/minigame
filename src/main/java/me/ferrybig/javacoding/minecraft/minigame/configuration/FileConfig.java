@@ -177,7 +177,7 @@ public class FileConfig extends AbstractFullConfig {
 						for (String bockType : blockSection.getKeys(false)) {
 							List<Block> blocks = new ArrayList<>();
 							for (String val : blockSection.getStringList(bockType)) {
-								String[] args = val.split("|");
+								String[] args = val.split("\\|");
 								if (args.length != 3) {
 									throw new ConfigurationException("Invalid block format: " + val);
 								}
@@ -198,9 +198,9 @@ public class FileConfig extends AbstractFullConfig {
 						for (String locType : locationSection.getKeys(false)) {
 							List<Location> locations = new ArrayList<>();
 							for (String val : locationSection.getStringList(locType)) {
-								String[] args = val.split("|");
+								String[] args = val.split("\\|");
 								if (args.length != 5) {
-									throw new ConfigurationException("Invalid block format: " + val);
+									throw new ConfigurationException("Invalid location format: " + val);
 								}
 								locations.add(new Location(world, Double.parseDouble(args[0]),
 										Double.parseDouble(args[1]), Double.parseDouble(args[2]),
@@ -230,7 +230,7 @@ public class FileConfig extends AbstractFullConfig {
 				return signs;
 			}
 			for (String key : signSection.getKeys(false)) {
-				String[] split = key.split("|");
+				String[] split = key.split("\\|");
 				World w = server.getWorld(split[0]);
 				Block b = w.getBlockAt(Integer.parseInt(split[1]), Integer.parseInt(split[2]),
 						Integer.parseInt(split[3]));

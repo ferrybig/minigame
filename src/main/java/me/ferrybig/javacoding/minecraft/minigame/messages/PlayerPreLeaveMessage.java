@@ -16,6 +16,10 @@ public class PlayerPreLeaveMessage extends Message {
 		return player;
 	}
 
+	public Reason getReason() {
+		return reason;
+	}
+
 	public enum Reason {
 		PLAYER_QUIT_SERVER,
 		MANUAL_LEAVE,

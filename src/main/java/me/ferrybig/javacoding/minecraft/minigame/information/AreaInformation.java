@@ -46,51 +46,7 @@ public interface AreaInformation {
 	}
 
 	public default AreaInformation getInformationCopy() {
-		boolean enabled = isEnabled();
-		String name = getName();
-		String description = getDescription();
-		Selection selection = getBounds().deepClone();
-		int maxPlayers = maxPlayers();
-		Map<String, List<Location>> taggedLocations = new HashMap<>(getTaggedLocations());
-		taggedLocations.replaceAll((k, v) -> new ArrayList<>(v));
-		Map<String, List<Block>> taggedBlocks = new HashMap<>(getTaggedBlocks());
-		taggedBlocks.replaceAll((k, v) -> new ArrayList<>(v));
-		return new AreaInformation() {
-			@Override
-			public Selection getBounds() {
-				return selection;
-			}
-
-			@Override
-			public String getDescription() {
-				return description;
-			}
-
-			@Override
-			public String getName() {
-				return name;
-			}
-
-			@Override
-			public Map<String, List<Block>> getTaggedBlocks() {
-				return taggedBlocks;
-			}
-
-			@Override
-			public Map<String, List<Location>> getTaggedLocations() {
-				return taggedLocations;
-			}
-
-			@Override
-			public boolean isEnabled() {
-				return enabled;
-			}
-
-			@Override
-			public int maxPlayers() {
-				return maxPlayers;
-			}
-		};
+		return new AreaInformationBuilder(this).setUneditable().create();
 	}
 
 	public static <T> Map<String, List<T>> copyTaggedInformation(

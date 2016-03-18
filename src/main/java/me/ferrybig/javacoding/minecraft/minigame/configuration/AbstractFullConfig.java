@@ -25,7 +25,7 @@ public abstract class AbstractFullConfig extends AbstractConfig implements FullC
 		Promise<FullyLoadedConfig> loaded = executor.newPromise();
 		GenericFutureListener<Future<Object>> listener = (Future<Object> future) -> {
 			if (loadAreas.isDone() && loadSigns.isDone() && translationMap.isDone()) {
-				if (loadAreas.cause() != null || loadSigns.cause() != null || loadSigns.cause() != null) {
+				if (loadAreas.cause() != null || loadSigns.cause() != null || translationMap.cause() != null) {
 					ConfigurationException ex = new ConfigurationException("Could not load all database objects");
 					if (loadAreas.cause() != null) {
 						ex.addSuppressed(loadAreas.cause());

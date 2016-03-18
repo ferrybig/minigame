@@ -2,6 +2,7 @@ package me.ferrybig.javacoding.minecraft.minigame;
 
 import io.netty.util.concurrent.Future;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.phase.Phase;
 
@@ -42,6 +43,9 @@ public interface Pipeline extends Iterable<Phase> {
 
 			@Override
 			public Phase next() {
+				if (!hasNext()) {
+					throw new NoSuchElementException();
+				}
 				return get(index++);
 			}
 
