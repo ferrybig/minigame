@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import me.ferrybig.javacoding.minecraft.minigame.context.PhaseContext;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerJoinMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerLeaveMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerSpectateMessage;
 import org.bukkit.entity.Player;
@@ -13,6 +14,15 @@ public class AreaFightPhase extends DefaultPhase {
 
 	private final Set<Player> areaPlayers = new HashSet<>();
 	private boolean loaded = false;
+	private final int playersRemainingNeeded;
+
+	public AreaFightPhase() {
+		this(1);
+	}
+
+	public AreaFightPhase(int playersRemainingNeeded) {
+		this.playersRemainingNeeded = playersRemainingNeeded;
+	}
 
 	@Override
 	public void onPlayerSpectate(PhaseContext area, PlayerSpectateMessage player) throws Exception {
@@ -35,7 +45,8 @@ public class AreaFightPhase extends DefaultPhase {
 			return;
 		}
 		areaPlayers.remove(player.getPlayer());
-		if (areaPlayers.size() == 1) {
+		if (areaPlayers.size() <= playersRemainingNeeded) {
+			loaded = false;
 			area.triggerNextPhase();
 		}
 	}
@@ -56,6 +67,16 @@ public class AreaFightPhase extends DefaultPhase {
 		areaPlayers.clear();
 		loaded = false;
 
+	}
+
+	@Override
+	public void onPlayerJoin(PhaseContext area, PlayerJoinMessage player) throws Exception {
+		super.onPlayerJoin(area, player);
+		player.addSuccessListener(()->{
+			if(!area.getAreaContext().getController().getPlayer(player.getPlayer()).get().isSpectator()) {
+				areaPlayers.add(player.getPlayer());
+			}
+		});
 	}
 
 }
