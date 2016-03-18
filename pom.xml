@@ -74,7 +74,7 @@
 						<configuration>
 							<configLocation>checkstyle.xml</configLocation>
 							<encoding>UTF-8</encoding>
-							<consoleOutput>true</consoleOutput>
+							<consoleOutput>false</consoleOutput>
 							<!-- Fail until we properly fix the errors -->
 							<failsOnError>false</failsOnError>
 							<failOnViolation>false</failOnViolation>
