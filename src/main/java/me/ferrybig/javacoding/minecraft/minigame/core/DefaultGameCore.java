@@ -97,9 +97,11 @@ public class DefaultGameCore implements GameCore {
 		if (!terminationFuture.isDone()) {
 			terminationFuture.setSuccess(closureFailure);
 		}
+
 		Collection<Future<?>> toCancel = new ArrayList<>();
-		pendingAreaContexts.values().forEach(toCancel::addAll);
+		this.pendingAreaContexts.values().forEach(toCancel::addAll);
 		toCancel.forEach(f -> f.cancel(true));
+
 		areaContexts.values().stream().flatMap(l -> new ArrayList<>(l).stream())
 				.map(AreaContext::pipeline).forEach(Pipeline::terminate);
 		this.info.getConfig().flushChanges();
@@ -204,7 +206,13 @@ public class DefaultGameCore implements GameCore {
 	@Override
 	public Future<?> gracefulStop() {
 		this.running = false;
+
+		Collection<Future<?>> toCancel = new ArrayList<>();
+		this.pendingAreaContexts.values().forEach(toCancel::addAll);
+		toCancel.forEach(f -> f.cancel(true));
+
 		checkStopped();
+
 		return terminationFuture();
 	}
 
@@ -314,7 +322,8 @@ public class DefaultGameCore implements GameCore {
 		if (context.isDone()) {
 			removeAreaFuture(area, context);
 		}
-		return context;
+		return context.addListener(new ErrorLoggingHandler(
+				"Failed to create a context for {0}", "Created context for {0}", area));
 	}
 
 	public static Function<Stream<Entry<Area, Integer>>, Area> defaultRandomAreaSelector() {
@@ -386,11 +395,11 @@ public class DefaultGameCore implements GameCore {
 	private class ControllerCommander implements ControllerListener {
 
 		private AtomicReference<AreaContext> ref;
+		private AreaContext con;
 
 		public ControllerCommander(AtomicReference<AreaContext> ref) {
 			this.ref = ref;
 		}
-		private AreaContext con;
 
 		private AreaContext get() {
 			if (con == null) {
