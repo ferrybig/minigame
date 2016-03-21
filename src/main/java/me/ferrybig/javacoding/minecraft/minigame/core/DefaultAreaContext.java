@@ -140,4 +140,13 @@ public class DefaultAreaContext extends DefaultAttributeMap implements AreaConte
 		};
 	}
 
+	@Override
+	public String toString() {
+		return this.getClass().getName() + ": {"
+				+ "name: " + getName() + ","
+				+ "hashcode: " + hashCode() + ","
+				+ "instanceid: " + instanceId()+ ","
+				+ "area: " + getArea() + "}";
+	}
+
 }

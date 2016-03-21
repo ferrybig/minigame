@@ -13,7 +13,6 @@ import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.AreaCreator;
 import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformationBuilder;
-import me.ferrybig.javacoding.minecraft.minigame.InformationContext;
 import me.ferrybig.javacoding.minecraft.minigame.information.ResolvedAreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.Selection;
 import org.bukkit.Location;
@@ -106,6 +105,13 @@ public class DefaultArea implements Area {
 	@Override
 	public ResolvedAreaInformation getInformationCopy() {
 		return this;
+	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getName() + ": {"
+				+ "name: " + getName() + ","
+				+ "hashcode: " + hashCode() + "}";
 	}
 
 }
