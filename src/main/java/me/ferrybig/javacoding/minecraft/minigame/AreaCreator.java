@@ -16,6 +16,8 @@ public interface AreaCreator extends ResolvedAreaInformation {
 
 	public AreaCreator setName(String name);
 
+	public AreaCreator setEnabled(boolean enabled);
+
 	public AreaCreator setSelection(Selection selection);
 
 	public AreaCreator setTaggedBlocks(Map<String, List<Block>> taggedBlocks);
