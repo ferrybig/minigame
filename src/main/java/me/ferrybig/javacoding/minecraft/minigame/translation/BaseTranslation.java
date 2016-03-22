@@ -20,6 +20,14 @@ public enum BaseTranslation implements Translation {
 	SIGNS_INTERACT_JOIN("signs.interact.join"),
 	SIGNS_INTERACT_FULL("signs.interact.full"),
 	SIGNS_INTERACT_STARTED("signs.interact.started"),
+	COMMAND_EDIT_UNKNOWN("command.edit.unknown"),
+	COMMAND_EDIT_HELP_GLOBAL("command.edit.help.global"),
+	COMMAND_EDIT_HELP_LOCATIONS("command.edit.help.locations"),
+	COMMAND_EDIT_HELP_BLOCKS("command.edit.help.blocks"),
+	COMMAND_EDIT_HELP_BOUNDS("command.edit.help.bounds"),
+	COMMAND_EDIT_HELP_ENABLED("command.edit.help.enabled"),
+	COMMAND_EDIT_HELP_DESCRIPTION("command.edit.help.description"),
+	COMMAND_EDIT_HELP_MAXPLAYERS("command.edit.help.maxplayers"),
 	;
 
 	private final String key;
