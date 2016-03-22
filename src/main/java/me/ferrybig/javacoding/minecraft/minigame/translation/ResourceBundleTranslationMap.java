@@ -3,6 +3,7 @@ package me.ferrybig.javacoding.minecraft.minigame.translation;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import org.apache.commons.lang.StringEscapeUtils;
 
 public class ResourceBundleTranslationMap extends TranslationMap {
 
@@ -25,7 +26,8 @@ public class ResourceBundleTranslationMap extends TranslationMap {
 	@Override
 	protected String getMessage(Translation key, Object[] args) {
 		String strKey = key.key();
-		return bundle.containsKey(strKey) ? replaceArgs(bundle.getString(strKey), args) : null;
+		return bundle.containsKey(strKey) ? replaceArgs(
+				StringEscapeUtils.unescapeJava(bundle.getString(strKey)), args) : null;
 	}
 
 	private static ResourceBundle getInternalBundle(Locale loc) {
