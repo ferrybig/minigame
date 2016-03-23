@@ -166,37 +166,53 @@ public class EditAreaCommand extends BasicCommand {
 
 	@Override
 	public void command(CommandSender sender, Command cmd, String label, String[] args) {
-		Action action;
-		if (args.length == 0) {
-			action = null;
-		} else {
-			action = Action.ACTION_MAP.get(args[0]);
-		}
-		Target target;
-		if (args.length == 0) {
-			target = null;
-		} else {
-			target = Target.TARGET_MAP.get(args[1]);
-		}
-		if (action == null) {
-			sender.sendMessage(translate(BaseTranslation.COMMAND_EDIT_UNKNOWN));
-			return;
-		}
-		if (action == Action.HELP) {
-			if (target == null) {
-				sender.sendMessage("/" + label + " " + "help locations");
-				sender.sendMessage("/" + label + " " + "help blocks");
-				sender.sendMessage("/" + label + " " + "help bounds");
-				sender.sendMessage("/" + label + " " + "help area");
-			} else {
-				switch (target) {
-					case LOCATION:
-						sender.sendMessage(translate(BaseTranslation.COMMAND_EDIT_HELP_LOCATIONS, label));
+		switch (args.length < 1 ? "" : args[0]) {
+			case "blocks":
+				switch (args.length < 2 ? "list" : args[1]) {
+					case "list":
+						break;
+					case "add":
+						break;
+					case "set":
+						break;
+					case "remove":
 						break;
 					default:
-						sender.sendMessage(translate(BaseTranslation.COMMAND_EDIT_HELP_BLOCKS, label));
+						sender.sendMessage(translate(BaseTranslation.COMMAND_EDIT_UNKNOWN));
 				}
-			}
+				break;
+			case "locations":
+				switch (args.length < 2 ? "list" : args[1]) {
+					case "list":
+						break;
+					case "add":
+						break;
+					case "set":
+						break;
+					case "remove":
+						break;
+					default:
+						sender.sendMessage(translate(BaseTranslation.COMMAND_EDIT_UNKNOWN));
+				}
+				break;
+			case "area":
+				switch (args.length < 2 ? "" : args[1]) {
+					case "select":
+						break;
+					case "create":
+						break;
+					case "delete":
+						break;
+					case "list":
+						break;
+					case "rename":
+						break;
+					default:
+						sender.sendMessage(translate(BaseTranslation.COMMAND_EDIT_UNKNOWN));
+				}
+				break;
+			default:
+				sender.sendMessage(translate(BaseTranslation.COMMAND_EDIT_UNKNOWN));
 		}
 	}
 
