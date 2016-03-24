@@ -1,4 +1,4 @@
-package me.ferrybig.javacoding.minecraft.minigame.phase;
+package me.ferrybig.javacoding.minecraft.minigame.phase.impl;
 
 import io.netty.util.concurrent.Future;
 import java.util.HashSet;
@@ -10,6 +10,7 @@ import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerJoinMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerLeaveMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreJoinMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreLeaveMessage;
+import me.ferrybig.javacoding.minecraft.minigame.phase.DefaultPhase;
 import me.ferrybig.javacoding.minecraft.minigame.translation.BaseTranslation;
 import org.apache.commons.lang.Validate;
 import org.bukkit.OfflinePlayer;

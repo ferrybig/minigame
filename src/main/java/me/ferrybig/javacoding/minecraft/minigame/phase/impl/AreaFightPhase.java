@@ -1,4 +1,4 @@
-package me.ferrybig.javacoding.minecraft.minigame.phase;
+package me.ferrybig.javacoding.minecraft.minigame.phase.impl;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -8,6 +8,7 @@ import me.ferrybig.javacoding.minecraft.minigame.context.PhaseContext;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerJoinMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerLeaveMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerSpectateMessage;
+import me.ferrybig.javacoding.minecraft.minigame.phase.DefaultPhase;
 import org.bukkit.entity.Player;
 
 public class AreaFightPhase extends DefaultPhase {

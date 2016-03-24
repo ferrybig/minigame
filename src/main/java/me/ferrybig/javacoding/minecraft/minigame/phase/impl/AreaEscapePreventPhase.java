@@ -1,5 +1,5 @@
 
-package me.ferrybig.javacoding.minecraft.minigame.phase;
+package me.ferrybig.javacoding.minecraft.minigame.phase.impl;
 
 import io.netty.util.concurrent.ScheduledFuture;
 import java.util.HashMap;
@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import me.ferrybig.javacoding.minecraft.minigame.context.PhaseContext;
+import me.ferrybig.javacoding.minecraft.minigame.phase.DefaultPhase;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;

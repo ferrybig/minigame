@@ -1,8 +1,9 @@
-package me.ferrybig.javacoding.minecraft.minigame.phase;
+package me.ferrybig.javacoding.minecraft.minigame.phase.impl;
 
 import java.util.Optional;
 import me.ferrybig.javacoding.minecraft.minigame.Controller.PlayerInfo;
 import me.ferrybig.javacoding.minecraft.minigame.context.PhaseContext;
+import me.ferrybig.javacoding.minecraft.minigame.phase.DefaultPhase;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;

@@ -1,4 +1,4 @@
-package me.ferrybig.javacoding.minecraft.minigame.phase;
+package me.ferrybig.javacoding.minecraft.minigame.phase.impl;
 
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
@@ -9,6 +9,7 @@ import java.util.Set;
 import me.ferrybig.javacoding.minecraft.minigame.Controller.PlayerInfo;
 import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.context.PhaseContext;
+import me.ferrybig.javacoding.minecraft.minigame.phase.DefaultPhase;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;

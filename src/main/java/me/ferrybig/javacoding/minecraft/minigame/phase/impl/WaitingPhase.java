@@ -1,9 +1,10 @@
-package me.ferrybig.javacoding.minecraft.minigame.phase;
+package me.ferrybig.javacoding.minecraft.minigame.phase.impl;
 
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import me.ferrybig.javacoding.minecraft.minigame.context.PhaseContext;
+import me.ferrybig.javacoding.minecraft.minigame.phase.DefaultPhase;
 
 public class WaitingPhase extends DefaultPhase {
 
