@@ -1,5 +1,6 @@
 package me.ferrybig.javacoding.minecraft.minigame.core;
 
+import me.ferrybig.javacoding.minecraft.minigame.util.ExceptionRunnable;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
@@ -11,6 +12,8 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -356,9 +359,11 @@ public class DefaultGamePipeline implements Pipeline {
 		try {
 			call.run();
 		} catch (Throwable a) {
-			onException(STARTING_AT_FIRST_PHASE,
-					SafeUtil.createException(s -> new PhaseException(s, a),
-							"Exception calling %s", namedClass));
+			if (!hasFailedWithException) {
+				onException(STARTING_AT_FIRST_PHASE,
+						SafeUtil.createException(s -> new PhaseException(s, a),
+								"Exception calling %s", namedClass));
+			}
 		}
 	}
 
@@ -557,6 +562,13 @@ public class DefaultGamePipeline implements Pipeline {
 		}
 
 		@Override
+		public <T> T safeCall(Callable<T> call, Object origin) {
+			AtomicReference<T> o = new AtomicReference<>();
+			wrapWithException(() -> o.set(call.call()), origin);
+			return o.get();
+		}
+
+		@Override
 		public void triggerExceptionCaucht(Throwable exception) {
 			onException(currIndex, exception);
 		}
@@ -649,11 +661,6 @@ public class DefaultGamePipeline implements Pipeline {
 	private interface PhaseCaller<T> {
 
 		public void consume(Phase phase, PhaseContext context, T message) throws Exception;
-	}
-
-	private interface ExceptionRunnable {
-
-		public void run() throws Exception;
 	}
 
 }

@@ -1,11 +1,13 @@
 package me.ferrybig.javacoding.minecraft.minigame;
 
+import java.util.concurrent.Callable;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerJoinMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerLeaveMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreJoinMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreLeaveMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerSpectateMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerTeamMessage;
+import me.ferrybig.javacoding.minecraft.minigame.util.ExceptionRunnable;
 
 /**
  * Represents a context that is triggerable.
@@ -32,5 +34,22 @@ public interface Triggerable {
 	void triggerReset();
 
 	void triggerUserEvent(Object event);
+
+	default <T> T safeCall(Callable<T> call) {
+		return safeCall(call, call);
+	}
+
+	default void safeCall(ExceptionRunnable call) {
+		safeCall(call, call);
+	}
+
+	<T> T safeCall(Callable<T> call, Object origin);
+
+	default void safeCall(ExceptionRunnable call, Object origin) {
+		safeCall(() -> {
+			call.run();
+			return null;
+		}, origin);
+	}
 
 }
