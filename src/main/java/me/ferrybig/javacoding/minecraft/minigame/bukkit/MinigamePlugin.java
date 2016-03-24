@@ -56,6 +56,16 @@ public abstract class MinigamePlugin extends JavaPlugin implements GameCoreAcces
 		super.onDisable();
 	}
 
+	@Override
+	public boolean isLoaded() {
+		return main.isLoaded();
+	}
+
+	@Override
+	public GameCore getCore() {
+		return main.getCore();
+	}
+
 	protected abstract void initPipeline(Pipeline pipeline);
 
 	protected abstract void initPlugin(Bootstrap bootstrap);
