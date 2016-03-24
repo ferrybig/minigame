@@ -8,9 +8,11 @@ import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerJoinMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerLeaveMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerSpectateMessage;
 import me.ferrybig.javacoding.minecraft.minigame.phase.Phase;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 
 public abstract class PlayerAction {
 
@@ -26,6 +28,21 @@ public abstract class PlayerAction {
 			public void onEvent(PlayerDeathEvent evt) {
 				if (shouldHandle(evt.getEntity())) {
 					tryTrigger(getPhaseContext(), evt.getEntity());
+				}
+			}
+		};
+	}
+
+	public Phase onRespawn() {
+		return new ListenerPhase() {
+			@EventHandler
+			public void onEvent(PlayerRespawnEvent evt) {
+				if (shouldHandle(evt.getPlayer())) {
+					Location first = evt.getPlayer().getLocation();
+					tryTrigger(getPhaseContext(), evt.getPlayer());
+					Location second = evt.getPlayer().getLocation();
+					if(!first.equals(second))
+						evt.setRespawnLocation(second);
 				}
 			}
 		};
