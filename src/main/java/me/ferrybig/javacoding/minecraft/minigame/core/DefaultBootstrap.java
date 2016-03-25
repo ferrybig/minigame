@@ -56,6 +56,7 @@ public class DefaultBootstrap implements Bootstrap {
 							executor, logger,
 							plugin, c.getTranslations(), config, c.getSigns()));
 					c.getAreas().values().stream().forEach(core::addArea);
+					c.getSigns().forEach(core::addSign);
 					return core;
 				}));
 	}

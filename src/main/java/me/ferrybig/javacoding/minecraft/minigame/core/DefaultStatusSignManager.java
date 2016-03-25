@@ -39,14 +39,14 @@ public class DefaultStatusSignManager implements StatusSignManager {
 	private final Listener signListener = new SignListener();
 	private boolean stopped = false;
 
-	public DefaultStatusSignManager(GameCore core, Map<Block, StatusSign> signs) {
+	public DefaultStatusSignManager(GameCore core) {
 		this.core = core;
 		this.map = core.getInfo().getTranslations();
 		this.core.terminationFuture().addListener(f->{
 			assert this.core.terminationFuture() == f;
 			stop();
 		});
-		this.signs.putAll(signs);
+		this.signs.putAll(core.getLoadedSigns());
 		this.signs.keySet().forEach(l->
 			modCount.put(l, MODIFICATION_COUNT.incrementAndGet())
 		);

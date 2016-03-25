@@ -39,8 +39,10 @@ import me.ferrybig.javacoding.minecraft.minigame.information.ResolvedAreaInforma
 import me.ferrybig.javacoding.minecraft.minigame.exceptions.CoreClosedException;
 import me.ferrybig.javacoding.minecraft.minigame.listener.CombinedListener;
 import me.ferrybig.javacoding.minecraft.minigame.listener.GameListener;
+import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
 import me.ferrybig.javacoding.minecraft.minigame.util.ChainedFuture;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 /**
@@ -54,6 +56,7 @@ public class DefaultGameCore implements GameCore {
 	private final Map<String, List<Future<AreaContext>>> pendingAreaContexts = new HashMap<>();
 	private final Map<String, List<AreaContext>> areaContexts = new HashMap<>();
 	private final Map<UUID, AreaContext> playerGames = new HashMap<>();
+	private final Map<Block, StatusSign> signs = new HashMap<>();
 	private final InformationContext info;
 	private final CombinedListener listeners = new CombinedListener();
 	private final Promise<Object> terminationFuture;
@@ -85,6 +88,19 @@ public class DefaultGameCore implements GameCore {
 		Objects.requireNonNull(ar, "ar == null");
 		Area area = this.resolvArea(info.getAreaVerifier().validate(ar));
 		DefaultGameCore.this.areas.put(area.getName(), area);
+	}
+
+	@Override
+	public void addSign(Block block, StatusSign sign) {
+		if (isTerminating()) {
+			throw new IllegalStateException("Core has been shut down");
+		}
+		this.signs.put(block, sign);
+	}
+
+	@Override
+	public Map<Block, StatusSign> getLoadedSigns() {
+		return signs;
 	}
 
 	@Override

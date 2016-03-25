@@ -3,12 +3,15 @@ package me.ferrybig.javacoding.minecraft.minigame;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.listener.GameListenable;
+import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.block.Block;
 
 /**
  * Main core for the minigame management. This class allows you to address every
@@ -180,5 +183,9 @@ public interface GameCore extends AutoCloseable, GameListenable {
 	public default EventExecutor getExecutor() {
 		return getInfo().getExecutor();
 	}
+
+	public void addSign(Block block, StatusSign sign);
+
+	public Map<Block, StatusSign> getLoadedSigns();
 
 }
