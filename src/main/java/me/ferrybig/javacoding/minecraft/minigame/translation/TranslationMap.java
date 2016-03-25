@@ -40,18 +40,6 @@ public abstract class TranslationMap implements Translator {
 		throw new AssertionError("Should not been reached, failure mappings handle this case");
 	}
 
-	@Deprecated
-	@Override
-	public String get(Translation key) {
-		return translate(key);
-	}
-
-	@Deprecated
-	@Override
-	public String get(Translation key, Object... args) {
-		return translate(key, args);
-	}
-
 	protected abstract String getMessage(Translation key, Object[] arguments);
 
 	public TranslationMap getParent() {

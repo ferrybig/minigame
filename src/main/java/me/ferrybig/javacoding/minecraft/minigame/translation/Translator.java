@@ -10,13 +10,4 @@ public interface Translator {
 
 	public String translate(Translation translation, Object... args);
 
-	@Deprecated
-	public default String get(Translation key) {
-		return translate(key);
-	}
-
-	@Deprecated
-	public default String get(Translation key, Object... args) {
-		return translate(key, args);
-	}
 }
