@@ -5,6 +5,7 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.Promise;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.exceptions.ConfigurationException;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
@@ -23,10 +24,15 @@ public abstract class AbstractFullConfig extends AbstractConfig implements FullC
 		Future<Map<Block, StatusSign>> loadSigns = loadSigns();
 		Future<? extends Translator> translationMap = loadTranslationMap();
 		Promise<FullyLoadedConfig> loaded = executor.newPromise();
+		AtomicReference<Throwable> rootCause = new AtomicReference<>();
 		GenericFutureListener<Future<Object>> listener = (Future<Object> future) -> {
+			if(!future.isSuccess()) {
+				rootCause.compareAndSet(null, future.cause());
+			}
 			if (loadAreas.isDone() && loadSigns.isDone() && translationMap.isDone()) {
 				if (loadAreas.cause() != null || loadSigns.cause() != null || translationMap.cause() != null) {
-					ConfigurationException ex = new ConfigurationException("Could not load all database objects");
+					ConfigurationException ex = new ConfigurationException(
+							"Could not load all database objects", rootCause.get());
 					if (loadAreas.cause() != null) {
 						ex.addSuppressed(loadAreas.cause());
 					}
