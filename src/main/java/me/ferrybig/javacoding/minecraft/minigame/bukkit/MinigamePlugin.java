@@ -1,5 +1,6 @@
 package me.ferrybig.javacoding.minecraft.minigame.bukkit;
 
+import java.util.logging.Level;
 import me.ferrybig.javacoding.minecraft.minigame.GameCore;
 import me.ferrybig.javacoding.minecraft.minigame.Pipeline;
 import me.ferrybig.javacoding.minecraft.minigame.Bootstrap;
@@ -42,6 +43,12 @@ public abstract class MinigamePlugin extends JavaPlugin implements GameCoreAcces
 			MinigamePlugin.this.onInternalUnload();
 		}
 
+		@Override
+		protected void onFailure(Throwable cause) {
+			super.onFailure(cause);
+			MinigamePlugin.this.onFailure(cause);
+		}
+
 	};
 
 	@Override
@@ -69,6 +76,11 @@ public abstract class MinigamePlugin extends JavaPlugin implements GameCoreAcces
 	protected abstract void initPipeline(Pipeline pipeline);
 
 	protected abstract void initPlugin(Bootstrap bootstrap);
+
+	protected void onFailure(Throwable cause) {
+		getLogger().log(Level.SEVERE, "Problem starting minigame framework:", cause);
+		setEnabled(false);
+	}
 
 	protected void onGameCoreLoaded(GameCore core) {
 	}

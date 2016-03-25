@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import me.ferrybig.javacoding.minecraft.minigame.Bootstrap;
 import me.ferrybig.javacoding.minecraft.minigame.GameCore;
 import me.ferrybig.javacoding.minecraft.minigame.Pipeline;
@@ -15,6 +16,7 @@ import me.ferrybig.javacoding.minecraft.minigame.context.SingleInstanceAreaConte
 import me.ferrybig.javacoding.minecraft.minigame.core.DefaultArea;
 import me.ferrybig.javacoding.minecraft.minigame.core.DefaultAreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.core.DefaultBootstrap;
+import me.ferrybig.javacoding.minecraft.minigame.exceptions.MinigameException;
 import me.ferrybig.javacoding.minecraft.minigame.executors.BukkitEventExecutor;
 import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.util.ChainedFuture;
@@ -48,9 +50,17 @@ public abstract class MainLoader implements GameCoreAccessor {
 			return executor.newSucceededFuture(b);
 		}).map(Bootstrap::build);
 		gameCoreLoader.addListener((Future<GameCore> c) -> {
-			gameCore = c.get();
-			onGameCoreLoaded(gameCore);
+			if(c.isSuccess()) {
+				gameCore = c.get();
+				onGameCoreLoaded(gameCore);
+			} else {
+				onFailure(c.isCancelled() ? new CancellationException() :
+						new MinigameException(c.cause()));
+			}
 		});
+	}
+
+	protected void onFailure(Throwable cause) {
 	}
 
 	protected void onInternalUnload() {
