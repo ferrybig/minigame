@@ -5,7 +5,6 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.Promise;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.exceptions.ConfigurationException;
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign;
@@ -24,27 +23,33 @@ public abstract class AbstractFullConfig extends AbstractConfig implements FullC
 		Future<Map<Block, StatusSign>> loadSigns = loadSigns();
 		Future<? extends Translator> translationMap = loadTranslationMap();
 		Promise<FullyLoadedConfig> loaded = executor.newPromise();
-		AtomicReference<Throwable> rootCause = new AtomicReference<>();
 		GenericFutureListener<Future<Object>> listener = (Future<Object> future) -> {
-			if (!future.isSuccess()) {
-				rootCause.compareAndSet(null, future.cause());
-			}
 			if (loadAreas.isDone() && loadSigns.isDone() && translationMap.isDone()) {
 				Throwable areaCause = loadAreas.cause();
 				Throwable loadSignCause = loadSigns.cause();
 				Throwable translationCause = translationMap.cause();
 				if (areaCause != null || loadSignCause != null || translationCause != null) {
-					Throwable mainCause = rootCause.get();
+					Throwable mainCause = null;
 					ConfigurationException ex = new ConfigurationException(
-							"Could not load all database objects", mainCause);
-					if (areaCause != null && areaCause != mainCause) {
-						ex.addSuppressed(areaCause);
+							"Could not load all database objects");
+					if (areaCause != null) {
+						ex.initCause(areaCause);
+						mainCause = areaCause;
 					}
-					if (loadSignCause != null && loadSignCause != mainCause) {
-						ex.addSuppressed(loadSignCause);
+					if (loadSignCause != null) {
+						if(mainCause != null)
+							ex.addSuppressed(loadSignCause);
+						else {
+							ex.initCause(loadSignCause);
+							mainCause = loadSignCause;
+						}
 					}
-					if (translationCause != null && translationCause != mainCause) {
-						ex.addSuppressed(translationCause);
+					if (translationCause != null) {
+						if(mainCause != null)
+							ex.addSuppressed(translationCause);
+						else {
+							ex.initCause(translationCause);
+						}
 					}
 					loaded.tryFailure(ex);
 				} else {
