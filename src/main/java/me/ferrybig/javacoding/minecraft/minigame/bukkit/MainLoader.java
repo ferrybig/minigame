@@ -1,6 +1,7 @@
 package me.ferrybig.javacoding.minecraft.minigame.bukkit;
 
 import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.FastThreadLocal;
 import io.netty.util.concurrent.Future;
 import java.io.File;
 import java.util.Collections;
@@ -41,6 +42,7 @@ public abstract class MainLoader implements GameCoreAccessor {
 	public void onDisable() {
 		onInternalUnload();
 		executor.shutdownGracefully();
+		FastThreadLocal.removeAll();
 	}
 
 	protected void onInternalLoad() {
