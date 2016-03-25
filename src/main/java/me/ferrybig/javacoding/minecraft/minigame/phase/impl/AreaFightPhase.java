@@ -73,8 +73,8 @@ public class AreaFightPhase extends DefaultPhase {
 	@Override
 	public void onPlayerJoin(PhaseContext area, PlayerJoinMessage player) throws Exception {
 		super.onPlayerJoin(area, player);
-		player.addSuccessListener(()->{
-			if(!area.getAreaContext().getController().getPlayer(player.getPlayer()).get().isSpectator()) {
+		player.addSuccessListener(() -> {
+			if (!area.getAreaContext().getController().getPlayer(player.getPlayer()).get().isSpectator()) {
 				areaPlayers.add(player.getPlayer());
 			}
 		});

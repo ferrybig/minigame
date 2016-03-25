@@ -26,7 +26,7 @@ public abstract class AbstractFullConfig extends AbstractConfig implements FullC
 		Promise<FullyLoadedConfig> loaded = executor.newPromise();
 		AtomicReference<Throwable> rootCause = new AtomicReference<>();
 		GenericFutureListener<Future<Object>> listener = (Future<Object> future) -> {
-			if(!future.isSuccess()) {
+			if (!future.isSuccess()) {
 				rootCause.compareAndSet(null, future.cause());
 			}
 			if (loadAreas.isDone() && loadSigns.isDone() && translationMap.isDone()) {

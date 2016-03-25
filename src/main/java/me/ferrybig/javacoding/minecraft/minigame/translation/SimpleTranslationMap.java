@@ -1,4 +1,3 @@
-
 package me.ferrybig.javacoding.minecraft.minigame.translation;
 
 import java.util.function.Function;

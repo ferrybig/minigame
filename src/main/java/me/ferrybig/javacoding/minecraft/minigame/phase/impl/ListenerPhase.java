@@ -1,4 +1,3 @@
-
 package me.ferrybig.javacoding.minecraft.minigame.phase.impl;
 
 import me.ferrybig.javacoding.minecraft.minigame.context.PhaseContext;
@@ -11,19 +10,19 @@ import org.bukkit.event.Listener;
 public class ListenerPhase extends SkippedPhase implements Listener {
 
 	private PhaseContext area;
-	
+
 	public boolean shouldHandle(Location loc) {
 		return area.getAreaContext().isInArea(loc);
 	}
-	
+
 	public boolean shouldHandle(Block loc) {
 		return area.getAreaContext().isInArea(loc);
 	}
-	
+
 	public boolean shouldHandle(Player loc) {
 		return area.getAreaContext().isInArea(loc);
 	}
-	
+
 	public boolean shouldHandle(Entity loc) {
 		return area.getAreaContext().isInArea(loc.getLocation());
 	}

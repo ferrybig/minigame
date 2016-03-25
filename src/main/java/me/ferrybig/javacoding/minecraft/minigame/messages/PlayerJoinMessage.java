@@ -7,11 +7,11 @@ public class PlayerJoinMessage extends PlayerPreJoinMessage {
 	public PlayerJoinMessage(Player player) {
 		super(player);
 	}
-	
+
 	@Override
 	public Player getPlayer() {
 		assert super.getPlayer() instanceof Player;
-		return (Player)super.getPlayer();
+		return (Player) super.getPlayer();
 	}
 
 }

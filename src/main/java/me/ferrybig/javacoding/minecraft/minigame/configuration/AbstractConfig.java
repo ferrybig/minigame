@@ -1,4 +1,3 @@
-
 package me.ferrybig.javacoding.minecraft.minigame.configuration;
 
 import io.netty.util.concurrent.EventExecutor;
@@ -21,5 +20,5 @@ public abstract class AbstractConfig implements Config {
 	@Override
 	public void close() {
 	}
-	
+
 }

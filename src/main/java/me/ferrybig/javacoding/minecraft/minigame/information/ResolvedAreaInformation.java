@@ -1,4 +1,3 @@
-
 package me.ferrybig.javacoding.minecraft.minigame.information;
 
 import java.util.ArrayList;
@@ -14,14 +13,14 @@ import org.bukkit.block.Block;
 public interface ResolvedAreaInformation extends AreaInformation {
 
 	public boolean isValid();
-	
+
 	public Set<String> validTeams();
-	
+
 	@Override
 	public default boolean canBeUsed() {
 		return isEnabled() && isValid();
 	}
-	
+
 	@Override
 	public default ResolvedAreaInformation getInformationCopy() {
 		boolean enabled = isEnabled();
@@ -31,10 +30,10 @@ public interface ResolvedAreaInformation extends AreaInformation {
 		boolean valid = isValid();
 		Set<String> validTeams = new HashSet<>(validTeams());
 		int maxPlayers = maxPlayers();
-		Map<String,List<Location>> taggedLocations = new HashMap<>(getTaggedLocations());
-		taggedLocations.replaceAll((k,v)->new ArrayList<>(v));
-		Map<String,List<Block>> taggedBlocks = new HashMap<>(getTaggedBlocks());
-		taggedBlocks.replaceAll((k,v)->new ArrayList<>(v));
+		Map<String, List<Location>> taggedLocations = new HashMap<>(getTaggedLocations());
+		taggedLocations.replaceAll((k, v) -> new ArrayList<>(v));
+		Map<String, List<Block>> taggedBlocks = new HashMap<>(getTaggedBlocks());
+		taggedBlocks.replaceAll((k, v) -> new ArrayList<>(v));
 		return new ResolvedAreaInformation() {
 			@Override
 			public Selection getBounds() {

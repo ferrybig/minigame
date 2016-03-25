@@ -106,7 +106,7 @@ public class PlayerCollectingPhase extends DefaultPhase {
 
 	private void taskTick() {
 		tickCount--;
-		switch(tickCount) {
+		switch (tickCount) {
 			case 120:
 			case 60:
 			case 30:
@@ -121,7 +121,7 @@ public class PlayerCollectingPhase extends DefaultPhase {
 				break;
 			default:
 		}
-		if(tickCount < 1) {
+		if (tickCount < 1) {
 			start();
 		} else {
 			this.checkLoop = area.getExecutor().schedule(this::taskTick, 1, TimeUnit.SECONDS);

@@ -1,4 +1,3 @@
-
 package me.ferrybig.javacoding.minecraft.minigame.util;
 
 public interface ExceptionRunnable {

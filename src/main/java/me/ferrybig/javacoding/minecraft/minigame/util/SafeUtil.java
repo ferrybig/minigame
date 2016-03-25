@@ -1,4 +1,3 @@
-
 package me.ferrybig.javacoding.minecraft.minigame.util;
 
 import java.util.Objects;
@@ -19,7 +18,7 @@ public class SafeUtil {
 			return "ERROR";
 		}
 	}
-	
+
 	public static <E extends Throwable> E createException(
 			Function<String, E> creator, String format, Object obj) {
 		Objects.requireNonNull(creator, "creator == null");
@@ -34,8 +33,9 @@ public class SafeUtil {
 			suppressed = a;
 		}
 		E ex = creator.apply(String.format(format, val));
-		if(suppressed != null)
+		if (suppressed != null) {
 			ex.addSuppressed(suppressed);
+		}
 		return ex;
 	}
 

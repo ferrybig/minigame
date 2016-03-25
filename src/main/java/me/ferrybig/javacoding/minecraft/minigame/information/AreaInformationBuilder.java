@@ -1,4 +1,3 @@
-
 package me.ferrybig.javacoding.minecraft.minigame.information;
 
 import java.util.ArrayList;
@@ -19,10 +18,10 @@ public class AreaInformationBuilder {
 	private Map<String, List<Location>> taggedLocations = Collections.emptyMap();
 	private Selection bounds;
 	private int maxPlayers = Byte.MAX_VALUE;
-	
+
 	public AreaInformationBuilder() {
 	}
-	
+
 	public AreaInformationBuilder(Selection bounds) {
 		this.bounds = bounds;
 	}
@@ -30,12 +29,12 @@ public class AreaInformationBuilder {
 	public AreaInformationBuilder(String name) {
 		this.name = name;
 	}
-	
+
 	public AreaInformationBuilder(String name, Selection bounds) {
 		this.name = name;
 		this.bounds = bounds;
 	}
-	
+
 	public AreaInformationBuilder(AreaInformation other) {
 		this.name = other.getName();
 		this.enabled = other.isEnabled();
@@ -43,9 +42,9 @@ public class AreaInformationBuilder {
 		this.bounds = other.getBounds().deepClone();
 		this.maxPlayers = other.maxPlayers();
 		this.taggedBlocks = new HashMap<>(other.getTaggedBlocks());
-		this.taggedBlocks.replaceAll((k,v)->new ArrayList<>(v));
+		this.taggedBlocks.replaceAll((k, v) -> new ArrayList<>(v));
 		this.taggedLocations = new HashMap<>(other.getTaggedLocations());
-		this.taggedLocations.replaceAll((k,v)->new ArrayList<>(v));
+		this.taggedLocations.replaceAll((k, v) -> new ArrayList<>(v));
 	}
 
 	public AreaInformationBuilder setName(String name) {
@@ -72,21 +71,21 @@ public class AreaInformationBuilder {
 		this.taggedLocations = taggedLocations;
 		return this;
 	}
-	
+
 	public AreaInformationBuilder setTaggedBlocksUneditable() {
 		this.taggedBlocks = new HashMap<>(taggedBlocks);
-		this.taggedBlocks.replaceAll((k,v)->Collections.unmodifiableList(new ArrayList<>(v)));
+		this.taggedBlocks.replaceAll((k, v) -> Collections.unmodifiableList(new ArrayList<>(v)));
 		this.taggedBlocks = Collections.unmodifiableMap(taggedBlocks);
 		return this;
 	}
-	
+
 	public AreaInformationBuilder setTaggedLocationsUneditable() {
 		this.taggedLocations = new HashMap<>(taggedLocations);
-		this.taggedLocations.replaceAll((k,v)->Collections.unmodifiableList(new ArrayList<>(v)));
+		this.taggedLocations.replaceAll((k, v) -> Collections.unmodifiableList(new ArrayList<>(v)));
 		this.taggedLocations = Collections.unmodifiableMap(taggedLocations);
 		return this;
 	}
-	
+
 	public AreaInformationBuilder setUneditable() {
 		setTaggedLocationsUneditable();
 		setTaggedBlocksUneditable();
@@ -104,19 +103,19 @@ public class AreaInformationBuilder {
 	}
 
 	public AreaInformation create() {
-		if(bounds == null) {
+		if (bounds == null) {
 			throw new IllegalStateException("bounds not defined");
 		}
-		if(name == null) {
+		if (name == null) {
 			throw new IllegalStateException("name not defined");
 		}
 		return new DefaultAreaInformation(name, enabled, description, taggedBlocks, taggedLocations, bounds, maxPlayers);
 	}
-	
+
 	public static AreaInformation copyOf(AreaInformation other) {
 		return new AreaInformationBuilder(other).create();
 	}
-	
+
 	public static AreaInformationBuilder from(AreaInformation other) {
 		return new AreaInformationBuilder(other);
 	}

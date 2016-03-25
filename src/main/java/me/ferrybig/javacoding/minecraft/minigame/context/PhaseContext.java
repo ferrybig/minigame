@@ -24,7 +24,7 @@ public interface PhaseContext extends Triggerable, Translator {
 	public void unregisterNativeListener(Listener listener);
 
 	@Override
-	public default String translate(Translation translation, Object ... args) {
+	public default String translate(Translation translation, Object... args) {
 		return getAreaContext().getCore().getInfo().getTranslations().translate(translation, args);
 	}
 }

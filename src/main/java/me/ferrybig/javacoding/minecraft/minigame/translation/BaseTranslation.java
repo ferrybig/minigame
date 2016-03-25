@@ -27,8 +27,7 @@ public enum BaseTranslation implements Translation {
 	COMMAND_EDIT_HELP_BOUNDS("command.edit.help.bounds"),
 	COMMAND_EDIT_HELP_ENABLED("command.edit.help.enabled"),
 	COMMAND_EDIT_HELP_DESCRIPTION("command.edit.help.description"),
-	COMMAND_EDIT_HELP_MAXPLAYERS("command.edit.help.maxplayers"),
-	;
+	COMMAND_EDIT_HELP_MAXPLAYERS("command.edit.help.maxplayers"),;
 
 	private final String key;
 

@@ -16,8 +16,10 @@ import org.mockito.MockitoAnnotations;
  */
 public class DefaultAreaContextTest {
 
-	@Mock public Function<? super AreaCreator, Area> constructor;
-	@Mock public AreaVerifier verifier;
+	@Mock
+	public Function<? super AreaCreator, Area> constructor;
+	@Mock
+	public AreaVerifier verifier;
 
 	@Before
 	public void init() {

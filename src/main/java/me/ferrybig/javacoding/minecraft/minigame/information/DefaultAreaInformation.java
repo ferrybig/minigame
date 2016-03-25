@@ -1,4 +1,3 @@
-
 package me.ferrybig.javacoding.minecraft.minigame.information;
 
 import java.util.List;
@@ -9,7 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 
 public class DefaultAreaInformation implements AreaInformation {
-	
+
 	private final String description;
 	private final String name;
 	private final boolean enabled;
@@ -17,9 +16,9 @@ public class DefaultAreaInformation implements AreaInformation {
 	private final Map<String, List<Location>> taggedLocations;
 	private final Selection bounds;
 	private final int maxPlayers;
-	
-	public DefaultAreaInformation(String name, boolean enabled, String description, 
-			Map<String, List<Block>> taggedBlocks, 
+
+	public DefaultAreaInformation(String name, boolean enabled, String description,
+			Map<String, List<Block>> taggedBlocks,
 			Map<String, List<Location>> taggedLocations, Selection bounds, int maxPlayers) {
 		this.description = Objects.requireNonNull(description);
 		this.name = Objects.requireNonNull(name);
@@ -64,7 +63,7 @@ public class DefaultAreaInformation implements AreaInformation {
 	public int maxPlayers() {
 		return maxPlayers;
 	}
-	
+
 	public static AreaInformationBuilder builder(String name) {
 		return new AreaInformationBuilder(name);
 	}

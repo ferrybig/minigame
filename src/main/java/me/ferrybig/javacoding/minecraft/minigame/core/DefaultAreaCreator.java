@@ -25,7 +25,7 @@ public class DefaultAreaCreator implements AreaCreator {
 	private Selection selection;
 	private boolean enabled;
 	private int maxPlayers = 0;
-	
+
 	public DefaultAreaCreator(Function<? super AreaCreator, Area> constructor,
 			AreaVerifier verifier) {
 		this.constructor = Objects.requireNonNull(constructor, "constructor == null");

@@ -39,27 +39,26 @@ public class DefaultGamePipelineTest {
 		h.setLevel(Level.ALL);
 		logger.addHandler(h);
 	}
-	
+
 	@Before
 	public void prepare() {
 		executor = mock(EventExecutor.class);
 		context = mock(AreaContext.class);
 		when(executor.inEventLoop()).thenReturn(true);
 		when(context.getLogger()).thenReturn(logger);
-		doAnswer(new Answer<Promise<?>>(){
+		doAnswer(new Answer<Promise<?>>() {
 			@Override
 			public Promise<?> answer(InvocationOnMock invocation) throws Throwable {
 				return new DefaultPromise<>(executor);
 			}
 		}).when(executor).newPromise();
-		
+
 	}
-	
-	
+
 	@Test
 	public void pipelineStartsProperlyTest() throws Exception {
 		Phase phase = mock(Phase.class);
-		
+
 		DefaultGamePipeline pipe = new DefaultGamePipeline(executor);
 		pipe.addLast(phase);
 		pipe.runLoop(context);
@@ -69,26 +68,25 @@ public class DefaultGamePipelineTest {
 		verify(phase, never()).onPhaseUnregister(anyObject());
 		verify(phase, never()).onPhaseUnload(anyObject());
 		verify(phase, never()).afterReset(anyObject());
-		
+
 	}
-	
+
 	@Test
 	public void pipelineAdvancesInRegisterTest() throws Exception {
 		Phase phase = mock(Phase.class);
 		Phase phase2 = mock(Phase.class);
-		doAnswer(new Answer<Void>(){
+		doAnswer(new Answer<Void>() {
 			@Override
 			public Void answer(InvocationOnMock invocation) throws Throwable {
 				invocation.getArgumentAt(0, PhaseContext.class).triggerNextPhase();
 				return null;
 			}
 		}).when(phase).onPhaseRegister(anyObject());
-		
+
 		DefaultGamePipeline pipe = new DefaultGamePipeline(executor);
 		pipe.addLast(phase);
 		pipe.addLast(phase2);
 		pipe.runLoop(context);
-
 
 		verify(phase, times(1)).onPhaseRegister(anyObject());
 		verify(phase, never()).onPhaseLoad(anyObject());
@@ -108,7 +106,7 @@ public class DefaultGamePipelineTest {
 		Phase phase = mock(Phase.class);
 		Phase phase2 = mock(Phase.class);
 
-		doAnswer(new Answer<Void>(){
+		doAnswer(new Answer<Void>() {
 			@Override
 			public Void answer(InvocationOnMock invocation) throws Throwable {
 				invocation.getArgumentAt(0, PhaseContext.class).triggerNextPhase();
@@ -119,9 +117,8 @@ public class DefaultGamePipelineTest {
 		DefaultGamePipeline pipe = new DefaultGamePipeline(executor);
 		pipe.addLast(phase);
 		pipe.addLast(phase2);
-		
-		pipe.runLoop(context);
 
+		pipe.runLoop(context);
 
 		verify(phase, times(1)).onPhaseRegister(anyObject());
 		verify(phase, times(1)).onPhaseLoad(anyObject());
@@ -135,11 +132,11 @@ public class DefaultGamePipelineTest {
 		verify(phase2, never()).onPhaseUnload(anyObject());
 		verify(phase2, never()).afterReset(anyObject());
 	}
-	
+
 	@Test
 	public void canResetPipelineFromRegisteredTest() throws Exception {
 		Phase phase = mock(Phase.class);
-		doAnswer(new Answer<Void>(){
+		doAnswer(new Answer<Void>() {
 			@Override
 			public Void answer(InvocationOnMock invocation) throws Throwable {
 				invocation.getArgumentAt(0, PhaseContext.class).triggerReset();
@@ -162,7 +159,7 @@ public class DefaultGamePipelineTest {
 	@Test
 	public void canResetPipelineFromLoadedTest() throws Exception {
 		Phase phase = mock(Phase.class);
-		doAnswer(new Answer<Void>(){
+		doAnswer(new Answer<Void>() {
 			@Override
 			public Void answer(InvocationOnMock invocation) throws Throwable {
 				invocation.getArgumentAt(0, PhaseContext.class).triggerReset();
@@ -185,14 +182,14 @@ public class DefaultGamePipelineTest {
 	public void canResetPipelineFromSecondPhaseTest() throws Exception {
 		Phase phase = mock(Phase.class);
 		Phase phase2 = mock(Phase.class);
-		doAnswer(new Answer<Void>(){
+		doAnswer(new Answer<Void>() {
 			@Override
 			public Void answer(InvocationOnMock invocation) throws Throwable {
 				invocation.getArgumentAt(0, PhaseContext.class).triggerReset();
 				return null;
 			}
 		}).when(phase2).onPhaseRegister(anyObject());
-		doAnswer(new Answer<Void>(){
+		doAnswer(new Answer<Void>() {
 			@Override
 			public Void answer(InvocationOnMock invocation) throws Throwable {
 				invocation.getArgumentAt(0, PhaseContext.class).triggerNextPhase();

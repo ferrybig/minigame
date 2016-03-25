@@ -20,7 +20,7 @@ public interface Selection {
 	public default Location getFirstPointAsLocation() {
 		return getFirstPoint().toLocation(getWorld());
 	}
-	
+
 	public default void setFirstPoint(Vector n) {
 		Vector first = getFirstPoint();
 		first.zero();
@@ -37,23 +37,23 @@ public interface Selection {
 	public default Location getSecondPointAsLocation() {
 		return getSecondPoint().toLocation(getWorld());
 	}
-	
+
 	public default void setSecondPoint(Vector n) {
 		Vector second = getSecondPoint();
 		second.zero();
 		second.add(n);
 	}
-	
+
 	public default boolean isInArea(Location loc) {
 		return isInArea(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
 	}
-	
+
 	public default boolean isInArea(Block block) {
 		return isInArea(block.getWorld(), block.getX(), block.getY(), block.getZ());
 	}
 
 	public default boolean isInArea(World w, double x, double y, double z) {
-		if(!this.getWorld().equals(w)) {
+		if (!this.getWorld().equals(w)) {
 			return false;
 		}
 		Vector lowest = getFirstPoint();
@@ -68,9 +68,9 @@ public interface Selection {
 		double lowestZ = Math.min(lowest.getZ(), highest.getZ());
 		double highestZ = Math.max(lowest.getZ(), highest.getZ());
 
-		return lowestX <= x && x <= highestX &&
-				lowestZ <= z && z <= highestZ &&
-				lowestY <= y && y <= highestY;
+		return lowestX <= x && x <= highestX
+				&& lowestZ <= z && z <= highestZ
+				&& lowestY <= y && y <= highestY;
 	}
 
 	public Selection deepClone();

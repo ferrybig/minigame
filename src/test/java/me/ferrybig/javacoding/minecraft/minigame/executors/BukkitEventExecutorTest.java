@@ -7,7 +7,6 @@ import org.bukkit.scheduler.BukkitTask;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
-import org.mockito.Matchers;
 import static org.mockito.Mockito.*;
 import org.mockito.invocation.InvocationOnMock;
 
@@ -16,12 +15,12 @@ import org.mockito.invocation.InvocationOnMock;
  * @author Fernando
  */
 public class BukkitEventExecutorTest {
-	
+
 	private Plugin plugin;
 	private Server server;
 	private BukkitScheduler schedular;
 	private BukkitTask id;
-	
+
 	@Before
 	public void before() {
 		plugin = mock(Plugin.class);
@@ -31,8 +30,8 @@ public class BukkitEventExecutorTest {
 		when(plugin.getServer()).thenReturn(server);
 		when(server.getScheduler()).thenReturn(schedular);
 		when(server.isPrimaryThread()).thenReturn(true);
-		when(schedular.runTaskTimer(anyObject(), (Runnable)anyObject(), anyInt(), anyInt())).thenReturn(id);
-		when(schedular.runTask(null, (Runnable)null)).thenAnswer((InvocationOnMock invocation) -> {
+		when(schedular.runTaskTimer(anyObject(), (Runnable) anyObject(), anyInt(), anyInt())).thenReturn(id);
+		when(schedular.runTask(null, (Runnable) null)).thenAnswer((InvocationOnMock invocation) -> {
 			assertEquals(plugin, invocation.getArgumentAt(0, Plugin.class));
 			invocation.getArgumentAt(1, Runnable.class).run();
 			return null;
@@ -45,14 +44,14 @@ public class BukkitEventExecutorTest {
 		executor.shutdownGracefully();
 		verify(id).cancel();
 	}
-	
+
 	@Test
 	@SuppressWarnings("ResultOfObjectAllocationIgnored")
 	public void taskProperlyRegisteredOnStartupTest() {
 		new BukkitEventExecutor(plugin);
-		verify(schedular).runTaskTimer(anyObject(), (Runnable)anyObject(), anyInt(), anyInt());
+		verify(schedular).runTaskTimer(anyObject(), (Runnable) anyObject(), anyInt(), anyInt());
 	}
-	
+
 	@Test
 	public void incomingTasksAreExecutedTest() {
 		BukkitEventExecutor executor = new BukkitEventExecutor(plugin);
@@ -60,7 +59,7 @@ public class BukkitEventExecutorTest {
 		executor.execute(mock);
 		verify(mock).run();
 	}
-	
+
 	@Test
 	public void executorChecksProperlyMainThreadTest() {
 		BukkitEventExecutor executor = new BukkitEventExecutor(plugin);

@@ -9,7 +9,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 public interface Controller {
-	
+
 	public void addListener(ControllerListener listener);
 
 	public void removeListener(ControllerListener listener);

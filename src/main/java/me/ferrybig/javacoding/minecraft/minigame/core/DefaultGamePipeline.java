@@ -60,8 +60,9 @@ public class DefaultGamePipeline implements Pipeline {
 	@Override
 	public Pipeline addFirst(Phase phase) {
 		Objects.requireNonNull(phase, "phase == null");
-		if(this.contains(phase))
+		if (this.contains(phase)) {
 			throw new IllegalArgumentException("Phase already added");
+		}
 		PhaseHolder holder;
 		mainPhases.forEach(p -> p.context.incrementCurrIndex());
 		mainPhases.addFirst(holder = new PhaseHolder(phase, new DefaultPhaseContext(0)));
@@ -80,8 +81,9 @@ public class DefaultGamePipeline implements Pipeline {
 			throw new IllegalStateException("Cannot add to terminating pipeline");
 		}
 		Objects.requireNonNull(phase, "phase == null");
-		if(this.contains(phase))
+		if (this.contains(phase)) {
 			throw new IllegalArgumentException("Phase already added");
+		}
 		int newIndex = this.mainPhases.size();
 		mainPhases.addLast(new PhaseHolder(phase, new DefaultPhaseContext(newIndex)));
 		assert this.mainPhases.size() == newIndex + 1;
@@ -90,9 +92,10 @@ public class DefaultGamePipeline implements Pipeline {
 
 	@Override
 	public boolean contains(Phase phase) {
-		for(PhaseHolder p : this.mainPhases) {
-			if(p.phase == phase)
+		for (PhaseHolder p : this.mainPhases) {
+			if (p.phase == phase) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -284,14 +287,14 @@ public class DefaultGamePipeline implements Pipeline {
 				if (logger.isLoggable(Level.FINE)) {
 					logger.log(Level.FINE, "Ran {0} tasks correctly", tasksRun);
 				}
-				if(terminating) {
-					if(currPhaseIndex < 0) {
+				if (terminating) {
+					if (currPhaseIndex < 0) {
 						break;
 					} else {
 						decreasePhase();
 					}
 				}
-			} while(terminating);
+			} while (terminating);
 		} finally {
 			assert inLoop == true;
 			inLoop = false;
@@ -323,7 +326,7 @@ public class DefaultGamePipeline implements Pipeline {
 		if (area != null && this.area == null) {
 			this.area = area;
 			this.logger = this.area.getLogger();
-			if(this.logger == null) {
+			if (this.logger == null) {
 				this.logger = Logger.getLogger(this.getClass().getName());
 				this.logger.warning("Using own logger because none logger has been provided");
 			}
@@ -523,12 +526,12 @@ public class DefaultGamePipeline implements Pipeline {
 		private int currIndex;
 		private boolean removed = false;
 
-		public boolean isRemoved() {
-			return removed || terminating;
-		}
-
 		public DefaultPhaseContext(int currIndex) {
 			this.currIndex = currIndex;
+		}
+
+		public boolean isRemoved() {
+			return removed || terminating;
 		}
 
 		public void setCurrIndex(int newValue) {

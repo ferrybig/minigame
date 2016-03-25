@@ -1,4 +1,3 @@
-
 package me.ferrybig.javacoding.minecraft.minigame.configuration;
 
 import io.netty.util.concurrent.EventExecutor;

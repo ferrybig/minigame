@@ -1,4 +1,3 @@
-
 package me.ferrybig.javacoding.minecraft.minigame.status;
 
 import me.ferrybig.javacoding.minecraft.minigame.status.StatusSign.SignType;

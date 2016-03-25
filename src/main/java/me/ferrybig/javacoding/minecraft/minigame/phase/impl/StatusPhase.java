@@ -29,15 +29,17 @@ public class StatusPhase extends DefaultPhase {
 	@Override
 	public void afterReset(PhaseContext area) {
 		super.afterReset(area);
-		if(onResetState != null)
+		if (onResetState != null) {
 			setState(area.getAreaContext(), onResetState);
+		}
 	}
 
 	@Override
 	public void onPhaseRegister(PhaseContext area) throws Exception {
 		super.onPhaseRegister(area);
-		if(onLoadState != null)
+		if (onLoadState != null) {
 			setState(area.getAreaContext(), onLoadState);
+		}
 		area.triggerNextPhase();
 	}
 

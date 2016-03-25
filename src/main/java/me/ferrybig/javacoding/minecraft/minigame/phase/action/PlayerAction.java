@@ -41,8 +41,9 @@ public abstract class PlayerAction {
 					Location first = evt.getPlayer().getLocation();
 					tryTrigger(getPhaseContext(), evt.getPlayer());
 					Location second = evt.getPlayer().getLocation();
-					if(!first.equals(second))
+					if (!first.equals(second)) {
 						evt.setRespawnLocation(second);
+					}
 				}
 			}
 		};

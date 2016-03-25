@@ -46,7 +46,7 @@ public interface AreaContext extends AttributeMap, ResolvedAreaInformation {
 		}
 	}
 
-	public default void sendBroadcast(Translation message, Object ... args) {
+	public default void sendBroadcast(Translation message, Object... args) {
 		sendBroadcast(getInformationContext().getTranslations().translate(message, args));
 	}
 

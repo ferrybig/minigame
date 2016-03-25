@@ -26,7 +26,7 @@ public interface Phase {
 	public void exceptionCaucht(PhaseContext area, Throwable exception) throws Exception;
 
 	public void onUserEvent(PhaseContext area, Object userEvent) throws Exception;
-	
+
 	public void afterReset(PhaseContext area);
 
 	public void onPlayerPreJoin(PhaseContext area, PlayerPreJoinMessage player) throws Exception;

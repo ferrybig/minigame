@@ -1,4 +1,3 @@
-
 package me.ferrybig.javacoding.minecraft.minigame.exceptions;
 
 /**
@@ -7,23 +6,25 @@ package me.ferrybig.javacoding.minecraft.minigame.exceptions;
  */
 public class PhaseException extends MinigameException {
 
-    /**
-     * Creates a new instance of <code>PhaseException</code> without detail message.
-     */
-    public PhaseException() {
-        super();
-    }
+	/**
+	 * Creates a new instance of <code>PhaseException</code> without detail
+	 * message.
+	 */
+	public PhaseException() {
+		super();
+	}
 
+	/**
+	 * Constructs an instance of <code>PhaseException</code> with the specified
+	 * detail message.
+	 *
+	 * @param msg the detail message.
+	 */
+	public PhaseException(String msg) {
+		super(msg);
+	}
 
-    /**
-     * Constructs an instance of <code>PhaseException</code> with the specified detail message.
-     * @param msg the detail message.
-     */
-    public PhaseException(String msg) {
-        super(msg);
-    }
-
-    /**
+	/**
 	 * Constructs an instance of <code>PhaseException</code> with the specified
 	 * detail message and cause.
 	 *
@@ -32,7 +33,7 @@ public class PhaseException extends MinigameException {
 	 */
 	public PhaseException(String message, Throwable cause) {
 		super(message);
-        this.initCause(cause);
+		this.initCause(cause);
 	}
 
 	/**
@@ -43,6 +44,6 @@ public class PhaseException extends MinigameException {
 	 */
 	public PhaseException(Throwable cause) {
 		this(cause.toString());
-        this.initCause(cause);
+		this.initCause(cause);
 	}
 }

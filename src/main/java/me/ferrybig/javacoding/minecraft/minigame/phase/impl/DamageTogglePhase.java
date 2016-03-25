@@ -32,7 +32,7 @@ public class DamageTogglePhase extends DefaultPhase {
 
 	@Override
 	public void afterReset(PhaseContext area) {
-		if(listener != null) {
+		if (listener != null) {
 			area.unregisterNativeListener(listener);
 			area.getAreaContext().attr(TYPE).remove();
 		}
@@ -55,38 +55,34 @@ public class DamageTogglePhase extends DefaultPhase {
 			Player attacker, Player defender, Cancellable event) {
 		Optional<PlayerInfo> attackerInfo = area.getController().getPlayer(attacker);
 		Optional<PlayerInfo> defenderInfo = area.getController().getPlayer(defender);
-		if(attackerInfo.isPresent() == false && defenderInfo.isPresent() == false) {
+		if (attackerInfo.isPresent() == false && defenderInfo.isPresent() == false) {
 			// Not intrested in this condition
-		} else if(attackerInfo.isPresent() == true && defenderInfo.isPresent() == true) {
-			if(attacker.equals(defender)) {
-				if(!isDamageAllowed(area, DamageType.SELF)) {
+		} else if (attackerInfo.isPresent() == true && defenderInfo.isPresent() == true) {
+			if (attacker.equals(defender)) {
+				if (!isDamageAllowed(area, DamageType.SELF)) {
 					event.setCancelled(true);
 				}
 			} else {
 				PlayerInfo att = attackerInfo.get();
 				PlayerInfo def = defenderInfo.get();
-				if(att.isSpectator() || def.isSpectator()) {
-					if(!isDamageAllowed(area, DamageType.SPECTATOR)) {
+				if (att.isSpectator() || def.isSpectator()) {
+					if (!isDamageAllowed(area, DamageType.SPECTATOR)) {
 						event.setCancelled(true);
 					}
 				} else {
 					Optional<String> attTeam = att.getTeam();
 					Optional<String> defTeam = def.getTeam();
 					if (attTeam.isPresent() && attTeam.equals(defTeam)) {
-						if(!isDamageAllowed(area, DamageType.TEAM)) {
+						if (!isDamageAllowed(area, DamageType.TEAM)) {
 							event.setCancelled(true);
 						}
-					} else {
-						if(!isDamageAllowed(area, DamageType.NORMAL)) {
-							event.setCancelled(true);
-						}
+					} else if (!isDamageAllowed(area, DamageType.NORMAL)) {
+						event.setCancelled(true);
 					}
 				}
 			}
-		} else {
-			if(!isDamageAllowed(area, DamageType.OUTSIDE)) {
-				event.setCancelled(true);
-			}
+		} else if (!isDamageAllowed(area, DamageType.OUTSIDE)) {
+			event.setCancelled(true);
 		}
 	}
 

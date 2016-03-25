@@ -17,18 +17,19 @@ import org.junit.Test;
  * @author Fernando
  */
 public class DefaultSelectionTest {
-	
+
 	private static final World MOCK_WORLD;
-	
+
 	static {
 		MOCK_WORLD = (World) Proxy.newProxyInstance(DefaultSelectionTest.class.getClassLoader(),
 				new Class<?>[]{World.class}, (Object proxy, Method method, Object[] args) -> {
-					if("toString".equals(method.getName()))
+					if ("toString".equals(method.getName())) {
 						return "MOCK_WORLD";
+					}
 					throw new AssertionError();
-		});
+				});
 	}
-	
+
 	@Test
 	public void selectionDoesntStartWithNullTest() {
 		DefaultSelection s = new DefaultSelection(MOCK_WORLD);
@@ -48,7 +49,7 @@ public class DefaultSelectionTest {
 		Assert.assertEquals(0, s.getSecondPoint().getY(), 0);
 		Assert.assertEquals(0, s.getSecondPoint().getZ(), 0);
 	}
-	
+
 	@Test
 	public void canChangePoints() {
 		DefaultSelection s = new DefaultSelection(MOCK_WORLD);
@@ -65,23 +66,23 @@ public class DefaultSelectionTest {
 		Assert.assertEquals(5, s.getSecondPoint().getY(), 0);
 		Assert.assertEquals(6, s.getSecondPoint().getZ(), 0);
 	}
-	
+
 	@Test(expected = NullPointerException.class)
 	@SuppressWarnings("ResultOfObjectAllocationIgnored")
 	public void doesntAcceptNullWorldTest() {
 		new DefaultSelection(null);
 	}
-	
+
 	@Test
 	public void cloneIsFullyTest() {
 		DefaultSelection s = new DefaultSelection(MOCK_WORLD);
 		DefaultSelection s2 = s.deepClone();
-		Assert.assertNotSame(s,s2);
-		Assert.assertEquals(s,s2);
-		Assert.assertNotSame(s.getFirstPoint(),s2.getFirstPoint());
-		Assert.assertEquals(s.getFirstPoint(),s2.getFirstPoint());
-		Assert.assertNotSame(s.getSecondPoint(),s2.getSecondPoint());
-		Assert.assertEquals(s.getFirstPoint(),s2.getFirstPoint());
+		Assert.assertNotSame(s, s2);
+		Assert.assertEquals(s, s2);
+		Assert.assertNotSame(s.getFirstPoint(), s2.getFirstPoint());
+		Assert.assertEquals(s.getFirstPoint(), s2.getFirstPoint());
+		Assert.assertNotSame(s.getSecondPoint(), s2.getSecondPoint());
+		Assert.assertEquals(s.getFirstPoint(), s2.getFirstPoint());
 	}
-	
+
 }

@@ -1,4 +1,3 @@
-
 package me.ferrybig.javacoding.minecraft.minigame.core;
 
 import io.netty.util.concurrent.Future;
@@ -42,15 +41,15 @@ public class DefaultStatusSignManager implements StatusSignManager {
 	public DefaultStatusSignManager(GameCore core) {
 		this.core = core;
 		this.map = core.getInfo().getTranslations();
-		this.core.terminationFuture().addListener(f->{
+		this.core.terminationFuture().addListener(f -> {
 			assert this.core.terminationFuture() == f;
 			stop();
 		});
 		this.signs.putAll(core.getLoadedSigns());
-		this.signs.keySet().forEach(l->
-			modCount.put(l, MODIFICATION_COUNT.incrementAndGet())
+		this.signs.keySet().forEach(l
+				-> modCount.put(l, MODIFICATION_COUNT.incrementAndGet())
 		);
-		this.core.startingFuture().addListener(f->{
+		this.core.startingFuture().addListener(f -> {
 			assert f == this.core.startingFuture();
 			this.signs.forEach(this::updateSign);
 			this.core.getInfo().getPlugin().getServer().getPluginManager()
@@ -68,7 +67,7 @@ public class DefaultStatusSignManager implements StatusSignManager {
 		Objects.requireNonNull(location, "location == null");
 		StatusSign sign = new StatusSignImpl(type);
 		core.getInfo().getConfig().saveSign(location, sign);
-		signs.put(location,sign);
+		signs.put(location, sign);
 		modCount.put(location, MODIFICATION_COUNT.incrementAndGet());
 		updateSign(location, sign);
 	}
@@ -80,15 +79,16 @@ public class DefaultStatusSignManager implements StatusSignManager {
 	}
 
 	private void updateSign(Block block, StatusSign sign) {
-		if (stopped)
+		if (stopped) {
 			return;
+		}
 		long mod = modCount.getOrDefault(block, 0l);
 		BlockState state = block.getState();
-		if(!(state instanceof Sign)) {
+		if (!(state instanceof Sign)) {
 			removeStatusSign(block);
 			return;
 		}
-		Sign s = (Sign)state;
+		Sign s = (Sign) state;
 		s.setLine(0, map.translate(BaseTranslation.SIGNS_HEADER, ""));
 		s.setLine(1, map.translate(BaseTranslation.SIGNS_STATE_LOADING, ""));
 		s.setLine(2, "");
@@ -96,10 +96,10 @@ public class DefaultStatusSignManager implements StatusSignManager {
 		s.update();
 
 		Future<AreaContext> future = this.core.createRandomGameContext();
-		future.addListener(f->{
+		future.addListener(f -> {
 			assert f == future;
-			if(!f.isSuccess() || future.getNow() == null) {
-				if(!f.isCancelled()) {
+			if (!f.isSuccess() || future.getNow() == null) {
+				if (!f.isCancelled()) {
 					core.getInfo().getLogger().log(Level.WARNING,
 							"Error while preparing area:", f.cause());
 				}
@@ -109,7 +109,7 @@ public class DefaultStatusSignManager implements StatusSignManager {
 			}
 			AreaContext c = future.get();
 			long mod2 = modCount.getOrDefault(block, 0l);
-			if(mod2 != mod) {
+			if (mod2 != mod) {
 				c.pipeline().terminate();
 				return;
 			}
@@ -117,19 +117,19 @@ public class DefaultStatusSignManager implements StatusSignManager {
 			s.setLine(0, map.translate(BaseTranslation.SIGNS_HEADER, c.getName()));
 			updateSignPlayerCount(s, c);
 			s.update();
-			StatusPhase.registerForStateUpdates(c, (area, areaState)->{
+			StatusPhase.registerForStateUpdates(c, (area, areaState) -> {
 				assert area == c;
 				s.setLine(1, map.translate(areaState));
 				s.update();
 			}, true);
-			c.getController().addListener(new ControllerUpdateListener(()->{
+			c.getController().addListener(new ControllerUpdateListener(() -> {
 				updateSignPlayerCount(s, c);
 				s.update();
 			}));
-			c.getClosureFuture().addListener((f1)->{
+			c.getClosureFuture().addListener((f1) -> {
 				assert f1 == c.getClosureFuture();
 				long mod3 = modCount.getOrDefault(block, 0l);
-				if(mod3 == mod) {
+				if (mod3 == mod) {
 					this.areas.remove(block);
 					updateSign(block, sign);
 				}
@@ -141,14 +141,14 @@ public class DefaultStatusSignManager implements StatusSignManager {
 	private void updateSignPlayerCount(Sign sign, AreaContext context) {
 		int nonSpectator = 0;
 		int ingame = 0;
-		for(PlayerInfo i : context.getController().getPlayers().values()) {
+		for (PlayerInfo i : context.getController().getPlayers().values()) {
 			ingame++;
 			if (!i.isSpectator()) {
 				nonSpectator++;
 			}
 		}
 		sign.setLine(2, map.translate(BaseTranslation.SIGNS_PLAYERCOUNTER,
-			nonSpectator, ingame, context.maxPlayers()));
+				nonSpectator, ingame, context.maxPlayers()));
 
 	}
 
@@ -207,18 +207,19 @@ public class DefaultStatusSignManager implements StatusSignManager {
 
 		@EventHandler
 		public void onInteract(PlayerInteractEvent evt) {
-			if(evt.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			if (evt.getAction() == Action.RIGHT_CLICK_BLOCK) {
 				AreaContext area = areas.get(evt.getClickedBlock());
-				if(area == null)
+				if (area == null) {
 					return;
+				}
 				State state = StatusPhase.getState(area);
-				if(state != StatusPhase.State.JOINABLE) {
+				if (state != StatusPhase.State.JOINABLE) {
 					evt.getPlayer().sendMessage(core.getInfo().getTranslations()
 							.translate(BaseTranslation.SIGNS_INTERACT_STARTED));
 					return;
 				}
 				boolean tryJoin = area.getController().addPlayer(evt.getPlayer());
-				if(!tryJoin) {
+				if (!tryJoin) {
 					area.getController().removePlayer(evt.getPlayer());
 					evt.getPlayer().sendMessage(core.getInfo().getTranslations()
 							.translate(BaseTranslation.SIGNS_INTERACT_FULL));

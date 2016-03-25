@@ -68,8 +68,9 @@ public class FileConfig extends AbstractFullConfig {
 		}
 		try {
 			FileConfiguration c = config.get();
-			if(c != null)
+			if (c != null) {
 				saveConfig(c);
+			}
 		} catch (IOException ex) {
 			Logger.getLogger(FileConfig.class.getName()).log(Level.SEVERE, "", ex);
 		}

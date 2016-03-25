@@ -10,12 +10,10 @@ import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerTeamMessage;
 
 public abstract class DefaultPhase implements Phase {
 
-	
-	
 	@Override
 	public void onPhaseRegister(PhaseContext area) throws Exception {
 	}
-	
+
 	@Override
 	public void onPhaseLoad(PhaseContext area) throws Exception {
 	}
@@ -27,12 +25,13 @@ public abstract class DefaultPhase implements Phase {
 	@Override
 	public void onPhaseUnregister(PhaseContext area) throws Exception {
 	}
-	
+
 	/**
 	 * Forwards the exception downstream the chain of methods.
+	 *
 	 * @param area
 	 * @param exception
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Override
 	public void exceptionCaucht(PhaseContext area, Throwable exception) throws Exception {
@@ -41,9 +40,10 @@ public abstract class DefaultPhase implements Phase {
 
 	/**
 	 * Forwards the exception downstream the chain of methods.
+	 *
 	 * @param area
 	 * @param userEvent
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Override
 	public void onUserEvent(PhaseContext area, Object userEvent) throws Exception {

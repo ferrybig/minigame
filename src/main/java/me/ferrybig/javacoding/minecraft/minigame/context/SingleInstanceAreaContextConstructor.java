@@ -35,12 +35,12 @@ public class SingleInstanceAreaContextConstructor
 		return parent.construct(core, area, controller, pipeline)
 				.addListener(getListenerForArea(area.getName()));
 	}
-	
+
 	private void triggerNextBuild(String name) {
 		Queue<QueueEntry> queue = pendingRequests.get(name);
 		QueueEntry entry;
-		while((entry = queue.poll()) != null) {
-			if(entry.execute()) {
+		while ((entry = queue.poll()) != null) {
+			if (entry.execute()) {
 				return;
 			}
 		}
@@ -51,8 +51,8 @@ public class SingleInstanceAreaContextConstructor
 
 	private GenericFutureListener<Future<AreaContext>> getListenerForArea(String name) {
 		return f -> {
-			if(f.isSuccess() && f.get() != null ) {
-				f.get().getClosureFuture().addListener(f1->{
+			if (f.isSuccess() && f.get() != null) {
+				f.get().getClosureFuture().addListener(f1 -> {
 					assert f1 == f.get().getClosureFuture();
 					triggerNextBuild(name);
 				});

@@ -8,8 +8,8 @@ import org.bukkit.block.Block;
 public interface SignConfig extends Config {
 
 	public Future<?> removeSign(Block location);
-	
+
 	public Future<?> saveSign(Block location, StatusSign area);
-	
+
 	public Future<Map<Block, StatusSign>> loadSigns();
 }

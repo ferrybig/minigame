@@ -1,4 +1,3 @@
-
 package me.ferrybig.javacoding.minecraft.minigame.bukkit;
 
 import io.netty.util.concurrent.EventExecutor;
@@ -24,6 +23,7 @@ import me.ferrybig.javacoding.minecraft.minigame.verrifier.AreaVerifier;
 import org.bukkit.plugin.Plugin;
 
 public abstract class MainLoader implements GameCoreAccessor {
+
 	private final Plugin plugin;
 	private EventExecutor executor;
 	private GameCore gameCore;
@@ -50,12 +50,12 @@ public abstract class MainLoader implements GameCoreAccessor {
 			return executor.newSucceededFuture(b);
 		}).map(Bootstrap::build);
 		gameCoreLoader.addListener((Future<GameCore> c) -> {
-			if(c.isSuccess()) {
+			if (c.isSuccess()) {
 				gameCore = c.get();
 				onGameCoreLoaded(gameCore);
 			} else {
-				onFailure(c.isCancelled() ? new CancellationException() :
-						new MinigameException(c.cause()));
+				onFailure(c.isCancelled() ? new CancellationException()
+						: new MinigameException("Could not start minigame framework", c.cause()));
 			}
 		});
 	}

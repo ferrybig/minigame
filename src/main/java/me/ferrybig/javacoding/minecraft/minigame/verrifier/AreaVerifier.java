@@ -1,4 +1,3 @@
-
 package me.ferrybig.javacoding.minecraft.minigame.verrifier;
 
 import java.util.Collections;
@@ -10,6 +9,7 @@ import me.ferrybig.javacoding.minecraft.minigame.information.ResolvedAreaInforma
 
 /**
  * Verifies if a area is correctly build for this minigame
+ *
  * @author Fernando
  */
 public interface AreaVerifier {
@@ -19,7 +19,7 @@ public interface AreaVerifier {
 	public boolean isCorrect(AreaInformation area);
 
 	public Set<String> getValidTeams(AreaInformation area);
-	
+
 	public default ResolvedAreaInformation validate(AreaInformation area) {
 		boolean valid = isCorrect(area);
 		Set<String> teams;
@@ -28,8 +28,8 @@ public interface AreaVerifier {
 		} else {
 			teams = Collections.emptySet();
 		}
-		return new DefaultResolvedAreaInformation(area.getName(), area.isEnabled(), 
-				area.getDescription(), area.getTaggedBlocks(), area.getTaggedLocations(), 
+		return new DefaultResolvedAreaInformation(area.getName(), area.isEnabled(),
+				area.getDescription(), area.getTaggedBlocks(), area.getTaggedLocations(),
 				area.getBounds(), area.maxPlayers(), valid, teams);
 	}
 

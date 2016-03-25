@@ -101,8 +101,9 @@ public class DefaultGameController implements Controller {
 	@Override
 	public boolean addPlayer(Player player) {
 		Objects.requireNonNull(player, "player == null");
-		if(inCheckLoop.get())
+		if (inCheckLoop.get()) {
 			return false;
+		}
 		inCheckLoop.set(true);
 		try {
 			if (!hasState(player)) {
@@ -173,8 +174,9 @@ public class DefaultGameController implements Controller {
 
 	public boolean tryAddPlayer(OfflinePlayer player) {
 		Objects.requireNonNull(player, "player == null");
-		if(inCheckLoop.get())
+		if (inCheckLoop.get()) {
 			return false;
+		}
 		inCheckLoop.set(true);
 		try {
 			if (!hasState(player)) {
@@ -201,8 +203,9 @@ public class DefaultGameController implements Controller {
 	@Override
 	public boolean tryAddPlayer(List<? extends OfflinePlayer> players) {
 		Objects.requireNonNull(players, "players == null");
-		if(inCheckLoop.get())
+		if (inCheckLoop.get()) {
 			return false;
+		}
 		inCheckLoop.set(true);
 		try {
 			players = players.stream().filter(Objects::nonNull).collect(Collectors.toList());

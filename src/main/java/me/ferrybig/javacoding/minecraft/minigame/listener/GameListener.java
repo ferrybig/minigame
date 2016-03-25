@@ -9,13 +9,13 @@ import org.bukkit.entity.Player;
 public interface GameListener {
 
 	public void playerJoinGame(AreaContext area, Player player);
-	
+
 	public void playerLeaveGame(AreaContext area, Player player);
-	
+
 	public void gameInstanceFinished(AreaContext area);
-	
+
 	public void gameInstanceStarted(AreaContext area);
-	
+
 	@Deprecated
 	public default GameListener combineListeners(GameListener other) {
 		return new GameListener() {
@@ -44,7 +44,7 @@ public interface GameListener {
 			}
 		};
 	}
-	
+
 	public static GameListener addExceptionLogger(GameListener other, Logger log) {
 		Objects.requireNonNull(other);
 		return new GameListener() {
@@ -85,5 +85,5 @@ public interface GameListener {
 			}
 		};
 	}
-	
+
 }

@@ -11,6 +11,7 @@ import me.ferrybig.javacoding.minecraft.minigame.util.ExceptionRunnable;
 
 /**
  * Represents a context that is triggerable.
+ *
  * @author Fernando
  */
 public interface Triggerable {

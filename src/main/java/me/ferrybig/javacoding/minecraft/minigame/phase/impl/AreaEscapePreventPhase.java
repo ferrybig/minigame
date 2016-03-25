@@ -1,4 +1,3 @@
-
 package me.ferrybig.javacoding.minecraft.minigame.phase.impl;
 
 import io.netty.util.concurrent.ScheduledFuture;
@@ -20,28 +19,26 @@ public class AreaEscapePreventPhase extends DefaultPhase {
 	private final Location locationCache = new Location(null, 0, 0, 0);
 
 	private void checkLocations() {
-		for(Player p : area.getController().getPlayers().keySet()) {
+		for (Player p : area.getController().getPlayers().keySet()) {
 			p.getLocation(locationCache);
 			boolean newLocValid = area.getAreaContext().isInArea(locationCache);
 			Location playerLoc = lastLocations.get(p.getUniqueId());
-			if(playerLoc == null) {
-				if(newLocValid) {
+			if (playerLoc == null) {
+				if (newLocValid) {
 					lastLocations.put(p.getUniqueId(), locationCache.clone());
 				} else {
 					// No solution for this problem
 				}
+			} else if (newLocValid) {
+				// Position still good
+				playerLoc.setPitch(locationCache.getPitch());
+				playerLoc.setYaw(locationCache.getYaw());
+				playerLoc.setX(locationCache.getX());
+				playerLoc.setY(locationCache.getY());
+				playerLoc.setZ(locationCache.getZ());
+				playerLoc.setWorld(locationCache.getWorld());
 			} else {
-				if(newLocValid) {
-					// Position still good
-					playerLoc.setPitch(locationCache.getPitch());
-					playerLoc.setYaw(locationCache.getYaw());
-					playerLoc.setX(locationCache.getX());
-					playerLoc.setY(locationCache.getY());
-					playerLoc.setZ(locationCache.getZ());
-					playerLoc.setWorld(locationCache.getWorld());
-				} else {
-					p.teleport(locationCache, PlayerTeleportEvent.TeleportCause.UNKNOWN);
-				}
+				p.teleport(locationCache, PlayerTeleportEvent.TeleportCause.UNKNOWN);
 			}
 		}
 	}
@@ -49,7 +46,9 @@ public class AreaEscapePreventPhase extends DefaultPhase {
 	@Override
 	public void onPhaseUnregister(PhaseContext area) throws Exception {
 		super.onPhaseUnregister(area);
-		if(future != null) future.cancel(true);
+		if (future != null) {
+			future.cancel(true);
+		}
 	}
 
 	@Override
