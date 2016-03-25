@@ -30,17 +30,21 @@ public abstract class AbstractFullConfig extends AbstractConfig implements FullC
 				rootCause.compareAndSet(null, future.cause());
 			}
 			if (loadAreas.isDone() && loadSigns.isDone() && translationMap.isDone()) {
-				if (loadAreas.cause() != null || loadSigns.cause() != null || translationMap.cause() != null) {
+				Throwable areaCause = loadAreas.cause();
+				Throwable loadSignCause = loadSigns.cause();
+				Throwable translationCause = translationMap.cause();
+				if (areaCause != null || loadSignCause != null || translationCause != null) {
+					Throwable mainCause = rootCause.get();
 					ConfigurationException ex = new ConfigurationException(
-							"Could not load all database objects", rootCause.get());
-					if (loadAreas.cause() != null) {
-						ex.addSuppressed(loadAreas.cause());
+							"Could not load all database objects", mainCause);
+					if (areaCause != null && areaCause != mainCause) {
+						ex.addSuppressed(areaCause);
 					}
-					if (loadSigns.cause() != null) {
-						ex.addSuppressed(loadSigns.cause());
+					if (loadSignCause != null && loadSignCause != mainCause) {
+						ex.addSuppressed(loadSignCause);
 					}
-					if (translationMap.cause() != null) {
-						ex.addSuppressed(translationMap.cause());
+					if (translationCause != null && translationCause != mainCause) {
+						ex.addSuppressed(translationCause);
 					}
 					loaded.tryFailure(ex);
 				} else {
