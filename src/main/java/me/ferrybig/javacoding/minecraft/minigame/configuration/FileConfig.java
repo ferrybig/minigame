@@ -244,7 +244,7 @@ public class FileConfig extends AbstractFullConfig {
 					}
 				});
 			}
-			return null;
+			return signs;
 		});
 	}
 
