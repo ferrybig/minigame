@@ -121,5 +121,6 @@ public abstract class MainLoader implements GameCoreAccessor {
 	}
 
 	protected void onGameCoreLoaded(GameCore core) {
+		core.initializeAndStart();
 	}
 }
