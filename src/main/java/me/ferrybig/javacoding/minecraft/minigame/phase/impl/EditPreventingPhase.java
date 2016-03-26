@@ -8,7 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.player.PlayerBucketEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
 
 public class EditPreventingPhase extends DefaultPhase {
 
@@ -51,7 +51,7 @@ public class EditPreventingPhase extends DefaultPhase {
 		}
 
 		@EventHandler
-		public void onEvent(PlayerBucketEvent evt) {
+		public void onEvent(PlayerBucketEmptyEvent evt) {
 			Optional<PlayerInfo> player = area.getController().getPlayer(evt.getPlayer());
 			if (!player.isPresent()) {
 				return;
