@@ -28,6 +28,14 @@ public class PlayerCollectingPhase extends DefaultPhase {
 	private PhaseContext area;
 	private int tickCount;
 
+	public PlayerCollectingPhase(int startingPlayerCount) {
+		this(startingPlayerCount, startingPlayerCount);
+	}
+
+	public PlayerCollectingPhase(int startingPlayerCount, int miniumPlayerCount) {
+		this(startingPlayerCount, miniumPlayerCount, 30);
+	}
+
 	public PlayerCollectingPhase(int startingPlayerCount, int miniumPlayerCount, int maxiumWaitTime) {
 		this.startingPlayerCount = startingPlayerCount;
 		this.miniumPlayerCount = miniumPlayerCount;
