@@ -320,20 +320,23 @@ public class DefaultGameCore implements GameCore {
 					new IllegalStateException("area.canBeUsed() == false"));
 		}
 		AtomicReference<AreaContext> ref = new AtomicReference<>();
-		Pipeline pipeline = new DefaultGamePipeline(executor);
-		Controller controller = new DefaultGameController(info, pipeline.entrance());
-		controller.addListener(new ControllerCommander(ref));
-		Future<AreaContext> context = info.getAreaContextConstructor().construct(this, area, controller, pipeline)
-				.addListener((Future<AreaContext> f) -> {
-					removeAreaFuture(area, f);
-					if (f.isSuccess() && f.get() != null) {
-						AreaContext c = f.get();
-						ref.set(c);
-						areaContextCreated(c);
-						c.pipeline().runLoop(c);
-						c.getClosureFuture().addListener(f2 -> areaContextDestroyed(f.get()));
-					}
-				});
+		Future<AreaContext> context = ChainedFuture.of(executor,
+				() -> {
+					Pipeline pipeline = new DefaultGamePipeline(executor);
+					Controller controller = new DefaultGameController(info, pipeline.entrance());
+					controller.addListener(new ControllerCommander(ref));
+					return info.getAreaContextConstructor().construct(this, area, controller, pipeline);
+				}
+		).addListener((Future<AreaContext> f) -> {
+			removeAreaFuture(area, f);
+			if (f.isSuccess() && f.get() != null) {
+				AreaContext c = f.get();
+				ref.set(c);
+				areaContextCreated(c);
+				c.pipeline().runLoop(c);
+				c.getClosureFuture().addListener(f2 -> areaContextDestroyed(f.get()));
+			}
+		});
 		addAreaFuture(area, context);
 		if (context.isDone()) {
 			removeAreaFuture(area, context);
