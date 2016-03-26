@@ -38,6 +38,10 @@ public class SingleInstanceAreaContextConstructor
 
 	private void triggerNextBuild(String name) {
 		Queue<QueueEntry> queue = pendingRequests.get(name);
+		if(queue == null) {
+			runningAreas.remove(name);
+			return;
+		}
 		QueueEntry entry;
 		while ((entry = queue.poll()) != null) {
 			if (entry.execute()) {
