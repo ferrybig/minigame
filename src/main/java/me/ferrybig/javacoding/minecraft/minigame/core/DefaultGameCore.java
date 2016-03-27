@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
@@ -118,8 +119,9 @@ public class DefaultGameCore implements GameCore {
 		this.pendingAreaContexts.values().forEach(toCancel::addAll);
 		toCancel.forEach(f -> f.cancel(true));
 
-		areaContexts.values().stream().flatMap(l -> new ArrayList<>(l).stream())
-				.map(AreaContext::pipeline).forEach(Pipeline::terminate);
+		areaContexts.values().stream().flatMap(Collection::stream)
+				.map(AreaContext::pipeline).collect(Collectors.toList())
+				.forEach(Pipeline::terminate);
 		this.info.getConfig().flushChanges();
 		stopped = true;
 	}
