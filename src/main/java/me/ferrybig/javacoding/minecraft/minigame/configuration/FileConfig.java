@@ -173,7 +173,7 @@ public class FileConfig extends AbstractFullConfig {
 				builder.setBounds(selection);
 				{
 					Map<String, List<Block>> taggedBlocks = new HashMap<>();
-					ConfigurationSection blockSection = areaSection.getConfigurationSection(BLOCKS);
+					ConfigurationSection blockSection = section.getConfigurationSection(BLOCKS);
 					if (blockSection != null) {
 						for (String bockType : blockSection.getKeys(false)) {
 							List<Block> blocks = new ArrayList<>();
@@ -194,7 +194,7 @@ public class FileConfig extends AbstractFullConfig {
 				}
 				{
 					Map<String, List<Location>> taggedLocations = new HashMap<>();
-					ConfigurationSection locationSection = areaSection.getConfigurationSection(LOCATIONS);
+					ConfigurationSection locationSection = section.getConfigurationSection(LOCATIONS);
 					if (locationSection != null) {
 						for (String locType : locationSection.getKeys(false)) {
 							List<Location> locations = new ArrayList<>();
