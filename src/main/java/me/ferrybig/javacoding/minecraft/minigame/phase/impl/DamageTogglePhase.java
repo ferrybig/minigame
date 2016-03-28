@@ -9,7 +9,6 @@ import java.util.Set;
 import me.ferrybig.javacoding.minecraft.minigame.Controller.PlayerInfo;
 import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.context.PhaseContext;
-import me.ferrybig.javacoding.minecraft.minigame.phase.DefaultPhase;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -18,7 +17,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-public class DamageTogglePhase extends DefaultPhase {
+public class DamageTogglePhase extends SkippedPhase {
 
 	private final static AttributeKey<Set<DamageType>> TYPE
 			= AttributeKey.valueOf(DamageTogglePhase.class, "type");
@@ -41,7 +40,6 @@ public class DamageTogglePhase extends DefaultPhase {
 
 	@Override
 	public void onPhaseRegister(PhaseContext area) throws Exception {
-		super.onPhaseRegister(area);
 		Attribute<Set<DamageType>> type = area.getAreaContext().attr(TYPE);
 		if (type.get() == null) {
 			AreaContext ar = area.getAreaContext();
@@ -49,6 +47,7 @@ public class DamageTogglePhase extends DefaultPhase {
 			area.registerNativeListener(listener);
 		}
 		type.set(newTypes);
+		super.onPhaseRegister(area);
 	}
 
 	private void onPlayerVSPlayerDamage(AreaContext area,
