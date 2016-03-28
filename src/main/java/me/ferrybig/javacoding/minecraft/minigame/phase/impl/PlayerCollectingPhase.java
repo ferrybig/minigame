@@ -33,7 +33,7 @@ public class PlayerCollectingPhase extends DefaultPhase {
 	}
 
 	public PlayerCollectingPhase(int startingPlayerCount, int miniumPlayerCount) {
-		this(startingPlayerCount, miniumPlayerCount, 30);
+		this(startingPlayerCount, miniumPlayerCount, 31);
 	}
 
 	public PlayerCollectingPhase(int startingPlayerCount, int miniumPlayerCount, int maxiumWaitTime) {
@@ -145,7 +145,7 @@ public class PlayerCollectingPhase extends DefaultPhase {
 			checkLoop.cancel(true);
 			checkLoop = null;
 		}
-		this.area.getAreaContext().sendBroadcast(BaseTranslation.COUNTDOWN_STARTED);
+		this.area.getAreaContext().sendBroadcast(BaseTranslation.COUNTDOWN_STARTING);
 		this.area.triggerNextPhase();
 	}
 
@@ -165,7 +165,7 @@ public class PlayerCollectingPhase extends DefaultPhase {
 			// Do nothing
 		} else if (onlineseenPlayers < maxPlayers) {
 			if (checkLoop == null) {
-				this.area.getAreaContext().sendBroadcast(BaseTranslation.COUNTDOWN_STARTING);
+				this.area.getAreaContext().sendBroadcast(BaseTranslation.COUNTDOWN_STARTED);
 				this.tickCount = maxiumWaitTime;
 				this.checkLoop = area.getExecutor().schedule(this::taskTick, 1, TimeUnit.SECONDS);
 			}
