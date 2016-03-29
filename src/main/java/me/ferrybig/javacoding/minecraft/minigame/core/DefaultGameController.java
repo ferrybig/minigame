@@ -107,7 +107,9 @@ public class DefaultGameController implements Controller {
 		inCheckLoop.set(true);
 		try {
 			if (!hasState(player)) {
-				tryAddPlayer(player);
+				if (!tryAddPlayer(player)) {
+					return false;
+				}
 			}
 			if (!askListeners(ControllerListener::canAddPlayerToGame, player)) {
 				removePlayer(player);
@@ -172,31 +174,23 @@ public class DefaultGameController implements Controller {
 		}
 	}
 
-	public boolean tryAddPlayer(OfflinePlayer player) {
+	private boolean tryAddPlayer(OfflinePlayer player) {
 		Objects.requireNonNull(player, "player == null");
-		if (inCheckLoop.get()) {
-			return false;
-		}
-		inCheckLoop.set(true);
-		try {
-			if (!hasState(player)) {
-				if (askListeners(ControllerListener::canAddPlayerPreToGame, player)) {
-					PlayerPreJoinMessage pl = new PlayerPreJoinMessage(player);
-					this.trigger.triggerPlayerPreJoin(pl);
-					if (pl.isCancelled()) {
-						return false;
-					}
-					updateState(player, false);
-					callListeners(ControllerListener::addedPlayerPreToGame, player);
-					return true;
-				} else {
+		if (!hasState(player)) {
+			if (askListeners(ControllerListener::canAddPlayerPreToGame, player)) {
+				PlayerPreJoinMessage pl = new PlayerPreJoinMessage(player);
+				this.trigger.triggerPlayerPreJoin(pl);
+				if (pl.isCancelled()) {
 					return false;
 				}
-			} else {
+				updateState(player, false);
+				callListeners(ControllerListener::addedPlayerPreToGame, player);
 				return true;
+			} else {
+				return false;
 			}
-		} finally {
-			inCheckLoop.set(false);
+		} else {
+			return true;
 		}
 	}
 
@@ -289,6 +283,7 @@ public class DefaultGameController implements Controller {
 			}
 			trigger.triggerPlayerChangeTeam(new PlayerTeamMessage(getPlayer(), team));
 			this.team = team;
+			callListeners(ControllerListener::playerTeamStateChanged, getPlayer());
 		}
 
 		@Override
@@ -308,6 +303,7 @@ public class DefaultGameController implements Controller {
 			}
 			trigger.triggerPlayerSpectate(new PlayerSpectateMessage(getPlayer(), spectator));
 			this.spectator = spectator;
+			callListeners(ControllerListener::playerSpectatorStateChanged, getPlayer());
 		}
 	}
 }
