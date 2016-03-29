@@ -64,7 +64,7 @@ public class DefaultGamePipeline implements Pipeline {
 			throw new IllegalArgumentException("Phase already added");
 		}
 		PhaseHolder holder;
-		mainPhases.forEach(p -> p.context.incrementCurrIndex());
+		mainPhases.forEach(p -> p.getContext().incrementCurrIndex());
 		mainPhases.addFirst(holder = new PhaseHolder(phase, new DefaultPhaseContext(0)));
 		if (this.currPhaseIndex > 0) {
 			this.currPhaseIndex++;
@@ -93,7 +93,7 @@ public class DefaultGamePipeline implements Pipeline {
 	@Override
 	public boolean contains(Phase phase) {
 		for (PhaseHolder p : this.mainPhases) {
-			if (p.phase == phase) {
+			if (p.getPhase() == phase) {
 				return true;
 			}
 		}
@@ -112,7 +112,7 @@ public class DefaultGamePipeline implements Pipeline {
 
 	@Override
 	public Phase get(int index) {
-		return this.mainPhases.get(index).phase;
+		return this.mainPhases.get(index).getPhase();
 	}
 
 	@Override
@@ -129,7 +129,7 @@ public class DefaultGamePipeline implements Pipeline {
 	public int indexOf(Phase phase) {
 		int i = 0;
 		for (PhaseHolder h : mainPhases) {
-			if (Objects.equals(phase, h.phase)) {
+			if (Objects.equals(phase, h.getPhase())) {
 				return i;
 			}
 			i++;
@@ -142,13 +142,13 @@ public class DefaultGamePipeline implements Pipeline {
 		int firstTo = Math.min(index, mainPhases.size());
 		int i;
 		for (i = 0; i < firstTo; i++) {
-			assert mainPhases.get(i).context.getCurrIndex() == i;
+			assert mainPhases.get(i).getContext().getCurrIndex() == i;
 		}
 		PhaseHolder holder;
 		mainPhases.add(i, holder = new PhaseHolder(phase, new DefaultPhaseContext(i)));
 		int insertedId = i;
 		for (i++; i < mainPhases.size(); i++) {
-			mainPhases.get(i).context.setCurrIndex(i);
+			mainPhases.get(i).getContext().setCurrIndex(i);
 		}
 		if (this.currPhaseIndex > insertedId) {
 			this.currPhaseIndex++;
@@ -180,7 +180,7 @@ public class DefaultGamePipeline implements Pipeline {
 			throw new IndexOutOfBoundsException(index + " too high");
 		}
 		PhaseHolder old = itr.next();
-		assert old.context.getCurrIndex() == index;
+		assert old.getContext().getCurrIndex() == index;
 		PhaseHolder newHolder = new PhaseHolder(phase, new DefaultPhaseContext(index));
 		newHolder.shouldBeLoaded = old.shouldBeLoaded;
 		newHolder.shouldBeRegistered = old.shouldBeRegistered;
@@ -205,7 +205,7 @@ public class DefaultGamePipeline implements Pipeline {
 			}
 			logger.finest("Loading phase");
 			holder.loaded = true;
-			wrapWithException(() -> holder.phase.onPhaseLoad(holder.context), holder);
+			wrapWithException(() -> holder.getPhase().onPhaseLoad(holder.getContext()), holder);
 		});
 	}
 
@@ -219,7 +219,7 @@ public class DefaultGamePipeline implements Pipeline {
 			}
 			logger.finest("Unloading phase");
 			holder.loaded = false;
-			wrapWithException(() -> holder.phase.onPhaseUnload(holder.context), holder);
+			wrapWithException(() -> holder.getPhase().onPhaseUnload(holder.getContext()), holder);
 		});
 	}
 
@@ -233,7 +233,7 @@ public class DefaultGamePipeline implements Pipeline {
 			}
 			logger.finest("Registering phase");
 			holder.registered = true;
-			wrapWithException(() -> holder.phase.onPhaseRegister(holder.context), holder);
+			wrapWithException(() -> holder.getPhase().onPhaseRegister(holder.getContext()), holder);
 		});
 	}
 
@@ -247,7 +247,7 @@ public class DefaultGamePipeline implements Pipeline {
 			}
 			logger.finest("Unregistering phase");
 			holder.registered = false;
-			wrapWithException(() -> holder.phase.onPhaseUnregister(holder.context), holder);
+			wrapWithException(() -> holder.getPhase().onPhaseUnregister(holder.getContext()), holder);
 		});
 	}
 
@@ -330,6 +330,7 @@ public class DefaultGamePipeline implements Pipeline {
 				this.logger = Logger.getLogger(this.getClass().getName());
 				this.logger.warning("Using own logger because none logger has been provided");
 			}
+			area.getClosureFuture().addListener(f->area.getController().kickAll());
 		}
 		runLoop();
 	}
@@ -348,7 +349,7 @@ public class DefaultGamePipeline implements Pipeline {
 			}
 			PhaseHolder phase = this.mainPhases.get(index + 1);
 			try {
-				phase.phase.exceptionCaucht(phase.context, message);
+				phase.getPhase().exceptionCaucht(phase.getContext(), message);
 			} catch (Throwable a) {
 				message.addSuppressed(a);
 				logger.log(Level.SEVERE, "Caught exception in pipeline:", message);
@@ -376,9 +377,9 @@ public class DefaultGamePipeline implements Pipeline {
 		}
 		runLoop(() -> {
 			int indexToCall = index + 1;
-			if (indexToCall < currPhaseIndex) {
+			if (indexToCall <= currPhaseIndex) {
 				PhaseHolder phase = this.mainPhases.get(indexToCall);
-				wrapWithException(() -> callable.consume(phase.phase, phase.context, message), phase);
+				wrapWithException(() -> callable.consume(phase.getPhase(), phase.getContext(), message), phase);
 			}
 		});
 	}
@@ -404,10 +405,12 @@ public class DefaultGamePipeline implements Pipeline {
 	}
 
 	private void advancePhase() {
+
 		PhaseHolder curr = getHolder(this.currPhaseIndex);
 		if (curr != null) {
 			curr.shouldBeLoaded = false;
 			unloadPhase(curr);
+			System.out.println("Advancing phase from " + curr.getPhase());
 		}
 		int oldIndex = this.currPhaseIndex;
 		this.currPhaseIndex++;
@@ -415,9 +418,10 @@ public class DefaultGamePipeline implements Pipeline {
 			PhaseHolder newPhase = getHolder(this.currPhaseIndex);
 			if (newPhase == null) {
 				// Reached end of pipeline
+				this.currPhaseIndex--;
 				logger.fine("Reached end of pipeline");
 				if (curr != null) {
-					wrapWithException(() -> curr.phase.afterReset(curr.context), curr.phase);
+					wrapWithException(() -> curr.getPhase().afterReset(curr.getContext()), curr.getPhase());
 					runLoop(() -> {
 						if (oldIndex == this.currPhaseIndex) {
 							curr.shouldBeLoaded = true;
@@ -430,6 +434,7 @@ public class DefaultGamePipeline implements Pipeline {
 					terminationFuture.trySuccess(null);
 				}
 			} else {
+				System.out.println("Advancing phase to " + newPhase.getPhase());
 				newPhase.shouldBeLoaded = true;
 				newPhase.shouldBeRegistered = true;
 				registerPhase(newPhase);
@@ -445,6 +450,7 @@ public class DefaultGamePipeline implements Pipeline {
 		PhaseHolder curr = getHolder(this.currPhaseIndex);
 		curr.shouldBeLoaded = false;
 		curr.shouldBeRegistered = false;
+		System.out.println("Resseting phase from " + curr.getPhase());
 		unloadPhase(curr);
 		unregisterPhase(curr);
 		this.currPhaseIndex--;
@@ -454,8 +460,9 @@ public class DefaultGamePipeline implements Pipeline {
 		} else {
 			PhaseHolder newPhase = getHolder(this.currPhaseIndex);
 			assert newPhase != null; // Guarded by the if block above
+			System.out.println("Resseting phase to " + newPhase.getPhase());
 			newPhase.shouldBeLoaded = true;
-			wrapWithException(() -> newPhase.phase.afterReset(curr.context), curr.phase);
+			wrapWithException(() -> newPhase.getPhase().afterReset(curr.getContext()), newPhase.getPhase());
 			runLoop(() -> {
 				loadPhase(newPhase);
 			});
@@ -474,6 +481,14 @@ public class DefaultGamePipeline implements Pipeline {
 		public PhaseHolder(Phase phase, DefaultPhaseContext context) {
 			this.phase = phase;
 			this.context = context;
+		}
+
+		public Phase getPhase() {
+			return phase;
+		}
+
+		public DefaultPhaseContext getContext() {
+			return context;
 		}
 
 		@Override

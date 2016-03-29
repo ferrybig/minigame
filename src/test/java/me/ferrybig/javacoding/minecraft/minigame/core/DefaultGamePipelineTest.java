@@ -2,11 +2,13 @@ package me.ferrybig.javacoding.minecraft.minigame.core;
 
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import me.ferrybig.javacoding.minecraft.minigame.Controller;
 import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.context.PhaseContext;
 import me.ferrybig.javacoding.minecraft.minigame.phase.Phase;
@@ -29,6 +31,8 @@ public class DefaultGamePipelineTest {
 
 	private EventExecutor executor;
 	private AreaContext context;
+	private Controller controller;
+	private Future closureFuture;
 
 	@BeforeClass
 	public static void beforeClas() {
@@ -41,9 +45,14 @@ public class DefaultGamePipelineTest {
 	}
 
 	@Before
+	@SuppressWarnings("unchecked")
 	public void prepare() {
 		executor = mock(EventExecutor.class);
 		context = mock(AreaContext.class);
+		controller = mock(Controller.class);
+		closureFuture = mock(Future.class);
+		when(context.getController()).thenReturn(controller);
+		when(context.getClosureFuture()).thenReturn(closureFuture);
 		when(executor.inEventLoop()).thenReturn(true);
 		when(context.getLogger()).thenReturn(logger);
 		doAnswer(new Answer<Promise<?>>() {
