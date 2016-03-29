@@ -108,7 +108,7 @@ public class SingleInstanceAreaContextConstructor
 				}
 			});
 			result.addListener(f -> {
-				assert result == f;
+				//assert result == f;
 				assert result.isDone();
 				if (promise.isDone()) {
 					return;
