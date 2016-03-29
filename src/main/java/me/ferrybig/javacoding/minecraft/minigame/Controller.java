@@ -55,17 +55,32 @@ public interface Controller {
 
 	public interface ControllerListener {
 
-		public boolean canAddPlayerToGame(Player player);
+		public default boolean canAddPlayerToGame(Player player) {
+			return true;
+		}
 
-		public boolean canAddPlayerPreToGame(OfflinePlayer player);
+		public default boolean canAddPlayerPreToGame(OfflinePlayer player) {
+			return true;
+		}
 
-		public void addedPlayerPreToGame(OfflinePlayer player);
+		public default void addedPlayerPreToGame(OfflinePlayer player) {
 
-		public void addedPlayerToGame(Player player);
+		}
 
-		public void removedPlayerFromGame(Player player);
+		public default void addedPlayerToGame(Player player) {
+		}
 
-		public void removedPlayerFromPreGame(OfflinePlayer player);
+		public default void removedPlayerFromGame(Player player) {
+		}
+
+		public default void removedPlayerFromPreGame(OfflinePlayer player) {
+		}
+
+		public default void playerSpectatorStateChanged(Player player) {
+		}
+
+		public default void playerTeamStateChanged(Player player) {
+		}
 	}
 
 }
