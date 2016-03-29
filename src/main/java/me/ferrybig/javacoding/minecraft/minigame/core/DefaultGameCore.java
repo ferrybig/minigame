@@ -357,6 +357,9 @@ public class DefaultGameCore implements GameCore {
 	}
 
 	private void areaContextDestroyed(AreaContext context) {
+		for(OfflinePlayer player : context.getController().getAllPlayers().keySet()) {
+			this.playerGames.remove(player.getUniqueId(), context);
+		}
 		Collection<AreaContext> l = areaContexts.get(context.getName());
 		if (l != null) {
 			l.remove(context);
@@ -454,13 +457,13 @@ public class DefaultGameCore implements GameCore {
 
 		@Override
 		public void removedPlayerFromGame(Player player) {
-			playerGames.put(player.getUniqueId(), get());
+			playerGames.put(player.getUniqueId(), null);
 			listeners.playerLeaveGame(get(), player);
 		}
 
 		@Override
 		public void removedPlayerFromPreGame(OfflinePlayer player) {
-			playerGames.put(player.getUniqueId(), get());
+			playerGames.put(player.getUniqueId(), null);
 		}
 	}
 
