@@ -225,7 +225,7 @@ public class DefaultStatusSignManager implements StatusSignManager {
 							.translate(BaseTranslation.SIGNS_INTERACT_FULL));
 				} else {
 					evt.getPlayer().sendMessage(core.getInfo().getTranslations()
-							.translate(BaseTranslation.SIGNS_INTERACT_JOIN));
+							.translate(BaseTranslation.SIGNS_INTERACT_JOIN, area.getName()));
 				}
 			}
 		}
