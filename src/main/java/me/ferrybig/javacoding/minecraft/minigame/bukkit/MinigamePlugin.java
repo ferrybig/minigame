@@ -1,12 +1,23 @@
 package me.ferrybig.javacoding.minecraft.minigame.bukkit;
 
+import java.io.File;
 import java.util.logging.Level;
 import me.ferrybig.javacoding.minecraft.minigame.GameCore;
 import me.ferrybig.javacoding.minecraft.minigame.Pipeline;
 import me.ferrybig.javacoding.minecraft.minigame.Bootstrap;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPluginLoader;
 
 public abstract class MinigamePlugin extends JavaPlugin implements GameCoreAccessor {
+
+	public MinigamePlugin() {
+		super();
+	}
+
+	public MinigamePlugin(JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file) {
+		super(loader, description, dataFolder, file);
+	}
 
 	protected final MainLoader main = new MainLoader(this) {
 		@Override
