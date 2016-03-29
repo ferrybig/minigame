@@ -224,4 +224,27 @@ public class DefaultGamePipelineTest {
 		verify(phase2, never()).afterReset(anyObject());
 
 	}
+
+	@Test
+	public void pipelineAutomaticlyResetsTest() throws Exception {
+		Phase phase = mock(Phase.class);
+		doAnswer(new Answer<Void>() {
+			@Override
+			public Void answer(InvocationOnMock invocation) throws Throwable {
+				invocation.getArgumentAt(0, PhaseContext.class).triggerNextPhase();
+				return null;
+			}
+		}).when(phase).onPhaseRegister(anyObject());
+
+		DefaultGamePipeline pipe = new DefaultGamePipeline(executor);
+		pipe.addLast(phase);
+		pipe.runLoop(context);
+
+		verify(phase, times(1)).onPhaseRegister(anyObject());
+		verify(phase, times(1)).onPhaseLoad(anyObject());
+		verify(phase, never()).onPhaseUnregister(anyObject());
+		verify(phase, never()).onPhaseUnload(anyObject());
+		verify(phase, times(1)).afterReset(anyObject());
+
+	}
 }
