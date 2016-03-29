@@ -410,7 +410,7 @@ public class DefaultGamePipeline implements Pipeline {
 		if (curr != null) {
 			curr.shouldBeLoaded = false;
 			unloadPhase(curr);
-			System.out.println("Advancing phase from " + curr.getPhase());
+			logger.log(Level.FINEST, "Advancing phase from {0}: {1}", new Object[]{this.currPhaseIndex, curr.getPhase()});
 		}
 		int oldIndex = this.currPhaseIndex;
 		this.currPhaseIndex++;
@@ -434,7 +434,7 @@ public class DefaultGamePipeline implements Pipeline {
 					terminationFuture.trySuccess(null);
 				}
 			} else {
-				System.out.println("Advancing phase to " + newPhase.getPhase());
+				logger.log(Level.FINEST, "Advancing phase to   {0}: {1}", new Object[]{this.currPhaseIndex, newPhase.getPhase()});
 				newPhase.shouldBeLoaded = true;
 				newPhase.shouldBeRegistered = true;
 				registerPhase(newPhase);
@@ -450,7 +450,7 @@ public class DefaultGamePipeline implements Pipeline {
 		PhaseHolder curr = getHolder(this.currPhaseIndex);
 		curr.shouldBeLoaded = false;
 		curr.shouldBeRegistered = false;
-		System.out.println("Resseting phase from " + curr.getPhase());
+		logger.log(Level.FINEST, "Resseting phase from {0}: {1}", new Object[]{this.currPhaseIndex, curr.getPhase()});
 		unloadPhase(curr);
 		unregisterPhase(curr);
 		this.currPhaseIndex--;
@@ -460,7 +460,7 @@ public class DefaultGamePipeline implements Pipeline {
 		} else {
 			PhaseHolder newPhase = getHolder(this.currPhaseIndex);
 			assert newPhase != null; // Guarded by the if block above
-			System.out.println("Resseting phase to " + newPhase.getPhase());
+			logger.log(Level.FINEST, "Resseting phase to   {0}: {1}", new Object[]{this.currPhaseIndex, newPhase.getPhase()});
 			newPhase.shouldBeLoaded = true;
 			wrapWithException(() -> newPhase.getPhase().afterReset(curr.getContext()), newPhase.getPhase());
 			runLoop(() -> {
