@@ -1,0 +1,13 @@
+area:
+    testArea:
+        description: ""
+        selection:
+           minx: 0
+           maxx: 0
+           miny: 0
+           maxy: 0
+           minz: 0
+           maxz: 0
+        maxplayers: 0
+        enabled: true
+        world: world
