@@ -10,10 +10,14 @@ public class WaitingPhase extends DefaultPhase {
 
 	public static final AttributeKey<ScheduledFuture<?>> CURRENT_WAITING_LOOP
 			= AttributeKey.valueOf(WaitingPhase.class, "timeout");
-	private final int delayMiliseconds;
+	private final long delayMiliseconds;
 
-	public WaitingPhase(int delayMiliseconds) {
+	public WaitingPhase(long delayMiliseconds) {
 		this.delayMiliseconds = delayMiliseconds;
+	}
+
+	public WaitingPhase(long time, TimeUnit unit) {
+		this(unit.toMillis(time));
 	}
 
 	@Override
