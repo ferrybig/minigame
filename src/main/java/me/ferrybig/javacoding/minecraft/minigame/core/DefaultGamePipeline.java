@@ -54,6 +54,11 @@ public class DefaultGamePipeline implements Pipeline {
 	public DefaultGamePipeline(EventExecutor executor) {
 		terminationFuture = executor.newPromise();
 		terminationFuture.setUncancellable();
+		terminationFuture.addListener(f -> {
+			if (this.area != null) {
+				this.area.getController().kickAll();
+			}
+		});
 		runLoop(() -> advancePhase());
 	}
 

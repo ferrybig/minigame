@@ -11,6 +11,7 @@ import me.ferrybig.javacoding.minecraft.minigame.Controller;
 import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.context.PhaseContext;
 import me.ferrybig.javacoding.minecraft.minigame.phase.Phase;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -140,11 +141,17 @@ public class DefaultGamePipelineTest {
 		pipe.addLast(phase);
 		pipe.runLoop(context);
 
+		assertTrue(pipe.isStopped());
+		assertTrue(pipe.isStopping());
+		assertTrue(pipe.getClosureFuture().isDone());
+
 		verify(phase, times(1)).onPhaseRegister(anyObject());
 		verify(phase, never()).onPhaseLoad(anyObject());
 		verify(phase, times(1)).onPhaseUnregister(anyObject());
 		verify(phase, never()).onPhaseUnload(anyObject());
 		verify(phase, never()).afterReset(anyObject());
+
+		verify(controller).kickAll();
 
 	}
 
@@ -160,11 +167,17 @@ public class DefaultGamePipelineTest {
 		pipe.addLast(phase);
 		pipe.runLoop(context);
 
+		assertTrue(pipe.isStopped());
+		assertTrue(pipe.isStopping());
+		assertTrue(pipe.getClosureFuture().isDone());
+
 		verify(phase, times(1)).onPhaseRegister(anyObject());
 		verify(phase, times(1)).onPhaseLoad(anyObject());
 		verify(phase, times(1)).onPhaseUnregister(anyObject());
 		verify(phase, times(1)).onPhaseUnload(anyObject());
 		verify(phase, never()).afterReset(anyObject());
+
+		verify(controller).kickAll();
 	}
 
 	@Test
@@ -217,5 +230,17 @@ public class DefaultGamePipelineTest {
 		verify(phase, never()).onPhaseUnload(anyObject());
 		verify(phase, times(1)).afterReset(anyObject());
 
+	}
+
+	@Test
+	public void pipelineEndDirectlyWithoutPhasesTest() throws Exception {
+		DefaultGamePipeline pipe = new DefaultGamePipeline(executor);
+		pipe.runLoop(context);
+
+		assertTrue(pipe.isStopped());
+		assertTrue(pipe.isStopping());
+		assertTrue(pipe.getClosureFuture().isDone());
+
+		verify(controller).kickAll();
 	}
 }
