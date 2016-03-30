@@ -26,11 +26,10 @@ import org.mockito.stubbing.Answer;
 public class DefaultGamePipelineTest {
 
 	private static Logger logger;
-
 	private EventExecutor executor;
 	private AreaContext context;
 	private Controller controller;
-	private Future closureFuture;
+	private Future<?> closureFuture;
 
 	@BeforeClass
 	public static void beforeClas() {
@@ -50,7 +49,7 @@ public class DefaultGamePipelineTest {
 		controller = mock(Controller.class);
 		closureFuture = mock(Future.class);
 		when(context.getController()).thenReturn(controller);
-		when(context.getClosureFuture()).thenReturn(closureFuture);
+		doReturn(closureFuture).when(context).getClosureFuture();
 		when(executor.inEventLoop()).thenReturn(true);
 		when(context.getLogger()).thenReturn(logger);
 		doAnswer(invocation -> new DefaultPromise<>(executor)).when(executor).newPromise();
