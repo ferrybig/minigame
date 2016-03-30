@@ -92,7 +92,7 @@ public class FileConfig extends AbstractFullConfig {
 	@Override
 	public Future<? extends Translator> loadTranslationMap() {
 		return executor.submit(() -> {
-			FileConfiguration conf = this.config.get();
+			FileConfiguration conf = getConfig();
 			ConfigurationSection translationSection = conf.getConfigurationSection("translations");
 			if (translationSection == null) {
 				return TranslationMap.getDefaultMappings();
