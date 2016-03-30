@@ -454,19 +454,19 @@ public class DefaultGamePipeline implements Pipeline {
 		unloadPhase(curr);
 		unregisterPhase(curr);
 		this.currPhaseIndex--;
-		if (this.currPhaseIndex < 0) {
-			terminationFuture.setSuccess(null);
-			terminating = true;
-		} else {
-			PhaseHolder newPhase = getHolder(this.currPhaseIndex);
-			assert newPhase != null; // Guarded by the if block above
-			logger.log(Level.FINEST, "Resseting phase to   {0}: {1}", new Object[]{this.currPhaseIndex, newPhase.getPhase()});
-			newPhase.shouldBeLoaded = true;
-			wrapWithException(() -> newPhase.getPhase().afterReset(curr.getContext()), newPhase.getPhase());
-			runLoop(() -> {
-				loadPhase(newPhase);
-			});
-		}
+		runLoop(() -> {
+			if (this.currPhaseIndex < 0) {
+				terminationFuture.setSuccess(null);
+				terminating = true;
+			} else {
+				PhaseHolder newPhase = getHolder(this.currPhaseIndex);
+				assert newPhase != null; // Guarded by the if block above
+				logger.log(Level.FINEST, "Resseting phase to   {0}: {1}", new Object[]{this.currPhaseIndex, newPhase.getPhase()});
+				newPhase.shouldBeLoaded = true;
+				wrapWithException(() -> newPhase.getPhase().afterReset(newPhase.getContext()), newPhase.getPhase());
+					loadPhase(newPhase);
+			}
+		});
 	}
 
 	private static class PhaseHolder {
