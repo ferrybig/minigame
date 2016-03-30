@@ -11,6 +11,8 @@ import org.bukkit.plugin.java.JavaPluginLoader;
 
 public abstract class MinigamePlugin extends JavaPlugin implements GameCoreAccessor {
 
+	protected final MainLoader main;
+
 	public MinigamePlugin() {
 		super();
 	}
@@ -19,48 +21,50 @@ public abstract class MinigamePlugin extends JavaPlugin implements GameCoreAcces
 		super(loader, description, dataFolder, file);
 	}
 
-	protected final MainLoader main = new MainLoader(this) {
-		@Override
-		protected void initPipeline(Pipeline pipeline) {
-			MinigamePlugin.this.initPipeline(pipeline);
-		}
+	{
+		this.main = new MainLoader(this) {
+			@Override
+			protected void initPipeline(Pipeline pipeline) {
+				MinigamePlugin.this.initPipeline(pipeline);
+			}
 
-		@Override
-		protected void initPlugin(Bootstrap bootstrap) {
-			MinigamePlugin.this.initPlugin(bootstrap);
-		}
+			@Override
+			protected void initPlugin(Bootstrap bootstrap) {
+				MinigamePlugin.this.initPlugin(bootstrap);
+			}
 
-		@Override
-		protected void onGameCoreLoaded(GameCore core) {
-			super.onGameCoreLoaded(core);
-			MinigamePlugin.this.onGameCoreLoaded(core);
-		}
+			@Override
+			protected void onGameCoreLoaded(GameCore core) {
+				super.onGameCoreLoaded(core);
+				MinigamePlugin.this.onGameCoreLoaded(core);
+			}
 
-		@Override
-		protected void initBasicSettings(Bootstrap bootstrap) {
-			super.initBasicSettings(bootstrap);
-			MinigamePlugin.this.initBasicSettings(bootstrap);
-		}
+			@Override
+			protected void initBasicSettings(Bootstrap bootstrap) {
+				super.initBasicSettings(bootstrap);
+				MinigamePlugin.this.initBasicSettings(bootstrap);
+			}
 
-		@Override
-		protected void onInternalUnload() {
-			super.onInternalUnload();
-			MinigamePlugin.this.onInternalLoad();
-		}
+			@Override
+			protected void onInternalUnload() {
+				super.onInternalUnload();
+				MinigamePlugin.this.onInternalLoad();
+			}
 
-		@Override
-		protected void onInternalLoad() {
-			super.onInternalLoad();
-			MinigamePlugin.this.onInternalUnload();
-		}
+			@Override
+			protected void onInternalLoad() {
+				super.onInternalLoad();
+				MinigamePlugin.this.onInternalUnload();
+			}
 
-		@Override
-		protected void onFailure(Throwable cause) {
-			super.onFailure(cause);
-			MinigamePlugin.this.onFailure(cause);
-		}
+			@Override
+			protected void onFailure(Throwable cause) {
+				super.onFailure(cause);
+				MinigamePlugin.this.onFailure(cause);
+			}
 
-	};
+		};
+	}
 
 	@Override
 	public void onEnable() {
