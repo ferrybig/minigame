@@ -457,13 +457,13 @@ public class DefaultGameCore implements GameCore {
 
 		@Override
 		public void removedPlayerFromGame(Player player) {
-			playerGames.put(player.getUniqueId(), null);
+			playerGames.remove(player.getUniqueId());
 			listeners.playerLeaveGame(get(), player);
 		}
 
 		@Override
 		public void removedPlayerFromPreGame(OfflinePlayer player) {
-			playerGames.put(player.getUniqueId(), null);
+			playerGames.remove(player.getUniqueId());
 		}
 	}
 
