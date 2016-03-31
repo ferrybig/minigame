@@ -260,16 +260,15 @@ public class DefaultGamePipeline implements Pipeline {
 		if (area == null) {
 			return;
 		}
+		// No tasks will be acepted if we are killed
+		if (this.killed) {
+			return;
+		}
 		if (inLoop) {
 			return;
 		}
 		inLoop = true;
 		try {
-			if (this.killed) {
-				pendingTasks.clear();
-				runQueue.clear();
-				return;
-			}
 			do {
 				Runnable task;
 				int tasksRun = 0;
@@ -310,9 +309,11 @@ public class DefaultGamePipeline implements Pipeline {
 		if (this.sizeCheckCounter-- < 0) {
 			this.sizeCheckCounter = PIPELINE_COUNTER;
 			if (pendingTasks.size() + runQueue.size() > PIPELINE_TASK_LIMIT) {
-				this.killed = true;
-				this.terminating = true;
-				this.terminationFuture.setFailure(new IllegalStateException("Pipeline crashed"));
+				if(!this.killed) {
+					this.killed = true;
+					this.terminating = true;
+					this.hasFailedWithException = true;
+				}
 			}
 		}
 		if (this.killed) {
@@ -599,6 +600,9 @@ public class DefaultGamePipeline implements Pipeline {
 		@Override
 		public void triggerNextPhase() {
 			if (isRemoved()) {
+				return;
+			}
+			if (killed) {
 				return;
 			}
 			if (this.currIndex == -1) {
