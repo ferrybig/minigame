@@ -1,5 +1,6 @@
 package me.ferrybig.javacoding.minecraft.minigame.phase.action;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -7,8 +8,12 @@ import java.util.Random;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import me.ferrybig.javacoding.minecraft.minigame.context.PhaseContext;
+import me.ferrybig.javacoding.minecraft.minigame.phase.Phase;
+import me.ferrybig.javacoding.minecraft.minigame.phase.impl.ListenerPhase;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerRespawnEvent;
 
 public class TeleportAction extends PlayerAction {
 
@@ -37,6 +42,11 @@ public class TeleportAction extends PlayerAction {
 	@Override
 	protected void trigger(PhaseContext phase, Player player) {
 		player.teleport(location.apply(phase));
+	}
+
+	@Override
+	public Phase onRespawn() {
+		return new RespawnListener();
 	}
 
 	private static Function<PhaseContext, Location> generateLamba(Supplier<Location> loc) {
@@ -96,6 +106,18 @@ public class TeleportAction extends PlayerAction {
 		private static final Random random = new Random();
 
 		public abstract Function<List<Location>, Location> getSelector();
+	}
+
+	@SuppressFBWarnings(value = "")
+	private class RespawnListener extends ListenerPhase {
+
+		public RespawnListener() {
+		}
+
+		@EventHandler
+		public void onRespawn(PlayerRespawnEvent evt) {
+			evt.setRespawnLocation(location.apply(getPhaseContext()));
+		}
 	}
 
 }
