@@ -19,9 +19,9 @@ import org.bukkit.inventory.ItemStack;
 
 public class ItemMenuPhase extends SkippedPhase implements Listener {
 
-	private final Map<Player, ItemEntry> openedInventories = new HashMap<>();
 	private static final AttributeKey<ItemMenuPhase> REGISTERED
 			= AttributeKey.valueOf(ItemMenuPhase.class, "registered");
+	private final Map<Player, ItemEntry> openedInventories = new HashMap<>();
 
 	private final Map<Integer, ItemEntry> items;
 	private final boolean replaceExisting;
