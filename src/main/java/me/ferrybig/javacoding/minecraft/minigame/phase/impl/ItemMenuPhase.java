@@ -1,4 +1,3 @@
-
 package me.ferrybig.javacoding.minecraft.minigame.phase.impl;
 
 import io.netty.util.Attribute;
@@ -39,8 +38,9 @@ public class ItemMenuPhase extends SkippedPhase implements Listener {
 		this.registered = area;
 		Attribute<ItemMenuPhase> attr = area.getAreaContext().attr(REGISTERED);
 		ItemMenuPhase old = attr.get();
-		if(old != null)
+		if (old != null) {
 			old.cleanup();
+		}
 		area.registerNativeListener(this);
 		attr.set(this);
 		area.getController().getPlayers().keySet().iterator().forEachRemaining(this::giveItems);
@@ -49,7 +49,7 @@ public class ItemMenuPhase extends SkippedPhase implements Listener {
 
 	private void giveItems(Player player) {
 		Inventory inv = player.getInventory();
-		for(Entry<Integer, ItemEntry> item : items.entrySet()) {
+		for (Entry<Integer, ItemEntry> item : items.entrySet()) {
 			inv.setItem(item.getKey(), item.getValue().getStack());
 		}
 	}
@@ -61,7 +61,7 @@ public class ItemMenuPhase extends SkippedPhase implements Listener {
 	}
 
 	private boolean checkRegistered() {
-		if(unregister) {
+		if (unregister) {
 			cleanup();
 			return false;
 		}
@@ -70,57 +70,60 @@ public class ItemMenuPhase extends SkippedPhase implements Listener {
 
 	private void cleanup() {
 		Map<Player, ItemEntry> opened = this.openedInventories;
-		if(opened != null && !opened.isEmpty()) {
-			for(Entry<Player, ItemEntry> entry : opened.entrySet()) {
+		if (opened != null && !opened.isEmpty()) {
+			for (Entry<Player, ItemEntry> entry : opened.entrySet()) {
 				entry.getValue().getListener().close(entry.getKey());
 			}
 		}
 		registered.getAreaContext().attr(REGISTERED).remove();
 	}
-	
+
 	public static void close(AreaContext area) {
 		Attribute<ItemMenuPhase> attr = area.attr(REGISTERED);
 		ItemMenuPhase phase = attr.getAndRemove();
-		if(phase != null) {
+		if (phase != null) {
 			phase.unregister = true;
 		}
 	}
 
-	@EventHandler (priority = EventPriority.HIGH, ignoreCancelled = true)
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onEvent(InventoryClickEvent evt) {
-		if(!(evt.getWhoClicked() instanceof Player))
-			return;
-		Player player = (Player) evt.getWhoClicked();
-		if(!registered.getAreaContext().isInArea(player)) {
+		if (!(evt.getWhoClicked() instanceof Player)) {
 			return;
 		}
-		if(!checkRegistered()) {
+		Player player = (Player) evt.getWhoClicked();
+		if (!registered.getAreaContext().isInArea(player)) {
+			return;
+		}
+		if (!checkRegistered()) {
 			return;
 		}
 		evt.setCancelled(true);
 		ItemEntry newItem = this.items.get(evt.getRawSlot());
-		if(newItem == null)
+		if (newItem == null) {
 			return;
+		}
 		ItemEntry open = this.openedInventories.get(player);
-		if(open != null) {
+		if (open != null) {
 			open.getListener().close(player);
 		}
 		this.openedInventories.put(player, newItem);
 		newItem.getListener().itemClicked(player, newItem.getStack());
 
 	}
-	
+
 	public static class CloseItemMenuPhase extends SkippedPhase {
-		
+
 		@Override
 		public void onPhaseRegister(PhaseContext area) throws Exception {
 			close(area.getAreaContext());
 			super.onPhaseRegister(area);
 		}
-		
+
 	}
-	
+
 	private final class ItemEntry {
+
 		private final ItemStack stack;
 		private final ItemListener listener;
 
@@ -138,5 +141,5 @@ public class ItemMenuPhase extends SkippedPhase implements Listener {
 		}
 
 	}
-	
+
 }

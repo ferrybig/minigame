@@ -7,7 +7,7 @@ import org.bukkit.inventory.ItemStack;
 public interface ItemListener {
 
 	public static final ItemListener CLOSING_LISTENER = (p, s) -> p.closeInventory();
-	
+
 	public void itemClicked(Player player, ItemStack stack);
 
 	public default void close(Player player) {
