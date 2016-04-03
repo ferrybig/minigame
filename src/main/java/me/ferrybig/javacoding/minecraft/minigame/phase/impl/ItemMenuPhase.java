@@ -24,13 +24,11 @@ public class ItemMenuPhase extends SkippedPhase implements Listener {
 	private final Map<Player, ItemEntry> openedInventories = new HashMap<>();
 
 	private final Map<Integer, ItemEntry> items;
-	private final boolean replaceExisting;
 	private boolean unregister;
 	private PhaseContext registered;
 
-	private ItemMenuPhase(Map<Integer, ItemEntry> items, boolean replaceExisting) {
+	private ItemMenuPhase(Map<Integer, ItemEntry> items) {
 		this.items = items;
-		this.replaceExisting = replaceExisting;
 	}
 
 	@Override
