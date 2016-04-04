@@ -17,8 +17,8 @@ public class EditPreventingPhase extends DefaultPhase {
 
 	@Override
 	public void onPhaseUnregister(PhaseContext area) throws Exception {
-		super.onPhaseUnregister(area);
 		area.unregisterNativeListener(listener);
+		super.onPhaseUnregister(area);
 	}
 
 	@Override
