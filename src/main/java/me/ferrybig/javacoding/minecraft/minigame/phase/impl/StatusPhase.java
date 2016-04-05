@@ -12,7 +12,7 @@ import me.ferrybig.javacoding.minecraft.minigame.phase.DefaultPhase;
 import me.ferrybig.javacoding.minecraft.minigame.translation.BaseTranslation;
 import me.ferrybig.javacoding.minecraft.minigame.translation.Translation;
 
-public class StatusPhase extends DefaultPhase {
+public class StatusPhase extends SkippedPhase {
 
 	private static final AttributeKey<State> CURRENT_STATE
 			= AttributeKey.valueOf(StatusPhase.class, "state");
@@ -28,19 +28,18 @@ public class StatusPhase extends DefaultPhase {
 
 	@Override
 	public void afterReset(PhaseContext area) {
-		super.afterReset(area);
 		if (onResetState != null) {
 			setState(area.getAreaContext(), onResetState);
 		}
+		super.afterReset(area);
 	}
 
 	@Override
 	public void onPhaseRegister(PhaseContext area) throws Exception {
-		super.onPhaseRegister(area);
 		if (onLoadState != null) {
 			setState(area.getAreaContext(), onLoadState);
 		}
-		area.triggerNextPhase();
+		super.onPhaseRegister(area);
 	}
 
 	public static State getState(AreaContext area) {
