@@ -68,7 +68,7 @@ public abstract class MessagePhase extends SkippedPhase {
 		}
 
 		public AdvancedMessagePhase(BiFunction<PhaseContext, Player, String> sender) {
-			this((BiConsumer<PhaseContext, Player>) (a, p) -> p.sendMessage(sender.apply(a, p)));
+			this((BiConsumer<PhaseContext, Player>) (a, p) -> p.sendMessage(sender.apply(a, p).split("\n")));
 		}
 
 		@Override
