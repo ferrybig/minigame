@@ -8,7 +8,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.context.PhaseContext;
-import me.ferrybig.javacoding.minecraft.minigame.phase.DefaultPhase;
 import me.ferrybig.javacoding.minecraft.minigame.translation.BaseTranslation;
 import me.ferrybig.javacoding.minecraft.minigame.translation.Translation;
 
