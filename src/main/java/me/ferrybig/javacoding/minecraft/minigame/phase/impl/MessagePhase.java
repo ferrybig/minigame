@@ -52,7 +52,7 @@ public abstract class MessagePhase extends SkippedPhase {
 
 		@Override
 		protected void trigger(PhaseContext area, Collection<Player> players) {
-			String rawString = area.translate(message, args).split("\n");
+			String[] rawString = area.translate(message, args).split("\n");
 			for (Player p : players) {
 				p.sendMessage(rawString);
 			}
