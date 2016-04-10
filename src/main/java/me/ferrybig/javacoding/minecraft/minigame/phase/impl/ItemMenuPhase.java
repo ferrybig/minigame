@@ -47,6 +47,7 @@ public class ItemMenuPhase extends SkippedPhase implements Listener {
 
 	private void giveItems(Player player) {
 		Inventory inv = player.getInventory();
+		inv.clear();
 		for (Entry<Integer, ItemEntry> item : items.entrySet()) {
 			inv.setItem(item.getKey(), item.getValue().getStack());
 		}
