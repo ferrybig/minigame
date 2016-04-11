@@ -60,6 +60,7 @@ public class PlayerCollectingPhase extends DefaultPhase {
 
 	@Override
 	public void onPhaseLoad(PhaseContext area) throws Exception {
+		acceptingPlayers = true;
 		offlinePlayers.clear();
 		onlinePlayers.clear();
 		area.getAreaContext().getController().getPlayers().keySet().stream()
@@ -67,6 +68,7 @@ public class PlayerCollectingPhase extends DefaultPhase {
 				.forEach(onlinePlayers::add);
 		area.getAreaContext().getController().getAllPlayers().keySet().stream()
 				.map(OfflinePlayer::getUniqueId).forEach(offlinePlayers::add);
+		checkTick();
 	}
 
 	@Override
