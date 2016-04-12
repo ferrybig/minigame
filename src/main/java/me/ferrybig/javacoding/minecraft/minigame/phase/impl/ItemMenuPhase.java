@@ -121,7 +121,7 @@ public class ItemMenuPhase extends SkippedPhase implements Listener {
 
 	}
 
-	private final class ItemEntry {
+	private static final class ItemEntry {
 
 		private final ItemStack stack;
 		private final ItemListener listener;
