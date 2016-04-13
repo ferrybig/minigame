@@ -6,7 +6,7 @@ class NullTranslationMap extends TranslationMap {
 
 	@Override
 	protected String getMessage(Translation key, Object[] args) {
-		return key.toString() + Arrays.deepToString(args);
+		return key.toString() + " " + Arrays.deepToString(args);
 	}
 
 }
