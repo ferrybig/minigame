@@ -47,7 +47,7 @@ public abstract class TranslationMap implements Translator {
 	}
 
 	protected String replaceArgs(String bundleResult, Object[] args) {
-		if (args.length == 0) {
+		if (args.length == 0 || bundleResult == null) {
 			return bundleResult;
 		}
 		formatter.applyPattern(bundleResult);
