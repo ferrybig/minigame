@@ -28,7 +28,7 @@ public abstract class TranslationMap implements Translator {
 	}
 
 	@Override
-	public String translate(Translation translation, Object... args) {
+	public final String translate(Translation translation, Object... args) {
 		TranslationMap m = this;
 		while (m != null) {
 			String message = m.getMessage(translation, args);
