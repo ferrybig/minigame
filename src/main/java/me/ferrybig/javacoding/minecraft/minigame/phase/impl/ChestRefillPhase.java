@@ -40,7 +40,7 @@ public class ChestRefillPhase extends DelayedPhase {
 				for (Block b : locations) {
 					BlockState state = b.getState();
 					if (state instanceof Chest) {
-						chestRefil.accept(target, (Chest) b);
+						chestRefil.accept(target, (Chest) state);
 					}
 				}
 			}
