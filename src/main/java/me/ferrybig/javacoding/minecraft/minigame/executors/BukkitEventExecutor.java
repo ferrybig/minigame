@@ -33,6 +33,10 @@ public class BukkitEventExecutor extends AbstractScheduledEventExecutor {
 	private final Logger logger;
 
 	public BukkitEventExecutor(Plugin plugin) {
+		this(plugin, plugin.getLogger());
+	}
+
+	public BukkitEventExecutor(Plugin plugin, Logger logger) {
 		this.plugin = Objects.requireNonNull(plugin);
 		this.terminationFuture = super.newPromise();
 		this.scheduledTask = this.plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
@@ -42,7 +46,7 @@ public class BukkitEventExecutor extends AbstractScheduledEventExecutor {
 				timed.run();
 			}
 		}, 1, 1);
-		this.logger = this.plugin.getLogger();
+		this.logger = logger;
 	}
 
 	@Override
