@@ -80,7 +80,9 @@ public class BukkitEventExecutor extends AbstractScheduledEventExecutor {
 			scheduledTasks.add(command);
 			tryRunLoop();
 		} else {
-			plugin.getServer().getScheduler().runTask(plugin, command);
+			plugin.getServer().getScheduler().runTask(plugin, ()-> {
+				unsafeExecute(command);
+			});
 		}
 	}
 
