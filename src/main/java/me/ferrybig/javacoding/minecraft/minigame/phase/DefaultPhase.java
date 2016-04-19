@@ -108,6 +108,12 @@ public abstract class DefaultPhase implements Phase {
 		area.triggerPlayerLeave(player);
 	}
 
+	/**
+	 * Forwards the player spectate downstream using the areacontext
+	 * @param area
+	 * @param player
+	 * @throws Exception
+	 */
 	@Override
 	public void onPlayerSpectate(PhaseContext area, PlayerSpectateMessage player) throws Exception {
 		area.triggerPlayerSpectate(player);
