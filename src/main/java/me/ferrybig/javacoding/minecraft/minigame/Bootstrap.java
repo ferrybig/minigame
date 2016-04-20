@@ -10,6 +10,10 @@ import me.ferrybig.javacoding.minecraft.minigame.configuration.FullConfig;
 import me.ferrybig.javacoding.minecraft.minigame.verrifier.TranslateableAreaVerrifer;
 import org.bukkit.plugin.Plugin;
 
+/**
+ * This class is designed to bootstrap the creation of a GameCore.
+ * @author Fernando
+ */
 public interface Bootstrap {
 
 	public Bootstrap withExecutor(EventExecutor executor);
