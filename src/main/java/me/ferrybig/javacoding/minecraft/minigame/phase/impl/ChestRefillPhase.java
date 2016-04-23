@@ -16,7 +16,6 @@ public class ChestRefillPhase extends DelayedPhase {
 	private final List<String> targets;
 	private final BiConsumer<String, Chest> chestRefil;
 
-	@SafeVarargs
 	public ChestRefillPhase(int timeout, TimeUnit unit, BiConsumer<String, Chest> chestRefil,
 			Consumer<PhaseContext> afterRefill, String... targets) {
 		this(timeout, unit, chestRefil, afterRefill, Arrays.asList(targets));
