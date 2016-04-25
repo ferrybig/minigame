@@ -75,6 +75,9 @@ public class TeleportAction extends PlayerAction {
 
 	public enum DistributionType {
 
+		/**
+		 * Pure random function, spawnpoints can be reused
+		 */
 		PURE_RANDOM() {
 			@Override
 			public Function<List<Location>, Location> getSelector() {
@@ -82,6 +85,10 @@ public class TeleportAction extends PlayerAction {
 			}
 
 		},
+		/**
+		 * Selects a random point as initial value, then
+		 * loops over the spawnpoint list from that cordinate
+		 */
 		ROUND_ROBIN() {
 			@Override
 			public Function<List<Location>, Location> getSelector() {
