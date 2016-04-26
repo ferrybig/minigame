@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -37,7 +38,7 @@ public class DefaultGameController implements Controller {
 
 	private final InformationContext info;
 	private final Triggerable trigger;
-	private final List<ControllerListener> listeners = new ArrayList<>();
+	private final List<ControllerListener> listeners = new CopyOnWriteArrayList<>();
 	private final Map<UUID, DefaultPlayerInfo> playerStates = new HashMap<>();
 	private final AtomicBoolean inCheckLoop = new AtomicBoolean(false);
 
