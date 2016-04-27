@@ -52,6 +52,7 @@ public class DefaultGamePipeline implements Pipeline {
 	private Logger logger;
 
 	public DefaultGamePipeline(EventExecutor executor) {
+		Objects.requireNonNull(executor, "executor == null");
 		terminationFuture = executor.newPromise();
 		terminationFuture.setUncancellable();
 		terminationFuture.addListener(f -> {
@@ -97,6 +98,7 @@ public class DefaultGamePipeline implements Pipeline {
 
 	@Override
 	public boolean contains(Phase phase) {
+		Objects.requireNonNull(phase, "phase == null");
 		for (PhaseHolder p : this.mainPhases) {
 			if (p.getPhase() == phase) {
 				return true;
@@ -132,6 +134,7 @@ public class DefaultGamePipeline implements Pipeline {
 
 	@Override
 	public int indexOf(Phase phase) {
+		Objects.requireNonNull(phase, "phase == null");
 		int i = 0;
 		for (PhaseHolder h : mainPhases) {
 			if (Objects.equals(phase, h.getPhase())) {
@@ -144,6 +147,7 @@ public class DefaultGamePipeline implements Pipeline {
 
 	@Override
 	public Pipeline insert(int index, Phase phase) {
+		Objects.requireNonNull(phase, "phase == null");
 		int firstTo = Math.min(index, mainPhases.size());
 		int i;
 		for (i = 0; i < firstTo; i++) {
@@ -180,6 +184,7 @@ public class DefaultGamePipeline implements Pipeline {
 
 	@Override
 	public Pipeline replace(int index, Phase phase) {
+		Objects.requireNonNull(phase, "phase == null");
 		ListIterator<PhaseHolder> itr = mainPhases.listIterator(index);
 		if (!itr.hasNext()) {
 			throw new IndexOutOfBoundsException(index + " too high");
