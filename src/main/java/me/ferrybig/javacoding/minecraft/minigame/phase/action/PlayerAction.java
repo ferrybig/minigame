@@ -1,5 +1,6 @@
 package me.ferrybig.javacoding.minecraft.minigame.phase.action;
 
+import java.util.concurrent.TimeUnit;
 import me.ferrybig.javacoding.minecraft.minigame.phase.impl.ListenerPhase;
 import me.ferrybig.javacoding.minecraft.minigame.phase.impl.SkippedPhase;
 import java.util.function.BiPredicate;
@@ -8,6 +9,7 @@ import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerJoinMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerLeaveMessage;
 import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerSpectateMessage;
 import me.ferrybig.javacoding.minecraft.minigame.phase.Phase;
+import me.ferrybig.javacoding.minecraft.minigame.phase.impl.DelayedPhase;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -86,10 +88,20 @@ public abstract class PlayerAction {
 		return new SkippedPhase() {
 			@Override
 			public void onPhaseRegister(PhaseContext area) throws Exception {
-				for (Player p : area.getController().getPlayers().keySet()) {
-					tryTrigger(area, p);
-				}
+				triggerForAll(area);
 				super.onPhaseRegister(area);
+			}
+
+		};
+	}
+
+	public Phase afterDelay(long delay, TimeUnit unit) {
+		return new DelayedPhase(delay, unit) {
+
+			@Override
+			protected void trigger(PhaseContext area) throws Exception {
+				triggerForAll(area);
+				area.triggerNextPhase();
 			}
 
 		};
@@ -105,6 +117,12 @@ public abstract class PlayerAction {
 				}
 			}
 		};
+	}
+
+	private void triggerForAll(PhaseContext area) {
+		for (Player p : area.getController().getPlayers().keySet()) {
+			tryTrigger(area, p);
+		}
 	}
 
 }
