@@ -17,6 +17,10 @@ import me.ferrybig.javacoding.minecraft.minigame.GameCore;
 import me.ferrybig.javacoding.minecraft.minigame.Pipeline;
 import me.ferrybig.javacoding.minecraft.minigame.util.ChainedFuture;
 
+/**
+ * This class allows you only 1 instnce of every area created
+ * @author Fernando
+ */
 public class SingleInstanceAreaContextConstructor
 		extends FilterAreaContextConstructor {
 
@@ -38,16 +42,20 @@ public class SingleInstanceAreaContextConstructor
 
 	private void triggerNextBuild(String name) {
 		Queue<QueueEntry> queue = pendingRequests.get(name);
-		if(queue == null) {
+		if(queue == null || queue.isEmpty()) {
 			runningAreas.remove(name);
+			pendingRequests.remove(name);
 			return;
 		}
 		QueueEntry entry;
 		while ((entry = queue.poll()) != null) {
 			if (entry.execute()) {
+				// Stop execution of this function when
+				//  a new task is succesfully started
 				return;
 			}
 		}
+		// No tasks remaining for this area, abort!
 		assert queue.isEmpty();
 		runningAreas.remove(name);
 		pendingRequests.remove(name);
@@ -74,10 +82,10 @@ public class SingleInstanceAreaContextConstructor
 			runningAreas.add(name);
 			return callSuper(core, area, controller, pipeline);
 		} else {
-			Promise<AreaContext> c = executor.newPromise();
+			Promise<AreaContext> promise = executor.newPromise();
 			pendingRequests.computeIfAbsent(name, k -> new ArrayDeque<>()).add(
-					new QueueEntry(c, () -> callSuper(core, area, controller, pipeline)));
-			return c;
+					new QueueEntry(promise, () -> callSuper(core, area, controller, pipeline)));
+			return promise;
 		}
 	}
 
@@ -97,6 +105,7 @@ public class SingleInstanceAreaContextConstructor
 			}
 
 			Future<AreaContext> result = ChainedFuture.of(executor, future);
+			// Allow correct messaging of the cancelled flag
 			promise.addListener(f -> {
 				assert promise == f;
 				assert promise.isDone();
