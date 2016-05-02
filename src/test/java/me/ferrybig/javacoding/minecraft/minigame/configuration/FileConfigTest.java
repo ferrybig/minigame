@@ -14,11 +14,13 @@ import org.bukkit.block.Block;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import static org.mockito.Mockito.mock;
+import org.mockito.Mock;
 import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
 
 /**
  *
@@ -31,12 +33,23 @@ public class FileConfigTest {
 
 	public final EventExecutor executor = getExecutor();
 
+	@Mock
+	public Server server;
+
+	@Mock
+	public World world;
+
+	@Before
+	public void init() {
+		MockitoAnnotations.initMocks(this);
+		when(server.getWorld("world")).thenReturn(world);
+	}
+
 	@Test
 	public void canLoadEmptyFile() throws Exception {
 		File f = folder.newFile("config.yml");
 		f.delete();
 		Files.copy(getClass().getResourceAsStream("FileConfig_empty.yml"), f.toPath());
-		Server server = mock(Server.class);
 
 		FileConfig conf = new FileConfig(executor, f, server);
 
@@ -58,20 +71,26 @@ public class FileConfigTest {
 		File f = folder.newFile("config.yml");
 		f.delete();
 		Files.copy(getClass().getResourceAsStream("FileConfig_area.yml"), f.toPath());
-		Server server = mock(Server.class);
-		World world = mock(World.class);
-		when(server.getWorld("world")).thenReturn(world);
 
 		FileConfig conf = new FileConfig(executor, f, server);
 		Map<String, AreaInformation> area = conf.loadAreas().get();
 
 		assertNotNull(area);
-		
 		assertEquals(1, area.size());
-
 		assertTrue(area.containsKey("testArea"));
-
-
+		AreaInformation ar = area.get("testArea");
+		assertNotNull(ar);
+		assertEquals("testArea", ar.getName());
+		assertTrue(ar.isEnabled());
+		assertEquals(13, ar.maxPlayers());
+		assertNotNull(ar.getBounds());
+		assertEquals(10, ar.getBounds().getFirstPoint().getBlockX());
+		assertEquals(11, ar.getBounds().getFirstPoint().getBlockY());
+		assertEquals(12, ar.getBounds().getFirstPoint().getBlockZ());
+		assertEquals(20, ar.getBounds().getSecondPoint().getBlockX());
+		assertEquals(21, ar.getBounds().getSecondPoint().getBlockY());
+		assertEquals(22, ar.getBounds().getSecondPoint().getBlockZ());
+		assertEquals(world, ar.getBounds().getWorld());
 	}
 
 }

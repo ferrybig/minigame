@@ -2,12 +2,12 @@ area:
     testArea:
         description: ""
         selection:
-           minx: 0
-           maxx: 0
-           miny: 0
-           maxy: 0
-           minz: 0
-           maxz: 0
-        maxplayers: 0
+           minx: 10
+           maxx: 20
+           miny: 11
+           maxy: 21
+           minz: 12
+           maxz: 22
+        maxplayers: 13
         enabled: true
         world: world
