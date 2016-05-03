@@ -1,6 +1,7 @@
 package me.ferrybig.javacoding.minecraft.minigame.context;
 
 import io.netty.util.concurrent.Future;
+import java.util.Objects;
 import me.ferrybig.javacoding.minecraft.minigame.Area;
 import me.ferrybig.javacoding.minecraft.minigame.Controller;
 import me.ferrybig.javacoding.minecraft.minigame.GameCore;
@@ -11,7 +12,7 @@ public abstract class FilterAreaContextConstructor implements AreaContextConstru
 	protected final AreaContextConstructor parent;
 
 	public FilterAreaContextConstructor(AreaContextConstructor parent) {
-		this.parent = parent;
+		this.parent = Objects.requireNonNull(parent, "parent == null");
 	}
 
 	@Override
