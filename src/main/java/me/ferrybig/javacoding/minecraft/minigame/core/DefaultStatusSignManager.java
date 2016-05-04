@@ -31,6 +31,9 @@ public class DefaultStatusSignManager implements StatusSignManager {
 
 	private final static AtomicLong MODIFICATION_COUNT = new AtomicLong();
 	private final Map<Block, StatusSign> signs = new HashMap<>();
+	/**
+	 * This number is used to follow multiple games for the same block
+	 */
 	private final Map<Block, Long> modCount = new HashMap<>();
 	private final Map<Block, AreaContext> areas = new HashMap<>();
 	private final GameCore core;
@@ -147,9 +150,14 @@ public class DefaultStatusSignManager implements StatusSignManager {
 				nonSpectator++;
 			}
 		}
+		if (ingame < 0) {
+			ingame = Integer.MAX_VALUE;
+		}
+		if (nonSpectator < 0) {
+			nonSpectator = Integer.MAX_VALUE;
+		}
 		sign.setLine(2, map.translate(BaseTranslation.SIGNS_PLAYERCOUNTER,
 				nonSpectator, ingame, context.maxPlayers()));
-
 	}
 
 	private static class StatusSignImpl implements StatusSign {
