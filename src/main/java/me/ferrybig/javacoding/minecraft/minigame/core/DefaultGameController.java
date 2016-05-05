@@ -3,7 +3,6 @@ package me.ferrybig.javacoding.minecraft.minigame.core;
 import io.netty.util.DefaultAttributeMap;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
