@@ -81,7 +81,7 @@ public abstract class BasicCommand implements TabExecutor, Translator {
 		return true;
 	}
 
-	public abstract void command(CommandSender sender, Command cmd, String label, String[] args);
+	protected abstract void command(CommandSender sender, Command cmd, String label, String[] args);
 
 	@Override
 	public String translate(Translation translation, Object... args) {

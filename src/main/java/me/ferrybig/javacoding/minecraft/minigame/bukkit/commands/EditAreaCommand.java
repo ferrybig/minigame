@@ -37,15 +37,6 @@ public class EditAreaCommand extends BasicCommand {
 
 	public EditAreaCommand(Supplier<GameCore> core, BooleanSupplier coreEnabled) {
 		super(core, coreEnabled);
-		addCommand(Action.LIST, Target.ALL, (s, a) -> {
-
-		});
-		addCommand(Action.LIST, Target.AREA, (s, a) -> {
-			s.sendMessage("The following area's are defined:");
-			for (Area area : getCore().getAreas()) {
-				s.sendMessage(" - " + area);
-			}
-		});
 		addCommand(Action.LIST, Target.BLOCKS, (s, a) -> {
 			AreaCreator creator = getEditContext(s);
 			if (creator == null) {
@@ -165,9 +156,14 @@ public class EditAreaCommand extends BasicCommand {
 	}
 
 	@Override
-	public void command(CommandSender sender, Command cmd, String label, String[] args) {
+	protected void command(CommandSender sender, Command cmd, String label, String[] args) {
+		AreaCreator creator = getEditContext(sender);
 		switch (args.length < 1 ? "" : args[0]) {
 			case "blocks":
+				if (creator == null) {
+					sender.sendMessage("You are not in a edit context");
+					return;
+				}
 				switch (args.length < 2 ? "list" : args[1]) {
 					case "list":
 						break;
@@ -182,6 +178,10 @@ public class EditAreaCommand extends BasicCommand {
 				}
 				break;
 			case "locations":
+				if (creator == null) {
+					sender.sendMessage("You are not in a edit context");
+					return;
+				}
 				switch (args.length < 2 ? "list" : args[1]) {
 					case "list":
 						break;
@@ -195,21 +195,34 @@ public class EditAreaCommand extends BasicCommand {
 						sender.sendMessage(translate(BaseTranslation.COMMAND_EDIT_UNKNOWN));
 				}
 				break;
-			case "area":
-				switch (args.length < 2 ? "" : args[1]) {
-					case "select":
-						break;
-					case "create":
-						break;
-					case "delete":
-						break;
-					case "list":
-						break;
-					case "rename":
-						break;
-					default:
-						sender.sendMessage(translate(BaseTranslation.COMMAND_EDIT_UNKNOWN));
+			case "select":
+				break;
+			case "create":
+				break;
+			case "delete":
+				break;
+			case "enable":
+				// This enables an area so no edits could be done
+				break;
+			case "disable":
+				// This disables an area so you could work on it
+				break;
+			case "list":
+				sender.sendMessage("The following area's are defined:");
+				for (Area area : getCore().getAreas()) {
+					sender.sendMessage(" - " + area + ": " + (area.isEnabled() ? "enabled" : "disabled"));
 				}
+				break;
+			case "rename":
+				// This renames the selected area
+				break;
+			case "save":
+				// This saves changes to the selected area
+				break;
+			case "discard":
+				// This discards changes to the selected area
+				break;
+			case "help":
 				break;
 			default:
 				sender.sendMessage(translate(BaseTranslation.COMMAND_EDIT_UNKNOWN));
