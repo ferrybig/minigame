@@ -1,6 +1,6 @@
 area:
     testArea:
-        description: ""
+        description: "Hello World!"
         selection:
            minx: 10
            maxx: 20

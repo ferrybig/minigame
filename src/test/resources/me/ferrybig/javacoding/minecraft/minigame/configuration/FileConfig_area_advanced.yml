@@ -1,2 +1,39 @@
-## YAML Template.
----
+area:
+    testArea1:
+        description: "Hello"
+        selection:
+           minx: 10
+           maxx: 20
+           miny: 11
+           maxy: 21
+           minz: 12
+           maxz: 22
+        maxplayers: 13
+        enabled: true
+        world: world
+    testArea2:
+        description: "Hello World"
+        selection:
+           minx: 110
+           maxx: 120
+           miny: 111
+           maxy: 121
+           minz: 112
+           maxz: 122
+        maxplayers: 113
+        enabled: false
+        world: world
+        locations:
+            red:
+            - '130.5|140.5|150.5|0|90'
+            - '140.5|130.5|150.5|0|90'
+            blue:
+            - '130.5|140.5|130.5|180|90'
+            - '140.5|130.5|130.5|180|90'
+        blocks:
+            red:
+            - '130|140|150'
+            - '140|130|150'
+            blue:
+            - '130|140|130'
+            - '140|130|130'
