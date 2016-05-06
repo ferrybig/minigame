@@ -23,6 +23,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -46,6 +47,7 @@ public class DefaultStatusSignManager implements StatusSignManager {
 		this.map = core.getInfo().getTranslations();
 	}
 
+	@Override
 	public void start() {
 		this.core.terminationFuture().addListener(f -> {
 			assert this.core.terminationFuture() == f;
@@ -63,8 +65,11 @@ public class DefaultStatusSignManager implements StatusSignManager {
 		});
 	}
 
-	private void stop() {
+	@Override
+	public void stop() {
 		stopped = true;
+		modCount.clear();
+		HandlerList.unregisterAll(signListener);
 	}
 
 	@Override

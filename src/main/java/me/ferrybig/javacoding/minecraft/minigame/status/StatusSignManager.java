@@ -8,4 +8,8 @@ public interface StatusSignManager {
 	public void defineStatusSign(Block location, SignType type);
 
 	public void removeStatusSign(Block location);
+
+	public void start();
+
+	public void stop();
 }
