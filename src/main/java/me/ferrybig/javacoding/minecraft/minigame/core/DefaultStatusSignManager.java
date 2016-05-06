@@ -44,6 +44,9 @@ public class DefaultStatusSignManager implements StatusSignManager {
 	public DefaultStatusSignManager(GameCore core) {
 		this.core = core;
 		this.map = core.getInfo().getTranslations();
+	}
+
+	public void start() {
 		this.core.terminationFuture().addListener(f -> {
 			assert this.core.terminationFuture() == f;
 			stop();
