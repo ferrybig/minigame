@@ -7,7 +7,9 @@ import org.bukkit.scheduler.BukkitTask;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
+import org.mockito.Mock;
 import static org.mockito.Mockito.*;
+import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 
 /**
@@ -16,17 +18,18 @@ import org.mockito.invocation.InvocationOnMock;
  */
 public class BukkitEventExecutorTest {
 
+	@Mock
 	private Plugin plugin;
+	@Mock
 	private Server server;
+	@Mock
 	private BukkitScheduler schedular;
+	@Mock
 	private BukkitTask id;
 
 	@Before
 	public void before() {
-		plugin = mock(Plugin.class);
-		server = mock(Server.class);
-		schedular = mock(BukkitScheduler.class);
-		id = mock(BukkitTask.class);
+		MockitoAnnotations.initMocks(this);
 		when(plugin.getServer()).thenReturn(server);
 		when(server.getScheduler()).thenReturn(schedular);
 		when(server.isPrimaryThread()).thenReturn(true);
