@@ -2,6 +2,7 @@
 package me.ferrybig.javacoding.minecraft.minigame.bukkit.commands;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,8 +29,13 @@ public abstract class AbstractCommandReceiver implements TabExecutor, CommandRec
 	}
 
 	@Override
-	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-
+	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+		if(command.testPermissionSilent(sender)) {
+			List<String> l = new LinkedList<>();
+			l.add(label);
+			return this.onTabComplete(sender, command, l, Arrays.asList(args));
+		}
+		return Collections.emptyList();
 	}
 
 }
