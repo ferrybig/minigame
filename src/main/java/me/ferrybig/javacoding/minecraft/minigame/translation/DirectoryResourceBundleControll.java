@@ -20,7 +20,6 @@ public class DirectoryResourceBundleControll extends ResourceBundle.Control {
 
 	@Override
 	public ResourceBundle newBundle(String baseName, Locale locale, String format, ClassLoader loader, boolean reload) throws IllegalAccessException, InstantiationException, IOException {
-		ResourceBundle bundle = null;
 		if (format.equals("java.properties")) {
 			String bundleName = toBundleName(baseName, locale);
 			String resourceName = toResourceName(bundleName, format);
@@ -28,11 +27,11 @@ public class DirectoryResourceBundleControll extends ResourceBundle.Control {
 			if (bundleFile.exists()) {
 				try (BufferedInputStream bis = new BufferedInputStream(
 						new FileInputStream(bundleFile))) {
-					bundle = new PropertyResourceBundle(bis);
+					return new PropertyResourceBundle(bis);
 				}
 			}
 		}
-		return bundle;
+		return null;
 	}
 
 	@Override
