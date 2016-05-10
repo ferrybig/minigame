@@ -1,6 +1,7 @@
 package me.ferrybig.javacoding.minecraft.minigame;
 
 import io.netty.util.AttributeMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,7 +15,11 @@ public interface Controller {
 
 	public void removeListener(ControllerListener listener);
 
-	public void kickAll();
+	public default void kickAll() {
+		for(OfflinePlayer player : new ArrayList<>(this.getAllPlayers().keySet())) {
+			this.removePlayer(player);
+		}
+	}
 
 	public boolean tryAddPlayer(List<? extends OfflinePlayer> player);
 
