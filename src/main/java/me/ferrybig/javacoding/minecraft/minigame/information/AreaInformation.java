@@ -49,6 +49,14 @@ public interface AreaInformation {
 		return new AreaInformationBuilder(this).setUneditable().create();
 	}
 
+	/**
+	 * Implementions of this method should ensure the Map and the lists
+	 * are writeable when unmodifeable is false
+	 * @param <T>
+	 * @param info
+	 * @param unmodifeable
+	 * @return
+	 */
 	public static <T> Map<String, List<T>> copyTaggedInformation(
 			Map<String, List<T>> info, boolean unmodifeable) {
 		Map<String, List<T>> t;
