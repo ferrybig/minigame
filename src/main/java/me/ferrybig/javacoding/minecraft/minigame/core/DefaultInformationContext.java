@@ -38,7 +38,7 @@ public class DefaultInformationContext implements InformationContext {
 		this.plugin = Objects.requireNonNull(plugin, "plugin == null");
 		this.translationMap = Objects.requireNonNull(translationMap, "translationMap == null");
 		this.config = Objects.requireNonNull(config, "config == null");
-		this.signs = signs;
+		this.signs = Objects.requireNonNull(signs, "signs == null");
 	}
 
 	@Override
