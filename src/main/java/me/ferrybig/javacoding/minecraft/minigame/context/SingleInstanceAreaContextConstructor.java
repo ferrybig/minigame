@@ -79,6 +79,7 @@ public class SingleInstanceAreaContextConstructor
 			Controller controller, Pipeline pipeline) {
 		String name = area.getName();
 		if (!runningAreas.contains(name)) {
+			// If this is the first build for an area, we don't need to schedule the operation
 			runningAreas.add(name);
 			return callSuper(core, area, controller, pipeline);
 		} else {
