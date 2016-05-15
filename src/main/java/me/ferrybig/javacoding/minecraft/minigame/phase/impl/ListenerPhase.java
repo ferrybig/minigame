@@ -11,6 +11,10 @@ public class ListenerPhase extends SkippedPhase implements Listener {
 
 	private PhaseContext area;
 
+	protected Listener getListener() {
+		return this;
+	}
+
 	public boolean shouldHandle(Location loc) {
 		return area.getAreaContext().isInArea(loc);
 	}
@@ -34,14 +38,14 @@ public class ListenerPhase extends SkippedPhase implements Listener {
 	@Override
 	public void onPhaseUnregister(PhaseContext area) throws Exception {
 		this.area = null;
-		area.unregisterNativeListener(this);
+		area.unregisterNativeListener(getListener());
 		super.onPhaseUnregister(area);
 	}
 
 	@Override
 	public void onPhaseRegister(PhaseContext area) throws Exception {
 		this.area = area;
-		area.registerNativeListener(this);
+		area.registerNativeListener(getListener());
 		super.onPhaseRegister(area);
 	}
 }
