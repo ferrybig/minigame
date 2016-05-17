@@ -6,7 +6,7 @@ import me.ferrybig.javacoding.minecraft.minigame.information.AreaInformation;
 import me.ferrybig.javacoding.minecraft.minigame.translation.Translator;
 
 /**
- *
+ * A version of AreaVerrifer that uses the translation map for the problems
  * @author Fernando
  */
 public interface TranslateableAreaVerrifer {
