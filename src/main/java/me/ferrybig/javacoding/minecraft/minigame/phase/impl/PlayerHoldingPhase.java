@@ -8,6 +8,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
+/**
+ * This phase holds player in a central place at the world. This is usually
+ * combined with a <code>TeleportAction</code>
+ * @author Fernando
+ */
 public class PlayerHoldingPhase extends WaitingPhase implements Listener {
 
 	private PhaseContext area;
