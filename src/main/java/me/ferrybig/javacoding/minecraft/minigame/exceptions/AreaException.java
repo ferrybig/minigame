@@ -32,8 +32,7 @@ public class AreaException extends MinigameException {
 	 * @param cause the cause
 	 */
 	public AreaException(String message, Throwable cause) {
-		super(message);
-		this.initCause(cause);
+		super(message, cause);
 	}
 
 	/**
@@ -43,7 +42,6 @@ public class AreaException extends MinigameException {
 	 * @param cause the cause
 	 */
 	public AreaException(Throwable cause) {
-		this(cause.toString());
-		this.initCause(cause);
+		this(cause.toString(), cause);
 	}
 }
