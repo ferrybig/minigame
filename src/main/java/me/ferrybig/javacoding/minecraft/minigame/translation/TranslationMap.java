@@ -29,6 +29,7 @@ public abstract class TranslationMap implements Translator {
 
 	@Override
 	public final String translate(Translation translation, Object... args) {
+		Objects.requireNonNull(translation, "translation == null");
 		TranslationMap m = this;
 		while (m != null) {
 			String message = m.getMessage(translation, args);
