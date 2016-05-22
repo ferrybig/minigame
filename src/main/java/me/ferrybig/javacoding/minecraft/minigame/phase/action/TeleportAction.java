@@ -46,7 +46,7 @@ public class TeleportAction extends PlayerAction {
 
 	@Override
 	public Phase onRespawn() {
-		return new RespawnListener();
+		return new RespawnListener(this);
 	}
 
 	private static Function<PhaseContext, Location> generateLamba(Supplier<Location> loc) {
@@ -116,14 +116,17 @@ public class TeleportAction extends PlayerAction {
 	}
 
 	@SuppressFBWarnings(value = "")
-	private class RespawnListener extends ListenerPhase {
+	private static class RespawnListener extends ListenerPhase {
 
-		public RespawnListener() {
+		private final TeleportAction main;
+
+		public RespawnListener(TeleportAction main) {
+			this.main = main;
 		}
 
 		@EventHandler
 		public void onRespawn(PlayerRespawnEvent evt) {
-			evt.setRespawnLocation(location.apply(getPhaseContext()));
+			evt.setRespawnLocation(main.location.apply(getPhaseContext()));
 		}
 	}
 
