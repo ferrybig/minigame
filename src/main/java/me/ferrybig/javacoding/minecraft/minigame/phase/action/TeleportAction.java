@@ -109,6 +109,26 @@ public class TeleportAction extends PlayerAction {
 				};
 			}
 
+		},
+
+		SEQUENTIONAL() {
+			@Override
+			public Function<List<Location>, Location> getSelector() {
+				return new Function<List<Location>, Location>() {
+					int counter = 0;
+
+					@Override
+					public Location apply(List<Location> l) {
+						if (counter >= l.size()) {
+							counter = 0;
+						}
+						Location r = l.get(counter);
+						counter++;
+						return r;
+					}
+				};
+			}
+
 		},;
 		private static final Random random = new Random();
 
