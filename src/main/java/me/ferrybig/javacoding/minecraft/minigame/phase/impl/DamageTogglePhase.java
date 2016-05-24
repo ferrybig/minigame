@@ -17,6 +17,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
+/**
+ * This class manages damage types in a game. When applied multiple times, the newest wins
+ * @author Fernando
+ */
 public class DamageTogglePhase extends SkippedPhase {
 
 	private final static AttributeKey<Set<DamageType>> TYPE
