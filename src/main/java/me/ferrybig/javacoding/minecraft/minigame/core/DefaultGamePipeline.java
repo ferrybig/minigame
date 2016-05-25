@@ -406,6 +406,7 @@ public class DefaultGamePipeline implements Pipeline {
 			return this.getClosureFuture();
 		}
 		terminating = true;
+		logger.log(Level.FINEST, "Terminating: {0}", new Object[]{this});
 		runLoop();
 		if (area == null) {
 			terminationFuture.trySuccess(null);
