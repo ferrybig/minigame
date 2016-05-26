@@ -341,6 +341,7 @@ public class DefaultGamePipeline implements Pipeline {
 				this.logger = Logger.getLogger(this.getClass().getName());
 				this.logger.warning("Using own logger because none logger has been provided");
 			}
+			logger.log(Level.FINEST, "Starting: {0}", new Object[]{this});
 			area.getClosureFuture().addListener(f->area.getController().kickAll());
 		}
 		runLoop();
