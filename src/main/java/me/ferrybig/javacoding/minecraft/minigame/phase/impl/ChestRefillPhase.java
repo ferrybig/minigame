@@ -38,17 +38,14 @@ public class ChestRefillPhase extends DelayedPhase {
 
 	@Override
 	protected void trigger(PhaseContext area) throws Exception {
-		for (String target : targets) {
+		targets.stream().forEach((target) -> {
 			List<Block> locations = area.getAreaContext().getTaggedBlocks(target);
 			if (locations != null) {
-				for (Block b : locations) {
-					BlockState state = b.getState();
-					if (state instanceof Chest) {
-						chestRefil.accept(target, (Chest) state);
-					}
-				}
+				locations.stream().map((b) -> b.getState()).filter((state) -> (state instanceof Chest)).forEach((state) -> {
+					chestRefil.accept(target, (Chest) state);
+				});
 			}
-		}
+		});
 	}
 
 }
