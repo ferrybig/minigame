@@ -10,6 +10,7 @@ import org.bukkit.event.Listener;
 public class ListenerPhase extends SkippedPhase implements Listener {
 
 	private PhaseContext area;
+	private final Listener listener = getListener();
 
 	protected Listener getListener() {
 		return this;
@@ -38,14 +39,14 @@ public class ListenerPhase extends SkippedPhase implements Listener {
 	@Override
 	public void onPhaseUnregister(PhaseContext area) throws Exception {
 		this.area = null;
-		area.unregisterNativeListener(getListener());
+		area.unregisterNativeListener(listener);
 		super.onPhaseUnregister(area);
 	}
 
 	@Override
 	public void onPhaseRegister(PhaseContext area) throws Exception {
 		this.area = area;
-		area.registerNativeListener(getListener());
+		area.registerNativeListener(listener);
 		super.onPhaseRegister(area);
 	}
 }
