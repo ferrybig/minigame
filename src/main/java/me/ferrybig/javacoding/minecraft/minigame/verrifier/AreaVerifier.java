@@ -15,30 +15,35 @@ import me.ferrybig.javacoding.minecraft.minigame.information.ResolvedAreaInforma
 public interface AreaVerifier {
 
 	/**
-	 * Get all the problems with an area, or an empty list if the area is correct
+	 * Get all the problems with an area, or an empty list if the area is
+	 * correct
+	 *
 	 * @param area The area to check
-	 * @return 
+	 * @return
 	 */
 	public List<String> getProblems(AreaInformation area);
 
 	/**
 	 * Check if the area is valid
+	 *
 	 * @param area The area to check
-	 * @return 
+	 * @return
 	 */
 	public boolean isCorrect(AreaInformation area);
 
 	/**
 	 * Gets the valid teams for an area
+	 *
 	 * @param area
-	 * @return 
+	 * @return
 	 */
 	public Set<String> getValidTeams(AreaInformation area);
 
 	/**
 	 * Validate and resolve an area
+	 *
 	 * @param area
-	 * @return 
+	 * @return
 	 */
 	public default ResolvedAreaInformation validate(AreaInformation area) {
 		boolean valid = isCorrect(area);

@@ -8,7 +8,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import me.ferrybig.javacoding.minecraft.minigame.context.PhaseContext;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 
 public class ChestRefillPhase extends DelayedPhase {
