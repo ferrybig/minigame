@@ -43,7 +43,7 @@ public class DefaultStatusSignManager implements StatusSignManager {
 	private boolean stopped = false;
 
 	public DefaultStatusSignManager(GameCore core) {
-		this.core = core;
+		this.core = Objects.requireNonNull(core, "core == null");
 		this.map = core.getInfo().getTranslations();
 	}
 
