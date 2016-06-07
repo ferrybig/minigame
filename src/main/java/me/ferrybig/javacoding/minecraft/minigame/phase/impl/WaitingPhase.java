@@ -6,6 +6,11 @@ import java.util.concurrent.TimeUnit;
 import me.ferrybig.javacoding.minecraft.minigame.context.PhaseContext;
 import me.ferrybig.javacoding.minecraft.minigame.phase.DefaultPhase;
 
+/**
+ * Class for delaying the phase propergation.
+ * This class supports single initialization.
+ * @author Fernando
+ */
 public class WaitingPhase extends DefaultPhase {
 
 	public static final AttributeKey<ScheduledFuture<?>> CURRENT_WAITING_LOOP
