@@ -585,6 +585,7 @@ public class DefaultGamePipeline implements Pipeline {
 
 		@Override
 		public void registerNativeListener(Listener listener) {
+			Objects.requireNonNull(listener, "listener == null");
 			if (isRemoved()) {
 				throw new IllegalStateException("Cannot register when disabled");
 			}
@@ -687,6 +688,7 @@ public class DefaultGamePipeline implements Pipeline {
 
 		@Override
 		public void unregisterNativeListener(Listener listener) {
+			Objects.requireNonNull(listener, "listener == null");
 			HandlerList.unregisterAll(listener);
 		}
 
