@@ -11,6 +11,10 @@ import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerSpectateMessage;
 import me.ferrybig.javacoding.minecraft.minigame.phase.DefaultPhase;
 import org.bukkit.entity.Player;
 
+/**
+ * Simple class for a death match style area
+ * @author Fernando
+ */
 public class AreaFightPhase extends DefaultPhase {
 
 	private final Set<Player> areaPlayers = new HashSet<>();
