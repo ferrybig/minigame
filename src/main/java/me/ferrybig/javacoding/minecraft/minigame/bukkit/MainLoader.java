@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
+import java.util.logging.Level;
 import me.ferrybig.javacoding.minecraft.minigame.Bootstrap;
 import me.ferrybig.javacoding.minecraft.minigame.GameCore;
 import me.ferrybig.javacoding.minecraft.minigame.Pipeline;
@@ -63,6 +64,9 @@ public abstract class MainLoader implements GameCoreAccessor {
 	}
 
 	protected void onFailure(Throwable cause) {
+		if(!(cause instanceof CancellationException)) {
+			this.plugin.getLogger().log(Level.SEVERE, cause.getMessage(), cause);
+		}
 	}
 
 	protected void onInternalUnload() {
