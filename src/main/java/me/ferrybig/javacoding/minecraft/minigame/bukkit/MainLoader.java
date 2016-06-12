@@ -32,7 +32,7 @@ public abstract class MainLoader implements GameCoreAccessor {
 	private Future<GameCore> gameCoreLoader;
 
 	public MainLoader(Plugin plugin) {
-		this.plugin = plugin;
+		this.plugin = Objects.requireNonNull(plugin);
 	}
 
 	public void onEnable() {
