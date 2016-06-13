@@ -29,7 +29,7 @@ public class PhaseUtil {
 			});
 
 	private PhaseUtil() {
-		assert false : "Cannot construct";
+		throw new AssertionError("Cannot construct");
 	}
 
 	public static Phase waiting(long time, TimeUnit unit) {
