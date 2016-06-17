@@ -19,21 +19,21 @@ public class CombinedFuture {
 		Objects.requireNonNull(futures, "futures == null");
 		Objects.requireNonNull(returnValue, "returnValue == null");
 		Promise<T> promise = executor.newPromise();
+		Object lock = new Object();
 		AtomicInteger doneTasks = new AtomicInteger(futures.size());
 		AtomicReference<Throwable> ref = new AtomicReference<>();
 		GenericFutureListener<Future<Object>> listener = f -> {
 			Throwable cause = f.cause();
 			if (cause != null) {
-				Throwable oldEx;
-				Throwable newEx;
-				do {
-					oldEx = ref.get();
+				synchronized (lock) {
+					Throwable oldEx = ref.get();
 					if (oldEx == null) {
-						newEx = new IllegalStateException("1 or more operations failed", cause);
+						oldEx = new IllegalStateException("1 or more operations failed", cause);
 					} else {
-						(newEx = oldEx).addSuppressed(cause);
+						oldEx.addSuppressed(cause);
 					}
-				} while (ref.compareAndSet(oldEx, newEx));
+					ref.set(oldEx);
+				}
 			}
 			if (doneTasks.decrementAndGet() > 0) {
 				return;
