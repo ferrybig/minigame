@@ -46,7 +46,7 @@ public class PlayerHoldingPhase extends WaitingPhase implements Listener {
 		if (area.getAreaContext().isInArea(evt.getPlayer())) {
 			Location to = evt.getTo();
 			Location from = evt.getFrom();
-			if (to.getX() != from.getX() || to.getZ() != from.getZ()) {
+			if (to.getBlockX() != from.getBlockX() || to.getBlockZ() != from.getBlockZ()) {
 				evt.setCancelled(true);
 			}
 		}
