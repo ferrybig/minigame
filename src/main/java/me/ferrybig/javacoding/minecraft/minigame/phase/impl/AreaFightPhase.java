@@ -37,9 +37,7 @@ public class AreaFightPhase extends DefaultPhase {
 		}
 		if (player.isSpectating()) {
 			areaPlayers.remove(player.getPlayer());
-			if (areaPlayers.size() <= playersRemainingNeeded) {
-				area.triggerNextPhase();
-			}
+			checkTriggers(area);
 		}
 	}
 
@@ -50,6 +48,10 @@ public class AreaFightPhase extends DefaultPhase {
 			return;
 		}
 		areaPlayers.remove(player.getPlayer());
+		checkTriggers(area);
+	}
+
+	public void checkTriggers(PhaseContext area) {
 		if (areaPlayers.size() <= playersRemainingNeeded) {
 			loaded = false;
 			area.triggerNextPhase();
