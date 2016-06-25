@@ -65,7 +65,7 @@ public abstract class MainLoader implements GameCoreAccessor {
 	}
 
 	protected void onFailure(Throwable cause) {
-		if(!(cause instanceof CancellationException)) {
+		if (!(cause instanceof CancellationException)) {
 			this.plugin.getLogger().log(Level.SEVERE, cause.getMessage(), cause);
 		}
 	}
