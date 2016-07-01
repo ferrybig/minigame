@@ -17,4 +17,8 @@ public class GameModeAction extends PlayerAction {
 		player.setGameMode(newMode);
 	}
 
+	public GameMode getNewMode() {
+		return newMode;
+	}
+
 }
