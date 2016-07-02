@@ -3,10 +3,10 @@ package me.ferrybig.javacoding.minecraft.minigame;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import java.util.logging.Logger;
-import me.ferrybig.javacoding.minecraft.minigame.context.AreaContextConstructor;
-import me.ferrybig.javacoding.minecraft.minigame.verrifier.AreaVerifier;
-import me.ferrybig.javacoding.minecraft.minigame.listener.GameListener;
 import me.ferrybig.javacoding.minecraft.minigame.configuration.FullConfig;
+import me.ferrybig.javacoding.minecraft.minigame.context.AreaContextConstructor;
+import me.ferrybig.javacoding.minecraft.minigame.listener.GameListener;
+import me.ferrybig.javacoding.minecraft.minigame.verrifier.AreaVerifier;
 import me.ferrybig.javacoding.minecraft.minigame.verrifier.TranslateableAreaVerrifer;
 import org.bukkit.plugin.Plugin;
 
