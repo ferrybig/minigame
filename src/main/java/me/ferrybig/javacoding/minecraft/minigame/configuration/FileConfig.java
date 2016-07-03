@@ -98,13 +98,12 @@ public class FileConfig extends AbstractFullConfig {
 				return TranslationMap.getDefaultMappings();
 			}
 			Map<String, String> translations = new HashMap<>();
-			for (String key : translationSection.getKeys(true)) {
+			translationSection.getKeys(true).stream().forEach((key) -> {
 				String val = translationSection.getString(key);
-				if (val == null) {
-					continue;
+				if (val != null) {
+					translations.put(key, val);
 				}
-				translations.put(key, val);
-			}
+			});
 			return new SimpleTranslationMap(translations::get,
 					TranslationMap.getDefaultMappings());
 		});
