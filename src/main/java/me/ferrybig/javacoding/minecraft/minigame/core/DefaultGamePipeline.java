@@ -314,7 +314,7 @@ public class DefaultGamePipeline implements Pipeline {
 		if (this.sizeCheckCounter-- < 0) {
 			this.sizeCheckCounter = PIPELINE_COUNTER;
 			if (pendingTasks.size() + runQueue.size() > PIPELINE_TASK_LIMIT) {
-				if(!this.killed) {
+				if (!this.killed) {
 					this.killed = true;
 					this.terminating = true;
 					this.hasFailedWithException = true;
@@ -342,7 +342,7 @@ public class DefaultGamePipeline implements Pipeline {
 				this.logger.warning("Using own logger because none logger has been provided");
 			}
 			logger.log(Level.FINEST, "Starting: {0}", new Object[]{this});
-			area.getClosureFuture().addListener(f->area.getController().kickAll());
+			area.getClosureFuture().addListener(f -> area.getController().kickAll());
 		}
 		runLoop();
 	}
@@ -477,7 +477,7 @@ public class DefaultGamePipeline implements Pipeline {
 				logger.log(Level.FINEST, "Resseting phase to   {0}: {1}", new Object[]{this.currPhaseIndex, newPhase.getPhase()});
 				newPhase.shouldBeLoaded = true;
 				wrapWithException(() -> newPhase.getPhase().afterReset(newPhase.getContext()), newPhase.getPhase());
-					loadPhase(newPhase);
+				loadPhase(newPhase);
 			}
 		});
 	}
