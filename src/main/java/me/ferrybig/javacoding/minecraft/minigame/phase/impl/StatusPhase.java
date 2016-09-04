@@ -8,6 +8,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import me.ferrybig.javacoding.minecraft.minigame.context.AreaContext;
 import me.ferrybig.javacoding.minecraft.minigame.context.PhaseContext;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerJoinMessage;
+import me.ferrybig.javacoding.minecraft.minigame.messages.PlayerPreJoinMessage;
 import me.ferrybig.javacoding.minecraft.minigame.translation.BaseTranslation;
 import me.ferrybig.javacoding.minecraft.minigame.translation.Translation;
 
@@ -75,6 +77,22 @@ public class StatusPhase extends SkippedPhase {
 		if (callDirect) {
 			listener.accept(area, getState(area));
 		}
+	}
+
+	@Override
+	public void onPlayerJoin(PhaseContext area, PlayerJoinMessage player) throws Exception {
+		if(getState(area.getAreaContext()) != State.PLAYING) {
+			player.setCancelled(true);
+		}
+		super.onPlayerJoin(area, player);
+	}
+
+	@Override
+	public void onPlayerPreJoin(PhaseContext area, PlayerPreJoinMessage player) throws Exception {
+		if(getState(area.getAreaContext()) != State.PLAYING) {
+			player.setCancelled(true);
+		}
+		super.onPlayerPreJoin(area, player);
 	}
 
 	public enum State implements me.ferrybig.javacoding.minecraft.minigame.translation.Translation {
