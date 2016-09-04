@@ -31,7 +31,7 @@
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-buffer</artifactId>
-			<version>5.0.0.Alpha2</version>
+			<version>4.1.5.Final</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
