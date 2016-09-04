@@ -5,6 +5,11 @@
 	<artifactId>minigame</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
+	<scm>
+		<url>https://github.com/ferrybig/minigame</url>
+		<connection>scm:git:git://github.com/ferrybig/minigame.git</connection>
+		<developerConnection>scm:git:git@github.com:ferrybig/minigame.git</developerConnection>
+	</scm>
 	<repositories>
 		<repository>
 			<id>spigot-repo</id>
