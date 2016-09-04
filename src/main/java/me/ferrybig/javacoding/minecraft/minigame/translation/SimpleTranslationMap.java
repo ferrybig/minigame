@@ -7,10 +7,10 @@ public class SimpleTranslationMap extends TranslationMap {
 	private final Function<? super String, String> translationFunction;
 
 	/**
-	 * Simple TranslationMap based on a function. The passed function 
+	 * Simple TranslationMap based on a function. The passed function
 	 * should return null when no translation is found
 	 * @param translationFunction
-	 * @param parent 
+	 * @param parent
 	 */
 	public SimpleTranslationMap(Function<? super String, String> translationFunction,
 			TranslationMap parent) {
